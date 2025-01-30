@@ -28,7 +28,7 @@
 
 ## Documentation
 
-- [Wiki Link]
-- [Scrum Board]
+- https://github.com/cmput301-w25/project-nullpointers/wiki
+- https://github.com/orgs/cmput301-w25/projects/49
 - [UI Mockups]
 - [UML]
