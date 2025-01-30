@@ -5,7 +5,7 @@
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
 | Hamidat | hamidat | @hamidatb     |
-| [Full Name] | [CCID] | [@username]     |
+| Shahab | sibrahi1 | @shahabibrahim1     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
