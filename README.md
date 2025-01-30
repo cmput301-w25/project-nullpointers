@@ -6,7 +6,7 @@
 | ----------- | ------ | --------------- |
 | Hamidat | hamidat | @hamidatb     |
 | Shahab | sibrahi1 | @shahabibrahim1     |
-| [Arden Monaghan] | [1770387] | [@ardenmonaghan]     |
+| Arden Monaghan | 1770387 | @ardenmonaghan    |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
