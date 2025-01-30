@@ -1,10 +1,10 @@
-# CMPUT 301 W25 - Team [Team Name]
+# CMPUT 301 W25 - Team NullPointers
 
 ## Team Members
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| [Full Name] | [CCID] | [@username]     |
+| Hamidat | hamidat | @hamidatb     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
