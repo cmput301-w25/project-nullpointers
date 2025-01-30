@@ -4,12 +4,11 @@
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| Hamidat | hamidat | @hamidatb     |
-| Shahab | sibrahi1 | @shahabibrahim1     |
+| Hamidat Bello | hamidat | @hamidatb     |
+| Shahab Ibrahim | sibrahi1 | @shahabibrahim1     |
 | Arden Monaghan | amonagha | @ardenmonaghan    |
 | Salim Soufi | soufi1 | @ssoufii     |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
+| Ogua Dumi-Leslie | ogua | oguadumi     |
 
 ## Project Description
 
