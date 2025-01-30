@@ -7,7 +7,7 @@
 | Hamidat | hamidat | @hamidatb     |
 | Shahab | sibrahi1 | @shahabibrahim1     |
 | Arden Monaghan | amonagha | @ardenmonaghan    |
-| [Full Name] | [CCID] | [@username]     |
+| Salim Soufi | soufi1 | @ssoufii     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 
