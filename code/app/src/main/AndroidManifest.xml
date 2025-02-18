@@ -26,6 +26,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MapActivity"
+            android:exported="false" />
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
