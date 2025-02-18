@@ -79,10 +79,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (location != null) {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-                    // Generate dummy data first
                     allDummyItems = generateDummyData(currentLocation);
 
-                    // Add user's own mood event
                     MoodClusterItem userEvent = new MoodClusterItem(currentLocation, "ME");
                     allDummyItems.add(userEvent);
 
@@ -153,71 +151,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 }
 
-class MoodClusterItem implements ClusterItem {
-    private final LatLng position;
-    private final String title;
-    private final String snippet;
-    private final String letter;
 
-    public MoodClusterItem(LatLng position, String letter) {
-        this.position = position;
-        this.letter = letter;
-        this.title = "Mood Event: " + letter;
-        this.snippet = "Location: " + position.toString();
-    }
 
-    @NonNull
-    @Override
-    public LatLng getPosition() { return position; }
-
-    @Override
-    public String getTitle() { return title; }
-
-    @Override
-    public String getSnippet() { return snippet; }
-
-    public String getLetter() { return letter; }
-}
-
-class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem> {
-    private final Context context;
-
-    public MoodClusterRenderer(Context context, GoogleMap map, ClusterManager<MoodClusterItem> clusterManager) {
-        super(context, map, clusterManager);
-        this.context = context;
-    }
-
-    @Override
-    protected void onBeforeClusterItemRendered(@NonNull MoodClusterItem item, @NonNull MarkerOptions markerOptions) {
-        BitmapDescriptor icon = createCircleBitmap(item.getLetter());
-        markerOptions.icon(icon);
-        super.onBeforeClusterItemRendered(item, markerOptions);
-    }
-
-    private BitmapDescriptor createCircleBitmap(String letter) {
-        int width = 100;
-        int height = 100;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        Paint paint = new Paint();
-
-        // Set different color for "ME" marker
-        int circleColor = "ME".equals(letter) ? Color.GREEN : Color.BLUE;
-        paint.setColor(circleColor);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(true);
-        canvas.drawCircle(width/2f, height/2f, width/2f, paint);
-
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(40);
-        paint.setTextAlign(Paint.Align.CENTER);
-
-        Rect bounds = new Rect();
-        paint.getTextBounds(letter, 0, letter.length(), bounds);
-        float y = height/2f - (bounds.top + bounds.bottom)/2f;
-        canvas.drawText(letter, width/2f, y, paint);
-
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
-}
