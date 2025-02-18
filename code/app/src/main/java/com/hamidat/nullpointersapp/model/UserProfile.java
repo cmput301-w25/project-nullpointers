@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 
 /**
  * Represents a user profile in the system
- * This class manages user-related data such as the username.
+ * This class manages userProfile-related data such as the username.
  */
 public class UserProfile {
     private String username;
