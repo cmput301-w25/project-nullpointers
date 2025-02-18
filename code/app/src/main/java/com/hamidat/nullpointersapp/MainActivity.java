@@ -1,36 +1,50 @@
 package com.hamidat.nullpointersapp;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.*;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import com.google.android.gms.location.*;
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.maps.android.clustering.ClusterItem;
-import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm;
 import com.google.maps.android.SphericalUtil;
-import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.clustering.ClusterManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-import java.util.*;
-
+/**
+ * Main activity handling map display and mood event management.
+ * <p>
+ * This class manages the Google Map interface, location permissions, and
+ * visualization of mood events using clustering. It implements core functionality
+ * for filtering events based on proximity.
+ * </p>
+ */
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    /** Request code for location permission requests. */
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     private GoogleMap mMap;
     private LatLng currentLocation;
     private ClusterManager<MoodClusterItem> clusterManager;
     private List<MoodClusterItem> allDummyItems = new ArrayList<>();
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
+    /**
+     * Initializes the activity layout and components.
+     *
+     * @param savedInstanceState Bundle containing previous state if available
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +56,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             requestLocationPermission();
         }
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         SwitchMaterial showNearbySwitch = findViewById(R.id.showNearbySwitch);
@@ -53,43 +68,61 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    /**
+     * Checks if location permissions are granted.
+     *
+     * @return true if either FINE or COARSE location permission is granted
+     */
     private boolean checkLocationPermission() {
         return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /** Requests location permissions from the user. */
     private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
     }
 
+    /**
+     * Handles permission request results.
+     *
+     * @param requestCode  The request code from permission request
+     * @param permissions  The requested permissions array
+     * @param grantResults The grant results array
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getLastLocation();
         } else {
             Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /** Retrieves the user's last known location and initializes dummy data. */
     private void getLastLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (checkLocationPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
                     allDummyItems = generateDummyData(currentLocation);
-
-                    MoodClusterItem userEvent = new MoodClusterItem(currentLocation, "ME");
-                    allDummyItems.add(userEvent);
-
                     setupMap();
                 }
             });
         }
     }
 
+    /**
+     * Generates dummy mood events within 10km of current location.
+     *
+     * @param currentLocation Base location for generating dummy events
+     * @return List of generated MoodClusterItems
+     */
     private List<MoodClusterItem> generateDummyData(LatLng currentLocation) {
         List<MoodClusterItem> dummyData = new ArrayList<>();
         Random random = new Random();
@@ -98,14 +131,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         for (int i = 0; i < numParticipants; i++) {
             char letter = letters.charAt(i % letters.length());
-            double distance = random.nextDouble() * 10000; // 0-10 km
+            double distance = random.nextDouble() * 10000;
             double angle = random.nextDouble() * 360;
             LatLng eventLocation = SphericalUtil.computeOffset(currentLocation, distance, angle);
             dummyData.add(new MoodClusterItem(eventLocation, String.valueOf(letter)));
         }
+
+        // Add user's own mood event
+        dummyData.add(new MoodClusterItem(currentLocation, "ME"));
         return dummyData;
     }
 
+    /**
+     * Filters and displays mood events based on proximity.
+     *
+     * @param showNearby       Whether to filter to 5km radius
+     * @param currentLocation  Base location for distance calculations
+     */
     private void filterAndDisplayMoodEvents(boolean showNearby, LatLng currentLocation) {
         clusterManager.clearItems();
         List<MoodClusterItem> filteredItems = new ArrayList<>();
@@ -121,6 +163,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         clusterManager.cluster();
     }
 
+    /**
+     * Called when map is ready to be used.
+     *
+     * @param googleMap The GoogleMap object representing the map
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -129,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /** Configures map settings and initializes clustering. */
     private void setupMap() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation)
@@ -150,6 +198,3 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         filterAndDisplayMoodEvents(false, currentLocation);
     }
 }
-
-
-

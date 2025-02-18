@@ -14,14 +14,36 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
+/**
+ * Custom renderer for mood event cluster markers.
+ * <p>
+ * Creates circular markers with centered text, using different colors
+ * for the user's own event ("ME") versus others.
+ * </p>
+ */
 public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem> {
+    private static final int MARKER_SIZE = 100;
+    private static final int TEXT_SIZE = 40;
     private final Context context;
 
+    /**
+     * Constructs a new MoodClusterRenderer.
+     *
+     * @param context        Application context
+     * @param map            GoogleMap instance
+     * @param clusterManager ClusterManager managing the items
+     */
     public MoodClusterRenderer(Context context, GoogleMap map, ClusterManager<MoodClusterItem> clusterManager) {
         super(context, map, clusterManager);
         this.context = context;
     }
 
+    /**
+     * Configures marker appearance before rendering.
+     *
+     * @param item          Cluster item to render
+     * @param markerOptions Options to configure for the marker
+     */
     @Override
     protected void onBeforeClusterItemRendered(@NonNull MoodClusterItem item, @NonNull MarkerOptions markerOptions) {
         BitmapDescriptor icon = createCircleBitmap(item.getLetter());
@@ -30,9 +52,7 @@ public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem>
     }
 
     private BitmapDescriptor createCircleBitmap(String letter) {
-        int width = 100;
-        int height = 100;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(MARKER_SIZE, MARKER_SIZE, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint paint = new Paint();
@@ -40,16 +60,16 @@ public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem>
         paint.setColor(circleColor);
         paint.setStyle(Paint.Style.FILL);
         paint.setAntiAlias(true);
-        canvas.drawCircle(width/2f, height/2f, width/2f, paint);
+        canvas.drawCircle(MARKER_SIZE/2f, MARKER_SIZE/2f, MARKER_SIZE/2f, paint);
 
         paint.setColor(Color.WHITE);
-        paint.setTextSize(40);
+        paint.setTextSize(TEXT_SIZE);
         paint.setTextAlign(Paint.Align.CENTER);
 
         Rect bounds = new Rect();
         paint.getTextBounds(letter, 0, letter.length(), bounds);
-        float y = height/2f - (bounds.top + bounds.bottom)/2f;
-        canvas.drawText(letter, width/2f, y, paint);
+        float y = MARKER_SIZE/2f - (bounds.top + bounds.bottom)/2f;
+        canvas.drawText(letter, MARKER_SIZE/2f, y, paint);
 
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
