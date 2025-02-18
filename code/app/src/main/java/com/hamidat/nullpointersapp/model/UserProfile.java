@@ -4,7 +4,7 @@ import static com.hamidat.nullpointersapp.AppConstants.MAX_USERNAME_LENGTH;
 import androidx.annotation.NonNull;
 
 /**
- * Represents a user profile in the system
+ * Represents a user profile in the Moodify system
  * This class manages userProfile-related data such as the username.
  */
 public class UserProfile {
