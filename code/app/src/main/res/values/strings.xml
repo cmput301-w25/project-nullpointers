@@ -4,4 +4,5 @@
     <string name="userUsernameString">My Username: my_unique_username - DEMO</string>
     <string name="profileViewMoodHistoryButtonText">View My Mood History</string>
     <string name="profileSettingsButtonText">SETTINGS</string>
+    <string name="goToUserProfileButtonText">Go to My Profile</string>
 </resources>
