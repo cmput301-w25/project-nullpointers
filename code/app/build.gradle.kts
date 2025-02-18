@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.hamidat.nullpointersapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.hamidat.nullpointersapp"
