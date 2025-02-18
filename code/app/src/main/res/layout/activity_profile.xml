@@ -1,48 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profile_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#EAF0D9"
-    android:gravity="center"
     android:padding="16dp">
-
-    <!-- Should eventually put our custom title and navbar here -->
 
     <!-- Profile Icon -->
     <ImageView
-    android:id="@+id/profile_icon"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:src="@drawable/ic_launcher_background"
-    android:contentDescription="@string/profile_icon_desc"
-    android:layout_marginBottom="24dp" />
+        android:id="@+id/profile_icon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="248dp"
+        android:contentDescription="@string/profile_icon_desc"
+        android:src="@drawable/default_user_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Username Label -->
     <TextView
-    android:id="@+id/username_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/userUsernameString"
-    android:textSize="18sp"
-    android:textColor="#000000"
-    android:layout_marginBottom="24dp" />
+        android:id="@+id/username_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/userUsernameString"
+        android:textColor="@color/textColor"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.514"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/usernameTextHeader" />
+
+    <!-- Actual Username -->
+    <TextView
+        android:id="@+id/usernameTextHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/userProfileUsernameHeader"
+        android:textColor="@color/textColor"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_icon" />
+
 
     <!-- View My Mood History Button -->
     <Button
-    android:id="@+id/view_mood_history_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/profileViewMoodHistoryButtonText"
-    android:layout_marginBottom="16dp" />
+        android:id="@+id/view_mood_history_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="204dp"
+        android:text="@string/profileViewMoodHistoryButtonText"
+        style="@style/UserProfileButtonStyle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/username_text"
+        app:layout_constraintVertical_bias="0.0" />
 
     <!-- Settings Button -->
     <Button
-    android:id="@+id/settings_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/profileSettingsButtonText" />
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="204dp"
+        android:text="@string/profileSettingsButtonText"
+        style="@style/UserProfileButtonStyle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.58"
+        app:layout_constraintStart_toEndOf="@+id/view_mood_history_button"
+        app:layout_constraintTop_toBottomOf="@+id/username_text"
+        app:layout_constraintVertical_bias="0.0" />
 
-    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
