@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f9e5">
+
+    <LinearLayout
+        android:id="@+id/ReasonWhy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#D7E0CD"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/ReasonLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reason Why (max 20 chars / 3 words):"
+            android:textColor="#455234"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/Reason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="#dfead0"
+            android:hint="Please type your thoughts here..."
+            android:inputType="textMultiLine"
+            android:maxLength="20"
+            android:maxLines="3"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/AttachPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="#AFBC9E"
+            android:padding="8dp"
+            android:text="Attach Photo Instead (photo size &lt; 65536 bytes)" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
