@@ -8,4 +8,5 @@
     <color name="primaryColor">#8DC34C</color>
     <color name="secondaryColor">#96DCC8</color>
     <color name="accentColor">#7FB446</color>
+    <color name="fadedGreen">#E9F3DC</color>
 </resources>
