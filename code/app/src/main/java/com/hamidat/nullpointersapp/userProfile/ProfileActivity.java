@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.userProfile;
 
 import static com.hamidat.nullpointersapp.AppConstants.*;
 
@@ -10,7 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hamidat.nullpointersapp.model.UserProfile;
+import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.userProfile.profileModel.UserProfile;
 
 //
 // 3. Class Definition
