@@ -3,7 +3,10 @@ package com.hamidat.nullpointersapp;
 import java.util.ArrayList;
 
 public class moodHistory {
+
+
     protected String userName;
+
     protected ArrayList<Mood> moodArray;
 
     public moodHistory(String userName) {
@@ -11,7 +14,9 @@ public class moodHistory {
         this.moodArray = new ArrayList<>();
     }
 //    Required no-arg constructor
-    public moodHistory() {}
+    public moodHistory() {
+        this.moodArray = new ArrayList<>();
+    }
 
 //    Method for adding data. deleting and editing to the moodHistory array.
     public void addMood(Mood mood) {
@@ -28,12 +33,19 @@ public class moodHistory {
         }
     }
 
-//    Getters
+//    Getters and setters
+
     public String getUserName() {
         return this.userName;
     }
     public ArrayList<Mood> getMoodArray() {
         return this.moodArray;
     }
+
+    public void setUserName(String name) {
+        this.userName = name;
+    }
+
+
 
 }
