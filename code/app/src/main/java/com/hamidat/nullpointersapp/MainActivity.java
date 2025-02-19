@@ -11,6 +11,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.hamidat.nullpointersapp.auth.LoginActivity;
+import com.hamidat.nullpointersapp.auth.SignUpActivity;
 import com.hamidat.nullpointersapp.userProfile.ProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,8 +23,10 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // For testing, a button to go to the profile view
+        // For testing, a button to go to the respective views
         Button openProfileViewButton = findViewById(R.id.openProfileViewButton);
+        Button openSignUpViewButton = findViewById(R.id.openSignUpViewButton);
+        Button openLoginViewButton = findViewById(R.id.openLoginViewButton);
 
         openProfileViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -31,6 +35,24 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent); // Launch ProfileActivity
             }
         });
+
+        openSignUpViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        openLoginViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

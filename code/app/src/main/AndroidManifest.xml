@@ -23,6 +23,8 @@
         </activity>
 
         <activity android:name=".userProfile.ProfileActivity" />
+        <activity android:name=".auth.SignUpActivity" />
+        <activity android:name=".auth.LoginActivity" />
     </application>
 
 </manifest>

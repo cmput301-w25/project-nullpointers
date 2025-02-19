@@ -25,7 +25,6 @@ public class AuthHelpers {
     // A Helper to add the username and password to the db
     public static boolean addNewUserToDB (Context context, String newUserUsername, String newUserPassword) {
         // TODO - connect to the DB and add adding a new user
-
         // Give a response message that they're registered
         Toast.makeText(context, "You have been successfully registered", Toast.LENGTH_SHORT).show();
 

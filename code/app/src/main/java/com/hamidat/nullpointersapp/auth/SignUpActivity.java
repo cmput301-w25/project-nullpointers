@@ -1,5 +1,6 @@
 package com.hamidat.nullpointersapp.auth;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,7 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.userProfile.ProfileActivity;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -27,7 +30,6 @@ public class SignUpActivity extends AppCompatActivity {
         // Bind the UI elements
         EditText etSignupPassword = findViewById(R.id.etSignUpPassword);
         EditText etSignupUsername = findViewById(R.id.etSignupUsername);
-        TextView tvSignUpSubtitle = findViewById(R.id.tvSignupSubtitle);
         Button signUpButton = findViewById(R.id.signUpButton);
 
         // Add a listener to the signup button
@@ -53,6 +55,10 @@ public class SignUpActivity extends AppCompatActivity {
                 // Add valid users into the db
                 boolean signupSuccess = AuthHelpers.addNewUserToDB(SignUpActivity.this, signupUsername, signUpPassword);
                 if (!signupSuccess) return;
+
+                // If a user was successfully signed up, move to the login page
+                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                startActivity(intent); // Launch LoginActivity
             }
         });
 
