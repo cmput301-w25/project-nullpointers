@@ -4,49 +4,212 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main"
     android:background="#f0f9e5">
 
-    <LinearLayout
-        android:id="@+id/ReasonWhy"
+    <!-- Container for the form -->
+    <ScrollView
+        android:id="@+id/scrollContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#D7E0CD"
-        android:orientation="vertical"
-        android:padding="16dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp"
+        android:clipToPadding="false">
 
-        <TextView
-            android:id="@+id/ReasonLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reason Why (max 20 chars / 3 words):"
-            android:textColor="#455234"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/Reason"
+        <LinearLayout
+            android:id="@+id/ReasonWhy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:background="#dfead0"
-            android:hint="Please type your thoughts here..."
-            android:inputType="textMultiLine"
-            android:maxLength="20"
-            android:maxLines="3"
-            android:padding="12dp" />
+            android:orientation="vertical"
+            android:background="#D7E0CD"
+            android:padding="16dp"
+            >
 
-        <Button
-            android:id="@+id/AttachPhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:backgroundTint="#AFBC9E"
-            android:padding="8dp"
-            android:text="Attach Photo Instead (photo size &lt; 65536 bytes)" />
+            <!-- Title (e.g. "Add New Mood Event") -->
+            <TextView
+                android:id="@+id/tvAddNewMoodEvent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add New Mood Event"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#455234"
+                android:layout_marginBottom="12dp" />
 
-    </LinearLayout>
+            <!-- Date Picker -->
+            <TextView
+                android:id="@+id/tvDateLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date (picker)"
+                android:textColor="#455234"
+                android:textStyle="bold"/>
 
+            <Button
+                android:id="@+id/btnPickDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="February 8, 2025"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#dfead0"
+                android:textColor="#455234"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Time Picker -->
+            <TextView
+                android:id="@+id/tvTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time (picker)"
+                android:textColor="#455234"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/btnPickTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1:00PM"
+                android:backgroundTint="#dfead0"
+                android:textColor="#455234"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Reason Why -->
+            <TextView
+                android:id="@+id/ReasonLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reason Why (max 20 chars / 3 words):"
+                android:textColor="#455234"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/Reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:background="#ffffff"
+                android:hint="Please type your thoughts here..."
+                android:inputType="textMultiLine"
+                android:maxLength="20"
+                android:maxLines="3"
+                android:padding="12dp" />
+
+            <!-- Attach Photo Instead -->
+            <Button
+                android:id="@+id/AttachPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="#AFBC9E"
+                android:padding="8dp"
+                android:text="Attach Photo Instead (photo size &lt; 65536 bytes)"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Social Situation -->
+            <TextView
+                android:id="@+id/tvSocialSituation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Social Situation"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#455234"
+                android:layout_marginBottom="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rgSocialSituation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <RadioButton
+                    android:id="@+id/rbAlone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alone"
+                    android:textColor="#455234"/>
+
+                <RadioButton
+                    android:id="@+id/rbOneOnOne"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="One-On-One"
+                    android:textColor="#455234"
+                    android:layout_marginLeft="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/rbGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Group"
+                    android:textColor="#455234"
+                    android:layout_marginLeft="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/rbCrowd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crowd"
+                    android:textColor="#455234"
+                    android:layout_marginLeft="16dp"/>
+            </RadioGroup>
+
+            <!-- Attach Location (Optional) -->
+            <TextView
+                android:id="@+id/tvAttachLocationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Attach Location (Optional)"
+                android:textColor="#455234"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnAttachLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Attach Location"
+                android:backgroundTint="#dfead0"
+                android:textColor="#455234"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Bottom buttons: SAVE ENTRY and CANCEL -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                >
+
+                <Button
+                    android:id="@+id/btnSaveEntry"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SAVE ENTRY"
+                    android:backgroundTint="#455234"
+                    android:textColor="@android:color/white"
+                    android:layout_marginRight="8dp" />
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="CANCEL"
+                    android:backgroundTint="#bcbcbc"
+                    android:textColor="@android:color/white"
+                    android:layout_marginLeft="8dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
