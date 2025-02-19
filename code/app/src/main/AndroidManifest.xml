@@ -22,9 +22,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".userProfile.ProfileActivity" />
-        <activity android:name=".auth.SignUpActivity" />
-        <activity android:name=".auth.LoginActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".LoginActivity" />
     </application>
 
 </manifest>

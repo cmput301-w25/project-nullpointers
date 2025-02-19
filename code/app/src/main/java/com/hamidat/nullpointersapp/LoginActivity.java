@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.auth;
+package com.hamidat.nullpointersapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 

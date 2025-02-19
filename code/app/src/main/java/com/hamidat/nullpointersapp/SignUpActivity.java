@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.auth;
+package com.hamidat.nullpointersapp;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.hamidat.nullpointersapp.MainActivity;
-import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.userProfile.ProfileActivity;
+import com.hamidat.nullpointersapp.utils.AuthHelpers;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -30,7 +28,8 @@ public class SignUpActivity extends AppCompatActivity {
         // Bind the UI elements
         EditText etSignupPassword = findViewById(R.id.etSignUpPassword);
         EditText etSignupUsername = findViewById(R.id.etSignupUsername);
-        Button signUpButton = findViewById(R.id.signUpButton);
+        Button signUpButton = findViewById(R.id.btnSignUp);
+        TextView alreadyAMemberLink = findViewById(R.id.tvAlreadyMember);
 
         // Add a listener to the signup button
         signUpButton.setOnClickListener(new View.OnClickListener() {
@@ -57,6 +56,15 @@ public class SignUpActivity extends AppCompatActivity {
                 if (!signupSuccess) return;
 
                 // If a user was successfully signed up, move to the login page
+                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                startActivity(intent); // Launch LoginActivity
+            }
+        });
+
+        // Enable the user to be able to go to the login button
+        alreadyAMemberLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                 startActivity(intent); // Launch LoginActivity
             }

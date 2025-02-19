@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.auth;
+package com.hamidat.nullpointersapp.utils;
 
 import android.content.Context;
 import android.widget.EditText;
