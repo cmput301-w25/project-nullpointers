@@ -9,6 +9,23 @@
     android:background="#EAF0D9"
     android:padding="16dp">
 
+
+    <ImageView
+        android:id="@+id/moodifySignUpLogo"
+        android:layout_width="70dp"
+        android:layout_height="65dp"
+        android:contentDescription="Moodify logo image"
+        android:scaleType="fitCenter"
+        android:scaleX="3.5"
+        android:scaleY="3.5"
+        android:src="@drawable/moodify_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.967"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.017" />
+
     <EditText
         android:id="@+id/etSignUpPassword"
         android:layout_width="0dp"
