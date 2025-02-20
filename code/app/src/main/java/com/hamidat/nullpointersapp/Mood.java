@@ -3,6 +3,7 @@ package com.hamidat.nullpointersapp;
 import java.time.LocalDateTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import com.google.firebase.Timestamp;
 
 
 public class Mood {
@@ -10,22 +11,21 @@ public class Mood {
 //    Values for the mood (demo variables)
     protected String mood;
     protected String moodDescription;
-    protected Date date;
+    protected Timestamp timestamp;
 
 //    Constructor for creating the mood
     public Mood(String mood, String moodDescription) {
         this.mood = mood;
         this.moodDescription = moodDescription;
-        this.date =  new Date();
+        this.timestamp = new Timestamp(new Date());
     }
 
     public Mood() {
         // Required empty constructor for Firestore
     }
 
-    public String getFormattedDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return sdf.format(date);
+    public Timestamp getTimeStamp() {
+        return this.timestamp;
     }
 
 //    Getters and setters for the mood

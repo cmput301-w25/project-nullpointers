@@ -16,20 +16,21 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.auth.User;
 
+import com.hamidat.nullpointersapp.firestore.firestoreMoodHistory;
+
+
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    public interface MoodHistoryCallback {
-        void onSuccess(moodHistory userHistory);
-        void onFailure(Exception e);
-    }
 
     FirebaseFirestore firestore;
 
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 //        Setting up firebase and adding data
         firestore = FirebaseFirestore.getInstance();
 
+        firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
+
         moodHistory Arden = new moodHistory("Arden");
         moodHistory Hamidat = new moodHistory("Hamidat");
 
@@ -54,30 +57,59 @@ public class MainActivity extends AppCompatActivity {
         Mood mood1 = new Mood("Happy", "I am happy");
         Mood mood2 = new Mood("Sad", "I am sad");
         Mood mood3 = new Mood("Angry", "I am angry");
+        Mood mood4 = new Mood("Silly", "I am silly");
 
         Arden.addMood(mood1);
         Arden.addMood(mood2);
         Arden.addMood(mood3);
+        Arden.addMood(mood4);
 
 //        Adding arden as a user
 //        addUser(Arden);
 
 //        Adding to the moodHistory Note: requires for a new User to already of been created.
-//        moodHistoryToFirebase("mGAucpHaF9S8GyfGzHTa", Arden);
+//        firestoreHistory.moodHistoryToFirebase("F7k2T55RobIC7dhIXmTY", Arden);
 
+//        Callback function success we can display the moods to the UI
+//        firestoreHistory.firebaseToMoodHistory("F7k2T55RobIC7dhIXmTY", new  firestoreMoodHistory.MoodHistoryCallback() {
+//            @Override
+//            public void onSuccess(moodHistory userMoodHistory) {
+//                int numMoods = userMoodHistory.getMoodArray().size();
+//                Toast.makeText(MainActivity.this,
+//                        "There are " + numMoods + " moods. Current Name is " + userMoodHistory.getUserID(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//            @Override
+//            public void onFailure(Exception e) {
+//                Log.e("MainActivity", "Failed to load mood history", e);
+//            }
+//        });
 
-        moodHistory Arden_Copied = firebaseToMoodHistory("mGAucpHaF9S8GyfGzHTa", new MoodHistoryCallback() {
+//        firestoreHistory.firebaseQueryEmotional("F7k2T55RobIC7dhIXmTY", "happy", new firestoreMoodHistory.MoodHistoryCallback() {
+//            @Override
+//            public void onSuccess(moodHistory userMoodHistory) {
+//                int numMoods = userMoodHistory.getMoodArray().size();
+//                Toast.makeText(MainActivity.this,
+//                        "There are " + numMoods + " moods. Current Name is " + userMoodHistory.getUserID(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//            @Override
+//            public void onFailure(Exception e) {
+//                Toast.makeText(MainActivity.this, "Failed to get queried Moods",Toast.LENGTH_LONG).show();
+//            }
+//        });
+
+        firestoreHistory.firebaseQueryRecentWeek("F7k2T55RobIC7dhIXmTY", new firestoreMoodHistory.MoodHistoryCallback() {
             @Override
-            public void onSuccess(moodHistory userHistory) {
-                // Now the data is loaded, so you can use the moods here:
-                int numMoods = userHistory.getMoodArray().size();
+            public void onSuccess(moodHistory userMoodHistory) {
+                int numMoods = userMoodHistory.getMoodArray().size();
                 Toast.makeText(MainActivity.this,
-                        "There are " + numMoods + " moods. Current Name is " + userHistory.getUserName(),
+                        "There are " + numMoods + " moods. Current ID is " + userMoodHistory.getUserID(),
                         Toast.LENGTH_LONG).show();
             }
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(MainActivity.this, "Error loading mood history", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Failed to get queried Moods",Toast.LENGTH_LONG).show();
             }
         });
 
@@ -87,55 +119,7 @@ public class MainActivity extends AppCompatActivity {
 //        Note: expecting user to already exist so this function will not be used
         Map<String, Object> userFields = new HashMap<>();
         userFields.put("userName", user.getUserName());
-
         firestore.collection("Users").add(userFields);
     }
-
-    protected void moodHistoryToFirebase(String userID, moodHistory userMoodHistory) {
-//        Adds the moodHistory to the firebase database
-
-        CollectionReference moodReference = firestore.collection("Users").document(userID).collection("moodHistory");
-//        Check database to see if this works
-        for (Mood mood : userMoodHistory.getMoodArray()) {
-                moodReference.add(mood);
-            }
-    }
-
-    protected moodHistory firebaseToMoodHistory(String userID, MoodHistoryCallback callback) {
-//        firebase query to convert a document into the moodHistory class, this is for editing/deleting.
-//        Idea: Considered using Snapshot for real time, however since this would be for editing/deleting fields we can call a UI automatic update.
-        moodHistory userMoodHistory = new moodHistory();
-
-        DocumentReference userFields = firestore.collection("Users").document(userID);
-        userFields.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String userName = documentSnapshot.getString("userName");
-                userMoodHistory.setUserName(userName);
-
-            } else {
-                Log.d("Firestore", "No such document exists");
-            }
-        });
-
-
-        CollectionReference moodHistoryRef = firestore.collection("Users").document(userID).collection("moodHistory");
-
-        moodHistoryRef.get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-//                        For document inside collection we can change it to Mood object and add it.
-                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                            Mood mood = doc.toObject(Mood.class);
-                            userMoodHistory.addMood(mood);
-                        }
-//                        Callback for doing operations once we've retrieved all the moods (eg adding/editing)
-                        callback.onSuccess(userMoodHistory);
-
-                    } else {
-                        callback.onFailure(task.getException());
-                    }
-                });
-
-        return userMoodHistory;
-    }
-
 }
+
