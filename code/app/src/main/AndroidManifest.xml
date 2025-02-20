@@ -23,6 +23,10 @@
         </activity>
 
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".MoodActivity" />
+        <activity android:name=".FollowingMoodActivity" />
+
+
     </application>
 
 </manifest>
