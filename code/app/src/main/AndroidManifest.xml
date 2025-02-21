@@ -18,8 +18,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAEXM6z7pPz1urQwRZnCzhesevaK6bQCn0"/>
 
+
+        <!-- Authentication Activity (Login/Sign Up) - Set as the Launcher Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +34,10 @@
             android:exported="false" />
 
 
-        <activity android:name=".ProfileActivity" />
+<!--        <activity android:name=".ProfileActivity" />-->
+
+        <!-- Main Activity (After successful login) -->
+        <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
 
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
