@@ -43,6 +43,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.hamidat.nullpointersapp.utils.mapUtils.EmotionAdapter;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterItem;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterRenderer;
+import com.hamidat.nullpointersapp.utils.networkUtils.NetworkMonitor;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -94,6 +95,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Handler and Runnable for debouncing filtering tasks.
     private final Handler filterHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingFilterRunnable;
+    private NetworkMonitor networkMonitor;
+
 
     /**
      * Inflates the fragment layout.
@@ -108,6 +111,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment (you may need to create fragment_map.xml based on activity_map.xml)
         return inflater.inflate(R.layout.fragment_map, container, false);
+
     }
 
     /**
@@ -118,6 +122,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+
+        networkMonitor = new NetworkMonitor(requireContext());
+        networkMonitor.startMonitoring();
+
         // Initialize UI components.
         showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
         FloatingActionButton fab = view.findViewById(R.id.fab_filter);
@@ -478,6 +486,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         filterExecutor.shutdown();
         geocodeExecutor.shutdown();
         filterHandler.removeCallbacksAndMessages(null);
+        if (networkMonitor != null) {
+            networkMonitor.stopMonitoring();
+        }
     }
 
     /**

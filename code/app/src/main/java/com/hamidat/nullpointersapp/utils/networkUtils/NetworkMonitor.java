@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.utils.networkUtils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
