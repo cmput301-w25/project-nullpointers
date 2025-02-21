@@ -18,22 +18,36 @@ import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 
+/**
+ * Handles a user login attempt
+ */
 public class LoginFragment extends Fragment {
 
+    /**
+     * Required empty public constructor.
+     */
     public LoginFragment() {
-        // Required empty public constructor
+        // Empty constructor required for Fragment instantiation.
     }
 
+    /**
+     * Inflates the fragment layout and initializes UI components.
+     *
+     * @param inflater           LayoutInflater object to inflate views.
+     * @param container          Parent view that the fragment's UI should attach to.
+     * @param savedInstanceState Bundle containing saved state data.
+     * @return The inflated view for the fragment.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         // Bind UI elements
-        EditText etLoginUsername = view.findViewById(R.id.etLoginUsername);
-        EditText etLoginPassword = view.findViewById(R.id.etLoginPassword);
-        Button btnLogin = view.findViewById(R.id.btnLogin);
-        TextView tvRegisterNow = view.findViewById(R.id.tvRegisterNow);
+        final EditText etLoginUsername = view.findViewById(R.id.etLoginUsername);
+        final EditText etLoginPassword = view.findViewById(R.id.etLoginPassword);
+        final Button btnLogin = view.findViewById(R.id.btnLogin);
+        final TextView tvRegisterNow = view.findViewById(R.id.tvRegisterNow);
 
         // Handle Login Button Click
         btnLogin.setOnClickListener(v -> {
@@ -43,12 +57,12 @@ public class LoginFragment extends Fragment {
             boolean noEmptyFields = validateNoEmptyFields(requireContext(), etLoginUsername, etLoginPassword);
             if (!noEmptyFields) return;
 
-            String loginUsername = etLoginUsername.getText().toString().trim();
-            String loginPassword = etLoginPassword.getText().toString().trim();
+            final String loginUsername = etLoginUsername.getText().toString().trim();
+            final String loginPassword = etLoginPassword.getText().toString().trim();
 
             // Attempt to login
-            boolean loginSuccess = loginUser(loginUsername, loginPassword);
-            if (loginSuccess) {
+            boolean isLoginSuccessful = loginUser(loginUsername, loginPassword);
+            if (isLoginSuccessful) {
                 // Switch to MainActivity instead of trying to load ProfileFragment inside AuthActivity
                 Intent intent = new Intent(requireActivity(), MainActivity.class);
                 startActivity(intent);
@@ -56,7 +70,7 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        // Navigate to SignUpFragment instead of opening SignUpActivity
+        // Navigate to SignUpFragment
         tvRegisterNow.setOnClickListener(v -> {
             ((AuthActivity) requireActivity()).switchToFragment(new SignUpFragment());
         });
@@ -64,6 +78,13 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Attempts to authenticate a user with the provided credentials.
+     *
+     * @param username User's username.
+     * @param password User's password.
+     * @return True if authentication is successful, false otherwise.
+     */
     private boolean loginUser(String username, String password) {
         // TODO - Replace with real authentication logic
         return true;

@@ -15,46 +15,65 @@ import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.AuthHelpers;
 
+/**
+ * Handles a user sign-up attempt.
+ */
 public class SignUpFragment extends Fragment {
 
+    /**
+     * Required empty public constructor.
+     */
     public SignUpFragment() {
-        // Required empty public constructor
+        // Empty constructor required for Fragment instantiation.
     }
 
+    /**
+     * Inflates the fragment layout and initializes UI components.
+     *
+     * @param inflater           LayoutInflater object to inflate views.
+     * @param container          Parent view that the fragment's UI should attach to.
+     * @param savedInstanceState Bundle containing saved state data.
+     * @return The inflated view for the fragment.
+     */
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_signup, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
         // Bind UI elements
-        EditText etSignupPassword = view.findViewById(R.id.etSignUpPassword);
-        EditText etSignupUsername = view.findViewById(R.id.etSignupUsername);
-        Button signUpButton = view.findViewById(R.id.btnSignUp);
-        TextView alreadyAMemberLink = view.findViewById(R.id.tvAlreadyMember);
+        final EditText etSignupUsername = view.findViewById(R.id.etSignupUsername);
+        final EditText etSignupPassword = view.findViewById(R.id.etSignUpPassword);
+        final Button signUpButton = view.findViewById(R.id.btnSignUp);
+        final TextView alreadyAMemberLink = view.findViewById(R.id.tvAlreadyMember);
 
         // Handle Sign Up Button Click
         signUpButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "SignUp Request Received", Toast.LENGTH_SHORT).show();
 
-            String signupUsername = etSignupUsername.getText().toString().trim();
-            String signUpPassword = etSignupPassword.getText().toString().trim();
+            final String signupUsername = etSignupUsername.getText().toString().trim();
+            final String signUpPassword = etSignupPassword.getText().toString().trim();
 
             // Validate fields
-            if (!AuthHelpers.validateNoEmptyFields(requireContext(), etSignupUsername, etSignupPassword)) return;
-            if (!AuthHelpers.validateUniqueUsername(signupUsername)) return;
+            if (!AuthHelpers.validateNoEmptyFields(requireContext(), etSignupUsername, etSignupPassword)) {
+                return;
+            }
+            if (!AuthHelpers.validateUniqueUsername(signupUsername)) {
+                return;
+            }
 
             // Add valid user to DB
-            boolean signupSuccess = AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword);
-            if (signupSuccess) {
+            boolean isSignUpSuccessful = AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword);
+            if (isSignUpSuccessful) {
                 // Switch back to LoginFragment after successful signup
                 ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
             }
         });
 
-        // Navigate back to LoginFragment
-        alreadyAMemberLink.setOnClickListener(v -> {
-            ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
-        });
+        // Navigate back to LoginFragment so the newly signed up user can login
+        alreadyAMemberLink.setOnClickListener(v ->
+                ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment())
+        );
 
         return view;
     }
