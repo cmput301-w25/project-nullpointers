@@ -2,6 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="fadedGreen">#E9F3DC</color>
 
     <!-- our custom UI colours -->
     <color name="textColor">#27470F</color>
