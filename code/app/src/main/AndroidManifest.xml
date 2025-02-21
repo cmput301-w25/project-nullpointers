@@ -18,24 +18,14 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAEXM6z7pPz1urQwRZnCzhesevaK6bQCn0"/>
 
-
-        <!-- Authentication Activity (Login/Sign Up) - Set as the Launcher Activity -->
         <activity
             android:name=".AuthActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".MapActivity"
-            android:exported="false" />
-
-
-<!--        <activity android:name=".ProfileActivity" />-->
-
         <!-- Main Activity (After successful login) -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
 

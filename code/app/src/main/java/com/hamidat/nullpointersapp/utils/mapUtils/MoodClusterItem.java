@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;

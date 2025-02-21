@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.utils.imageUtils;
 
 import android.content.Intent;
 import android.net.Uri;

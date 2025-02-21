@@ -1,16 +1,13 @@
 package com.hamidat.nullpointersapp;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.text.Html;
-import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
+import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
 
@@ -58,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         ivMap.setOnClickListener(view -> {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new SettingsFragment()); // Placeholder fragment
+            loadFragment(new MapFragment()); // Placeholder fragment
         });
     }
 
@@ -72,4 +69,5 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
+
 }

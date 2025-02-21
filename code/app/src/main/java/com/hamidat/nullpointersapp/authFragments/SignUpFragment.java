@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.utils.AuthHelpers;
+import com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers;
 
 /**
  * Handles a user sign-up attempt.
