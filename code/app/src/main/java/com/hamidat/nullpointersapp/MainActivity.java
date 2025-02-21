@@ -1,7 +1,9 @@
 package com.hamidat.nullpointersapp;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.fragments.HomeFeedFragment;
@@ -27,11 +29,26 @@ public class MainActivity extends AppCompatActivity {
         ImageView ivProfile = findViewById(R.id.ivProfile);
         ImageView ivMap = findViewById(R.id.ivMap);
 
-        // Set Click Listeners
-        ivHome.setOnClickListener(view -> loadFragment(new ProfileFragment())); // Placeholder
-        ivAddMood.setOnClickListener(view -> loadFragment(new ProfileFragment()));  // Placeholder until edit mood view is done
-        ivProfile.setOnClickListener(view -> loadFragment(new ProfileFragment()));  // Placeholder
-        ivMap.setOnClickListener(view -> loadFragment(new ProfileFragment())); // Placeholder
+        // Set Click Listeners with Toast Feedback
+        ivHome.setOnClickListener(view -> {
+            Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new SettingsFragment()); // Placeholder
+        });
+
+        ivAddMood.setOnClickListener(view -> {
+            Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());  // Placeholder
+        });
+
+        ivProfile.setOnClickListener(view -> {
+            Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());
+        });
+
+        ivMap.setOnClickListener(view -> {
+            Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new SettingsFragment()); // Placeholder
+        });
     }
 
     // Function to load fragments into the fragment container
