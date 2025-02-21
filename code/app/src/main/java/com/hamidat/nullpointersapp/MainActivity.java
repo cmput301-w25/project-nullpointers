@@ -5,23 +5,18 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.auth.User;
 
 import com.hamidat.nullpointersapp.firestore.firestoreMoodHistory;
+import com.hamidat.nullpointersapp.moodClasses.Mood;
+import com.hamidat.nullpointersapp.moodClasses.moodHistory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +61,32 @@ public class MainActivity extends AppCompatActivity {
 //        Hamidat.addMood(mood5);
 //        Hamidat.addMood(mood6);
 
+        firestoreHistory.firebaseToMoodHistory("Ou0s0fzTO28CCn7CmHJb", new  firestoreMoodHistory.MoodHistoryCallback() {
+            @Override
+            public void onSuccess(moodHistory userMoodHistory) {
+
+                ArrayList<Mood> filtered =  userMoodHistory.filterByText("feeling good");
+                int numMoods = filtered.size();
+
+//              int numMoods = userMoodHistory.getMoodArray().size();
+                Toast.makeText(MainActivity.this,
+                        "There are " + numMoods + " moods. Current ID is " + userMoodHistory.getUserID(),
+                        Toast.LENGTH_LONG).show();
+
+                for (Mood mood : filtered) {
+                    Log.d("FilterTest", "Mood Description's after filtered: " + mood.getMoodDescription());
+                }
+
+            }
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("MainActivity", "Failed to load mood history", e);
+            }
+        });
+
     }
+
+
 
     public void addUser(moodHistory user) {
 //       Note: expecting user to already exist so this function will not be used

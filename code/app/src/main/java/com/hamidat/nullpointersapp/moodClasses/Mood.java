@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.moodClasses;
 
 import java.util.Date;
 import com.google.firebase.Timestamp;

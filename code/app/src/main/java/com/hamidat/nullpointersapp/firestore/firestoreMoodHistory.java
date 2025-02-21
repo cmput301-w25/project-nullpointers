@@ -1,25 +1,18 @@
 package com.hamidat.nullpointersapp.firestore;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.Timestamp;
-import com.hamidat.nullpointersapp.MainActivity;
-import com.hamidat.nullpointersapp.Mood;
-import com.hamidat.nullpointersapp.moodHistory;
+import com.hamidat.nullpointersapp.moodClasses.Mood;
+import com.hamidat.nullpointersapp.moodClasses.moodHistory;
 
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-
-import org.w3c.dom.Document;
 
 // Class for interacting with firebase
 public class firestoreMoodHistory {
