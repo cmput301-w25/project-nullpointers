@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.firestore;
+package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import android.util.Log;
 
@@ -7,10 +7,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.Timestamp;
-import com.hamidat.nullpointersapp.moodClasses.Mood;
-import com.hamidat.nullpointersapp.moodClasses.moodHistory;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.moodHistory;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides methods for interacting with Firebase Firestore to manage a user's mood history.
@@ -199,6 +201,14 @@ public class firestoreMoodHistory {
 
         attachSnapshotListener(queryTime, userID, callback);
     }
+
+    public void addUser(moodHistory user) {
+//       Note: expecting user to already exist so this function will not be used
+        Map<String, Object> userFields = new HashMap<>();
+        userFields.put("userName", user.getUserName());
+        firestore.collection("Users").add(userFields);
+    }
+
 
 }
 

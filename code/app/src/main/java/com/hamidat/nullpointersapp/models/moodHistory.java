@@ -1,6 +1,5 @@
-package com.hamidat.nullpointersapp.moodClasses;
+package com.hamidat.nullpointersapp.models;
 
-import android.util.Log;
 import java.util.ArrayList;
 
 /**

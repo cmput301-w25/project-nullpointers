@@ -1,51 +1,86 @@
 package com.hamidat.nullpointersapp;
 
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.Toast;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
+import com.hamidat.nullpointersapp.mainFragments.MapFragment;
+import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
+import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+
+/**
+ * The main activity that manages the primary navigation.
+ */
+// imports from models (mood classes and firebase Utils)
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.firestoreMoodHistory;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.moodHistory;
 
-import com.hamidat.nullpointersapp.firestore.firestoreMoodHistory;
-import com.hamidat.nullpointersapp.moodClasses.Mood;
-import com.hamidat.nullpointersapp.moodClasses.moodHistory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Called when the activity is created.
+     *
+     * @param savedInstanceState The previously saved state, if any.
+     */
     FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-//        Setting up firebase and adding data
+        setContentView(R.layout.activity_main); // Contains the fragment_container
+
+        //  Setting up firebase and all the moodHistory firebase functions
         firestore = FirebaseFirestore.getInstance();
         firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
+        // Bind navigation icons
+        final ImageView ivHome = findViewById(R.id.ivHome);
+        final ImageView ivAddMood = findViewById(R.id.ivAddMood);
+        final ImageView ivProfile = findViewById(R.id.ivProfile);
+        final ImageView ivMap = findViewById(R.id.ivMap);
+
+        // Set click listeners with Toast feedback and load appropriate fragments
+        ivHome.setOnClickListener(view -> {
+            Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new SettingsFragment()); // Placeholder fragment
+        });
+
+        ivAddMood.setOnClickListener(view -> {
+            Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());  // Placeholder fragment
+        });
+
+        ivProfile.setOnClickListener(view -> {
+            Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());
+        });
+
+        ivMap.setOnClickListener(view -> {
+            Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new MapFragment()); // Placeholder fragment
+        });
+
     }
 
-    public void addUser(moodHistory user) {
-//       Note: expecting user to already exist so this function will not be used
-        Map<String, Object> userFields = new HashMap<>();
-        userFields.put("userName", user.getUserName());
-        firestore.collection("Users").add(userFields);
+    /**
+     * Loads a fragment into the fragment container.
+     *
+     * @param fragment The fragment to load.
+     */
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
+
 }
-

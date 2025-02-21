@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">NullPointersApp</string>
+    <string name="profile_icon_desc">DEMO STRING for profile text content</string>
+    <string name="userUsernameString">my_unique_username - DEMO</string>
+    <string name="profileViewMoodHistoryButtonText">View My Mood History</string>
+    <string name="profileSettingsButtonText">Settings</string>
+    <string name="goToUserProfileButtonText">Go to My Profile</string>
+    <string name="userProfileUsernameHeader">My Username:</string>
+    <string name="add_mood">Add New Mood Event</string>
+
 </resources>
