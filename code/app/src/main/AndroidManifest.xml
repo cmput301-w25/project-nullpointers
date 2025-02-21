@@ -12,17 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NullPointersApp"
         tools:targetApi="31">
+
+        <!-- Authentication Activity (Login/Sign Up) - Set as the Launcher Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".AuthActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".ProfileActivity" />
+        <!-- Main Activity (After successful login) -->
+        <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
+
     </application>
 
 </manifest>
