@@ -83,6 +83,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Handler and Runnable for debouncing filtering tasks.
     private final Handler filterHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingFilterRunnable;
+    private NetworkMonitor networkMonitor;
+
 
     /**
      * Initializes UI components and permissions.
@@ -92,6 +94,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        networkMonitor = new NetworkMonitor(getApplicationContext());
+        networkMonitor.startMonitoring();
+
+
+
 
         // Initialize UI components.
         showNearbySwitch = findViewById(R.id.showNearbySwitch);
@@ -326,8 +334,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             setupMap();
         }
     }
+
     /**
-     * Configures map settings and cluster manager.
+     * Displays an info window with event details at marker position.
+     *
+     * @param item MoodClusterItem to display
      */
     private void showInfoWindow(MoodClusterItem item) {
         if (isInfoWindowVisible) {
@@ -392,10 +403,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         infoWindow.setVisibility(View.VISIBLE);
         isInfoWindowVisible = true;
     }
+
     /**
-     * Displays an info window with event details at marker position.
-     *
-     * @param item MoodClusterItem to display
+     * Cleans up resources on activity destruction.
      */
     @Override
     protected void onDestroy() {
@@ -403,10 +413,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         filterExecutor.shutdown();
         geocodeExecutor.shutdown();
         filterHandler.removeCallbacksAndMessages(null);
-    }
+        if (networkMonitor != null) {
+            networkMonitor.stopMonitoring();
+        }    }
+
+
     /**
      * Shows calendar dialog for date filtering.
      */
+
     private void setupMap() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation)
@@ -439,7 +454,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
     /**
-     * Cleans up resources on activity destruction.
+     * Configures map settings and cluster manager.
      */
     // display calendar in a dialog
     // when a date is selected, it persists and used for filteringgggggggggggggggggggggg
