@@ -204,7 +204,7 @@
                     android:layout_gravity="center_horizontal"
                     android:backgroundTint="#AFBC9E"
                     android:padding="8dp"
-                    android:text="Attach Photo Instead ( &gt; 65536 bytes )"
+                    android:text="Attach Photo Instead ( &lt; 65536 bytes )"
                     android:textColor="@android:color/white" />
             </LinearLayout>
 
