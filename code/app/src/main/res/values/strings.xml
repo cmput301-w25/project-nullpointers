@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NullPointersApp</string>
+    <string name="add_mood">Add New Mood Event</string>
+
 </resources>
