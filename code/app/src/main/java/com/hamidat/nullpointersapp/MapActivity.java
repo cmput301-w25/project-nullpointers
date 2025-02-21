@@ -1,13 +1,28 @@
 package com.hamidat.nullpointersapp;
 
 import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,96 +31,198 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.ClusterManager;
-
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import android.Manifest;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import android.Manifest;
 
-/**
- * Handles map display and mood event visualization.
- * <p>
- * Manages Google Maps integration, location permissions, and
- * mood event clustering functionality.
- * </p>
- */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    /** Request code for location permission requests. */
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
     private GoogleMap mMap;
     private LatLng currentLocation;
     private ClusterManager<MoodClusterItem> clusterManager;
     private List<MoodClusterItem> allDummyItems = new ArrayList<>();
+    private RecyclerView emotionListView;
+    private SwitchMaterial showNearbySwitch;
+    private View infoWindow;
+    private boolean isInfoWindowVisible = false;
+    private View emotionListContainer;
+    private Set<String> selectedMoods = new HashSet<>();
+    private Switch allSwitch;
+    private EmotionAdapter adapter;
+
+    // Executors for filtering and geocoding
+    private final ExecutorService filterExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService geocodeExecutor = Executors.newFixedThreadPool(2);
+
+    // Cache for geocoding results (key is "lat,lng")
+    private final Map<String, String> geocodeCache = new HashMap<>();
+
+    // Date filter: only events on the selected day are shown.
+    // If no date is selected, only today's events are shown.
+    private Date selectedDate = null;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+    // Handler and Runnable for debouncing filtering tasks.
+    private final Handler filterHandler = new Handler(Looper.getMainLooper());
+    private Runnable pendingFilterRunnable;
 
     /**
-     * Initializes the activity layout and components.
-     *
-     * @param savedInstanceState Bundle containing previous state if available
+     * Initializes UI components and permissions.
+     * @param savedInstanceState Saved instance state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        // Initialize UI components.
+        showNearbySwitch = findViewById(R.id.showNearbySwitch);
+        FloatingActionButton fab = findViewById(R.id.fab_filter);
+        emotionListContainer = findViewById(R.id.emotion_list_container);
+        emotionListView = emotionListContainer.findViewById(R.id.emotion_list);
+
+        // Header click now shows the calendar dialog.
+        LinearLayout headerContainer = emotionListContainer.findViewById(R.id.header_container);
+        headerContainer.setOnClickListener(v -> showCalendarDialog());
+
+        // Close button listener.
+        ImageButton closeButton = emotionListContainer.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> emotionListContainer.setVisibility(View.GONE));
+
+        // Info Window setup.
+        ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
+        infoWindow = LayoutInflater.from(this).inflate(R.layout.info_window, rootView, false);
+        infoWindow.setVisibility(View.GONE);
+        rootView.addView(infoWindow);
+
+        // FAB click toggles the emotion list container.
+        fab.setOnClickListener(v -> {
+            if (emotionListContainer.getVisibility() == View.VISIBLE) {
+                emotionListContainer.setVisibility(View.GONE);
+            } else {
+                if (isInfoWindowVisible) {
+                    infoWindow.setVisibility(View.GONE);
+                    isInfoWindowVisible = false;
+                }
+                emotionListContainer.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // Check location permissions.
         if (checkLocationPermission()) {
             getLastLocation();
         } else {
             requestLocationPermission();
         }
 
+        // Map setup.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        SwitchMaterial showNearbySwitch = findViewById(R.id.showNearbySwitch);
+        // Nearby switch listener.
         showNearbySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (currentLocation != null) {
-                filterAndDisplayMoodEvents(isChecked, currentLocation);
+                filterAndDisplayMoodEventsAsync(isChecked, currentLocation);
             }
         });
+
+        setupEmotionList();
+    }
+    /**
+     * Sets up emotion filter list with checkboxes and switch.
+     */
+    private void setupEmotionList() {
+        List<String> emotions = Arrays.asList("Happy", "Sad", "Angry", "Chill");
+        allSwitch = emotionListContainer.findViewById(R.id.all_switch);
+        Button doneButton = emotionListContainer.findViewById(R.id.done_button);
+
+        adapter = new EmotionAdapter(emotions, allSwitch);
+
+        // All switch listener.
+        allSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (buttonView.isPressed()) {
+                if (isChecked) {
+                    adapter.updateCheckboxesState(true);
+                    selectedMoods.clear();
+                    selectedMoods.addAll(adapter.getSelectedEmotions());
+                } else {
+                    adapter.clearSelections();
+                    selectedMoods.clear();
+                }
+                filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+            }
+        });
+
+        // Done button listener.
+        doneButton.setOnClickListener(v -> {
+            selectedMoods = adapter.getSelectedEmotions();
+            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+            emotionListContainer.setVisibility(View.GONE);
+        });
+
+        emotionListView.setLayoutManager(new LinearLayoutManager(this));
+        emotionListView.setAdapter(adapter);
     }
 
     /**
      * Checks if location permissions are granted.
-     *
-     * @return true if either FINE or COARSE location permission is granted
+     * @return true if permissions are granted, false otherwise
      */
     private boolean checkLocationPermission() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
     }
 
-    /** Requests location permissions from the user. */
+    /**
+     * Requests fine location permission from user.
+     */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
-
     /**
      * Handles permission request results.
      *
-     * @param requestCode  The request code from permission request
-     * @param permissions  The requested permissions array
-     * @param grantResults The grant results array
+     * @param requestCode  Request code identifier
+     * @param permissions  Requested permissions
+     * @param grantResults Permission grant results
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getLastLocation();
         } else {
             Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show();
         }
     }
-
-    /** Retrieves the user's last known location and initializes dummy data. */
+    /**
+     * Fetches device's last known location.
+     */
     private void getLastLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (checkLocationPermission()) {
@@ -118,57 +235,89 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             });
         }
     }
-
     /**
-     * Generates dummy mood events within 10km of current location.
+     * Generates dummy data for testing purposes.
      *
-     * @param currentLocation Base location for generating dummy events
-     * @return List of generated MoodClusterItems
+     * @param currentLocation Reference location for generating nearby points
+     * @return List of mock MoodClusterItems
      */
     private List<MoodClusterItem> generateDummyData(LatLng currentLocation) {
         List<MoodClusterItem> dummyData = new ArrayList<>();
         Random random = new Random();
-        String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        int numParticipants = 20;
+        String[] emotions = {"Happy", "Sad", "Angry", "Chill"};
 
-        for (int i = 0; i < numParticipants; i++) {
-            char letter = letters.charAt(i % letters.length());
+        for (int i = 0; i < 50; i++) {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -random.nextInt(30));
+            String date = dateFormat.format(cal.getTime());
+            if (random.nextFloat() < 0.2) {
+                date = dateFormat.format(new Date());
+            }
             double distance = random.nextDouble() * 10000;
             double angle = random.nextDouble() * 360;
             LatLng eventLocation = SphericalUtil.computeOffset(currentLocation, distance, angle);
-            dummyData.add(new MoodClusterItem(eventLocation, String.valueOf(letter)));
+            dummyData.add(new MoodClusterItem(
+                    eventLocation,
+                    emotions[random.nextInt(4)],
+                    date,
+                    "Description " + (i + 1)
+            ));
         }
-
-        // Add user's own mood event
-        dummyData.add(new MoodClusterItem(currentLocation, "ME"));
         return dummyData;
     }
-
     /**
-     * Filters and displays mood events based on proximity.
+     * Filters and displays events based on selected criteria (async).
      *
-     * @param showNearby       Whether to filter to 5km radius
-     * @param currentLocation  Base location for distance calculations
+     * @param showNearby      True to show events within 5km
+     * @param currentLocation Reference location for proximity checks
      */
-    private void filterAndDisplayMoodEvents(boolean showNearby, LatLng currentLocation) {
-        clusterManager.clearItems();
-        List<MoodClusterItem> filteredItems = new ArrayList<>();
-
-        for (MoodClusterItem item : allDummyItems) {
-            double distance = SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition());
-            if (!showNearby || distance <= 5000) {
-                filteredItems.add(item);
-            }
+    // Debounced asynchronous filtering:
+    // Only events whose date (formatted as yyyy-MM-dd) exactly matches the selected day are shown.
+    // If no date is selected, only today's events are shown.
+    private void filterAndDisplayMoodEventsAsync(boolean showNearby, LatLng currentLocation) {
+        // Cancel any pending filter task.
+        if (pendingFilterRunnable != null) {
+            filterHandler.removeCallbacks(pendingFilterRunnable);
         }
-
-        clusterManager.addItems(filteredItems);
-        clusterManager.cluster();
+        // Create a new filtering task.
+        pendingFilterRunnable = () -> {
+            filterExecutor.execute(() -> {
+                List<MoodClusterItem> filteredItems = new ArrayList<>();
+                for (MoodClusterItem item : allDummyItems) {
+                    double distance = SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition());
+                    boolean proximityMatch = !showNearby || distance <= 5000;
+                    boolean emotionMatch = allSwitch.isChecked() || selectedMoods.contains(item.getEmotion());
+                    boolean dateMatch = true;
+                    try {
+                        Date itemDate = dateFormat.parse(item.getDate());
+                        if (selectedDate != null) {
+                            dateMatch = dateFormat.format(itemDate).equals(dateFormat.format(selectedDate));
+                        } else {
+                            Date today = new Date();
+                            dateMatch = dateFormat.format(itemDate).equals(dateFormat.format(today));
+                        }
+                    } catch (Exception e) {
+                        dateMatch = false;
+                    }
+                    if (emotionMatch && proximityMatch && dateMatch) {
+                        filteredItems.add(item);
+                    }
+                }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (clusterManager != null) {
+                        clusterManager.clearItems();
+                        clusterManager.addItems(filteredItems);
+                        clusterManager.cluster();
+                    }
+                });
+            });
+        };
+        // Post the filtering task with a slight delay (e.g., 300ms) to debounce rapid changes.
+        filterHandler.postDelayed(pendingFilterRunnable, 300);
     }
-
     /**
-     * Called when map is ready to be used.
-     *
-     * @param googleMap The GoogleMap object representing the map
+     * Handles map readiness callback.
+     * @param googleMap Initialized GoogleMap instance
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -177,8 +326,87 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             setupMap();
         }
     }
+    /**
+     * Configures map settings and cluster manager.
+     */
+    private void showInfoWindow(MoodClusterItem item) {
+        if (isInfoWindowVisible) {
+            infoWindow.setVisibility(View.GONE);
+        }
+        TextView username = infoWindow.findViewById(R.id.username);
+        TextView emotion = infoWindow.findViewById(R.id.emotion);
+        TextView date = infoWindow.findViewById(R.id.date);
+        TextView location = infoWindow.findViewById(R.id.location);
+        TextView description = infoWindow.findViewById(R.id.description);
 
-    /** Configures map settings and initializes clustering. */
+        username.setText("Username: Placeholder");
+        emotion.setText("Emotion: " + item.getEmotion());
+        date.setText("Date: " + item.getDate());
+        description.setText("Description: " + item.getDescription());
+        location.setText("Location: Loading...");
+
+        // Use a cache key for geocoding results.
+        String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
+        if (geocodeCache.containsKey(cacheKey)) {
+            String cachedLocation = geocodeCache.get(cacheKey);
+            new Handler(Looper.getMainLooper()).post(() ->
+                    location.setText("Location: " + cachedLocation)
+            );
+        } else {
+            geocodeExecutor.execute(() -> {
+                try {
+                    Geocoder geocoder = new Geocoder(MapActivity.this, Locale.getDefault());
+                    List<Address> addresses = geocoder.getFromLocation(
+                            item.getPosition().latitude,
+                            item.getPosition().longitude,
+                            1
+                    );
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Address address = addresses.get(0);
+                        String street = address.getThoroughfare();
+                        final String result = (street != null ? street : "Nearby area");
+                        geocodeCache.put(cacheKey, result);
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                location.setText("Location: " + result)
+                        );
+                    } else {
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                location.setText("Location: Unknown")
+                        );
+                    }
+                } catch (IOException | IllegalStateException e) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            location.setText("Location: Unavailable")
+                    );
+                } catch (Exception e) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            location.setText("Location: Error")
+                    );
+                }
+            });
+        }
+
+        Point screenPosition = mMap.getProjection().toScreenLocation(item.getPosition());
+        infoWindow.setX(screenPosition.x - infoWindow.getWidth() / 2);
+        infoWindow.setY(screenPosition.y - infoWindow.getHeight() - 100);
+        infoWindow.setVisibility(View.VISIBLE);
+        isInfoWindowVisible = true;
+    }
+    /**
+     * Displays an info window with event details at marker position.
+     *
+     * @param item MoodClusterItem to display
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        filterExecutor.shutdown();
+        geocodeExecutor.shutdown();
+        filterHandler.removeCallbacksAndMessages(null);
+    }
+    /**
+     * Shows calendar dialog for date filtering.
+     */
     private void setupMap() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation)
@@ -186,18 +414,54 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .tilt(0)
                 .build();
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
         clusterManager = new ClusterManager<>(this, mMap);
-        clusterManager.setRenderer(new MoodClusterRenderer(this, mMap, clusterManager));
         mMap.setOnCameraIdleListener(clusterManager);
         mMap.setOnMarkerClickListener(clusterManager);
-
+        clusterManager.setRenderer(new MoodClusterRenderer(this, mMap, clusterManager));
         clusterManager.setOnClusterItemClickListener(item -> {
-            Toast.makeText(this, "Location: " + item.getPosition().toString(), Toast.LENGTH_SHORT).show();
+            if (emotionListContainer.getVisibility() == View.VISIBLE) {
+                emotionListContainer.setVisibility(View.GONE);
+            }
+            showInfoWindow(item);
             return true;
         });
-
-        filterAndDisplayMoodEvents(false, currentLocation);
+        mMap.setOnMapClickListener(latLng -> {
+            if (isInfoWindowVisible) {
+                infoWindow.setVisibility(View.GONE);
+                isInfoWindowVisible = false;
+            }
+        });
+        mMap.setOnCameraMoveStartedListener(reason -> {
+            if (isInfoWindowVisible) {
+                infoWindow.setVisibility(View.GONE);
+                isInfoWindowVisible = false;
+            }
+        });
     }
-
+    /**
+     * Cleans up resources on activity destruction.
+     */
+    // display calendar in a dialog
+    // when a date is selected, it persists and used for filteringgggggggggggggggggggggg
+    private void showCalendarDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View calendarDialogView = LayoutInflater.from(this).inflate(R.layout.calendar_dialog, null);
+        CalendarView dialogCalendarView = calendarDialogView.findViewById(R.id.dialog_calendar_view);
+        dialogCalendarView.setMaxDate(System.currentTimeMillis());
+        if (selectedDate != null) {
+            dialogCalendarView.setDate(selectedDate.getTime(), false, true);
+        }
+        dialogCalendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            Calendar cal = Calendar.getInstance();
+            cal.set(year, month, dayOfMonth, 23, 59, 59);
+            selectedDate = cal.getTime();
+        });
+        builder.setView(calendarDialogView);
+        builder.setPositiveButton("Apply", (dialog, which) -> {
+            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+        });
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 }
