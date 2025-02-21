@@ -1,7 +1,5 @@
 package com.hamidat.nullpointersapp;
 
-import java.time.LocalDateTime;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.google.firebase.Timestamp;
 
@@ -20,12 +18,8 @@ public class Mood {
         this.timestamp = new Timestamp(new Date());
     }
 
+//  Empty constructor
     public Mood() {
-        // Required empty constructor for Firestore
-    }
-
-    public Timestamp getTimeStamp() {
-        return this.timestamp;
     }
 
 //    Getters and setters for the mood
@@ -35,8 +29,8 @@ public class Mood {
     public String getMoodDescription() {
         return this.moodDescription;
     }
-    public Date date() {
-        return this.date;
+    public Timestamp getTimestamp() {
+        return this.timestamp;
     }
 
     public void setMood(String mood) {
@@ -45,9 +39,7 @@ public class Mood {
     public void setMoodDescription(String moodDescription) {
         this.moodDescription = moodDescription;
     }
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
-
-
 }

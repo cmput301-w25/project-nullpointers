@@ -23,6 +23,7 @@ import com.google.firebase.firestore.auth.User;
 import com.hamidat.nullpointersapp.firestore.firestoreMoodHistory;
 
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -49,69 +50,27 @@ public class MainActivity extends AppCompatActivity {
 
         firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
-        moodHistory Arden = new moodHistory("Arden");
-        moodHistory Hamidat = new moodHistory("Hamidat");
-
-
-
-        Mood mood1 = new Mood("Happy", "I am happy");
-        Mood mood2 = new Mood("Sad", "I am sad");
-        Mood mood3 = new Mood("Angry", "I am angry");
-        Mood mood4 = new Mood("Silly", "I am silly");
-
-        Arden.addMood(mood1);
-        Arden.addMood(mood2);
-        Arden.addMood(mood3);
-        Arden.addMood(mood4);
-
-//        Adding arden as a user
-//        addUser(Arden);
-
-//        Adding to the moodHistory Note: requires for a new User to already of been created.
-//        firestoreHistory.moodHistoryToFirebase("F7k2T55RobIC7dhIXmTY", Arden);
-
-//        Callback function success we can display the moods to the UI
-//        firestoreHistory.firebaseToMoodHistory("F7k2T55RobIC7dhIXmTY", new  firestoreMoodHistory.MoodHistoryCallback() {
-//            @Override
-//            public void onSuccess(moodHistory userMoodHistory) {
-//                int numMoods = userMoodHistory.getMoodArray().size();
-//                Toast.makeText(MainActivity.this,
-//                        "There are " + numMoods + " moods. Current Name is " + userMoodHistory.getUserID(),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//            @Override
-//            public void onFailure(Exception e) {
-//                Log.e("MainActivity", "Failed to load mood history", e);
-//            }
-//        });
-
-//        firestoreHistory.firebaseQueryEmotional("F7k2T55RobIC7dhIXmTY", "happy", new firestoreMoodHistory.MoodHistoryCallback() {
-//            @Override
-//            public void onSuccess(moodHistory userMoodHistory) {
-//                int numMoods = userMoodHistory.getMoodArray().size();
-//                Toast.makeText(MainActivity.this,
-//                        "There are " + numMoods + " moods. Current Name is " + userMoodHistory.getUserID(),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//            @Override
-//            public void onFailure(Exception e) {
-//                Toast.makeText(MainActivity.this, "Failed to get queried Moods",Toast.LENGTH_LONG).show();
-//            }
-//        });
-
-        firestoreHistory.firebaseQueryRecentWeek("F7k2T55RobIC7dhIXmTY", new firestoreMoodHistory.MoodHistoryCallback() {
-            @Override
-            public void onSuccess(moodHistory userMoodHistory) {
-                int numMoods = userMoodHistory.getMoodArray().size();
-                Toast.makeText(MainActivity.this,
-                        "There are " + numMoods + " moods. Current ID is " + userMoodHistory.getUserID(),
-                        Toast.LENGTH_LONG).show();
-            }
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(MainActivity.this, "Failed to get queried Moods",Toast.LENGTH_LONG).show();
-            }
-        });
+//
+//        moodHistory Arden = new moodHistory();
+//        Arden.setUserName("Arden");
+//        moodHistory Hamidat = new moodHistory();
+//        Hamidat.setUserName("Hamidat");
+//
+//        Mood mood1 = new Mood("Happy", "I am happy");
+//        Mood mood2 = new Mood("Sad", "I am sad");
+//        Mood mood3 = new Mood("Angry", "I am angry");
+//        Mood mood4 = new Mood("Silly", "I am silly");
+//
+//        Mood mood5 = new Mood("Happy", "I am currently feeling good");
+//        Mood mood6 = new Mood("Intrigued", "I am currently feeling intrigued");
+//
+//        Arden.addMood(mood1);
+//        Arden.addMood(mood2);
+//        Arden.addMood(mood3);
+//        Arden.addMood(mood4);
+//
+//        Hamidat.addMood(mood5);
+//        Hamidat.addMood(mood6);
 
     }
 
