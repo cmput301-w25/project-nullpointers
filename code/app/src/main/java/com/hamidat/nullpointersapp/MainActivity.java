@@ -22,11 +22,6 @@ import com.google.firebase.firestore.auth.User;
 
 import com.hamidat.nullpointersapp.firestore.firestoreMoodHistory;
 
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         });
 //        Setting up firebase and adding data
         firestore = FirebaseFirestore.getInstance();
-
         firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
 //
@@ -75,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addUser(moodHistory user) {
-//        Note: expecting user to already exist so this function will not be used
+//       Note: expecting user to already exist so this function will not be used
         Map<String, Object> userFields = new HashMap<>();
         userFields.put("userName", user.getUserName());
         firestore.collection("Users").add(userFields);
