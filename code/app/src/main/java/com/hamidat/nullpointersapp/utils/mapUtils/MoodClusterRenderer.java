@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

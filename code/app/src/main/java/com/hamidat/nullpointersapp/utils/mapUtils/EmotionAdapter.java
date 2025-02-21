@@ -1,15 +1,16 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.Arrays;
+
+import com.hamidat.nullpointersapp.R;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

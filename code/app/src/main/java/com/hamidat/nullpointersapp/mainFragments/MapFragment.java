@@ -1,5 +1,8 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.mainFragments;
 
+import com.hamidat.nullpointersapp.R;
+
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.location.Address;
@@ -17,12 +20,14 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +40,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.ClusterManager;
+import com.hamidat.nullpointersapp.utils.mapUtils.EmotionAdapter;
+import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterItem;
+import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterRenderer;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,9 +59,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import android.Manifest;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+/**
+ * A Fragment that displays a map with mood markers and filters.
+ */
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private GoogleMap mMap;
@@ -85,18 +96,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Runnable pendingFilterRunnable;
 
     /**
+     * Inflates the fragment layout.
+     *
+     * @param inflater LayoutInflater instance
+     * @param container Parent container
+     * @param savedInstanceState Saved instance state
+     * @return The root view of the fragment
+     */
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment (you may need to create fragment_map.xml based on activity_map.xml)
+        return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    /**
      * Initializes UI components and permissions.
+     *
+     * @param view The root view of the fragment
      * @param savedInstanceState Saved instance state
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         // Initialize UI components.
-        showNearbySwitch = findViewById(R.id.showNearbySwitch);
-        FloatingActionButton fab = findViewById(R.id.fab_filter);
-        emotionListContainer = findViewById(R.id.emotion_list_container);
+        showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
+        FloatingActionButton fab = view.findViewById(R.id.fab_filter);
+        emotionListContainer = view.findViewById(R.id.emotion_list_container);
         emotionListView = emotionListContainer.findViewById(R.id.emotion_list);
 
         // Header click now shows the calendar dialog.
@@ -108,8 +133,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         closeButton.setOnClickListener(v -> emotionListContainer.setVisibility(View.GONE));
 
         // Info Window setup.
-        ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
-        infoWindow = LayoutInflater.from(this).inflate(R.layout.info_window, rootView, false);
+        ViewGroup rootView = (ViewGroup) view.findViewById(android.R.id.content);
+        // If rootView is null, fallback to the fragment's view
+        if (rootView == null) {
+            rootView = (ViewGroup) view;
+        }
+        infoWindow = LayoutInflater.from(getContext()).inflate(R.layout.info_window, rootView, false);
         infoWindow.setVisibility(View.GONE);
         rootView.addView(infoWindow);
 
@@ -134,9 +163,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         // Map setup.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
         // Nearby switch listener.
         showNearbySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -147,6 +178,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         setupEmotionList();
     }
+
     /**
      * Sets up emotion filter list with checkboxes and switch.
      */
@@ -179,18 +211,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             emotionListContainer.setVisibility(View.GONE);
         });
 
-        emotionListView.setLayoutManager(new LinearLayoutManager(this));
+        emotionListView.setLayoutManager(new LinearLayoutManager(getContext()));
         emotionListView.setAdapter(adapter);
     }
 
     /**
      * Checks if location permissions are granted.
+     *
      * @return true if permissions are granted, false otherwise
      */
     private boolean checkLocationPermission() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -198,10 +231,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Requests fine location permission from user.
      */
     private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
+
     /**
      * Handles permission request results.
      *
@@ -217,16 +250,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getLastLocation();
         } else {
-            Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Location permission required", Toast.LENGTH_SHORT).show();
         }
     }
+
     /**
      * Fetches device's last known location.
      */
     private void getLastLocation() {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         if (checkLocationPermission()) {
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
                 if (location != null) {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     allDummyItems = generateDummyData(currentLocation);
@@ -235,6 +269,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             });
         }
     }
+
     /**
      * Generates dummy data for testing purposes.
      *
@@ -265,6 +300,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return dummyData;
     }
+
     /**
      * Filters and displays events based on selected criteria (async).
      *
@@ -315,8 +351,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Post the filtering task with a slight delay (e.g., 300ms) to debounce rapid changes.
         filterHandler.postDelayed(pendingFilterRunnable, 300);
     }
+
     /**
      * Handles map readiness callback.
+     *
      * @param googleMap Initialized GoogleMap instance
      */
     @Override
@@ -326,8 +364,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             setupMap();
         }
     }
+
     /**
      * Configures map settings and cluster manager.
+     */
+    private void setupMap() {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(currentLocation)
+                .zoom(15)
+                .tilt(0)
+                .build();
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        clusterManager = new ClusterManager<>(requireContext(), mMap);
+        mMap.setOnCameraIdleListener(clusterManager);
+        mMap.setOnMarkerClickListener(clusterManager);
+        clusterManager.setRenderer(new MoodClusterRenderer(requireContext(), mMap, clusterManager));
+        clusterManager.setOnClusterItemClickListener(item -> {
+            if (emotionListContainer.getVisibility() == View.VISIBLE) {
+                emotionListContainer.setVisibility(View.GONE);
+            }
+            showInfoWindow(item);
+            return true;
+        });
+        mMap.setOnMapClickListener(latLng -> {
+            if (isInfoWindowVisible) {
+                infoWindow.setVisibility(View.GONE);
+                isInfoWindowVisible = false;
+            }
+        });
+        mMap.setOnCameraMoveStartedListener(reason -> {
+            if (isInfoWindowVisible) {
+                infoWindow.setVisibility(View.GONE);
+                isInfoWindowVisible = false;
+            }
+        });
+    }
+
+    /**
+     * Displays an info window with event details at marker position.
+     *
+     * @param item MoodClusterItem to display
      */
     private void showInfoWindow(MoodClusterItem item) {
         if (isInfoWindowVisible) {
@@ -355,7 +431,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else {
             geocodeExecutor.execute(() -> {
                 try {
-                    Geocoder geocoder = new Geocoder(MapActivity.this, Locale.getDefault());
+                    Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
                     List<Address> addresses = geocoder.getFromLocation(
                             item.getPosition().latitude,
                             item.getPosition().longitude,
@@ -392,60 +468,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         infoWindow.setVisibility(View.VISIBLE);
         isInfoWindowVisible = true;
     }
+
     /**
-     * Displays an info window with event details at marker position.
-     *
-     * @param item MoodClusterItem to display
+     * Cleans up resources on fragment destruction.
      */
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         filterExecutor.shutdown();
         geocodeExecutor.shutdown();
         filterHandler.removeCallbacksAndMessages(null);
     }
+
     /**
      * Shows calendar dialog for date filtering.
-     */
-    private void setupMap() {
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(currentLocation)
-                .zoom(15)
-                .tilt(0)
-                .build();
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        clusterManager = new ClusterManager<>(this, mMap);
-        mMap.setOnCameraIdleListener(clusterManager);
-        mMap.setOnMarkerClickListener(clusterManager);
-        clusterManager.setRenderer(new MoodClusterRenderer(this, mMap, clusterManager));
-        clusterManager.setOnClusterItemClickListener(item -> {
-            if (emotionListContainer.getVisibility() == View.VISIBLE) {
-                emotionListContainer.setVisibility(View.GONE);
-            }
-            showInfoWindow(item);
-            return true;
-        });
-        mMap.setOnMapClickListener(latLng -> {
-            if (isInfoWindowVisible) {
-                infoWindow.setVisibility(View.GONE);
-                isInfoWindowVisible = false;
-            }
-        });
-        mMap.setOnCameraMoveStartedListener(reason -> {
-            if (isInfoWindowVisible) {
-                infoWindow.setVisibility(View.GONE);
-                isInfoWindowVisible = false;
-            }
-        });
-    }
-    /**
-     * Cleans up resources on activity destruction.
      */
     // display calendar in a dialog
     // when a date is selected, it persists and used for filteringgggggggggggggggggggggg
     private void showCalendarDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View calendarDialogView = LayoutInflater.from(this).inflate(R.layout.calendar_dialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View calendarDialogView = LayoutInflater.from(getContext()).inflate(R.layout.calendar_dialog, null);
         CalendarView dialogCalendarView = calendarDialogView.findViewById(R.id.dialog_calendar_view);
         dialogCalendarView.setMaxDate(System.currentTimeMillis());
         if (selectedDate != null) {

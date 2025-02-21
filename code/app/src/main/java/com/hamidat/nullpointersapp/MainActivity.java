@@ -1,49 +1,73 @@
 package com.hamidat.nullpointersapp;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
+import com.hamidat.nullpointersapp.mainFragments.MapFragment;
+import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
+import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+
+/**
+ * The main activity that manages the primary navigation.
+ */
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Called when the activity is created.
+     *
+     * @param savedInstanceState The previously saved state, if any.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // Contains the fragment_container
 
-        // Button to launch the map view
-        Button openMapButton = findViewById(R.id.open_map_button);
-        openMapButton.setOnClickListener(view -> {
-            Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
-            startActivity(mapIntent);
+        // Load ProfileFragment by default if not already restored
+        if (savedInstanceState == null) {
+            loadFragment(new ProfileFragment());
+        }
+
+        // Bind navigation icons
+        final ImageView ivHome = findViewById(R.id.ivHome);
+        final ImageView ivAddMood = findViewById(R.id.ivAddMood);
+        final ImageView ivProfile = findViewById(R.id.ivProfile);
+        final ImageView ivMap = findViewById(R.id.ivMap);
+
+        // Set click listeners with Toast feedback and load appropriate fragments
+        ivHome.setOnClickListener(view -> {
+            Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new SettingsFragment()); // Placeholder fragment
         });
 
-
-        // For testing, a button to go to the profile view
-        Button openProfileViewButton = findViewById(R.id.openProfileViewButton);
-
-        openProfileViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                startActivity(intent); // Launch ProfileActivity
-            }
+        ivAddMood.setOnClickListener(view -> {
+            Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());  // Placeholder fragment
         });
 
-        setContentView(R.layout.mood_reason);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        ivProfile.setOnClickListener(view -> {
+            Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new ProfileFragment());
         });
+
+        ivMap.setOnClickListener(view -> {
+            Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
+            loadFragment(new MapFragment()); // Placeholder fragment
+        });
+    }
+
+    /**
+     * Loads a fragment into the fragment container.
+     *
+     * @param fragment The fragment to load.
+     */
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 
 }
