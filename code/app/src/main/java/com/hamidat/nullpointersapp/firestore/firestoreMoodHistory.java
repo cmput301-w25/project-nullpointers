@@ -212,6 +212,27 @@ public class firestoreMoodHistory {
 //            }
 //        });
 
+//        moodHistory Arden = new moodHistory();
+//        Arden.setUserName("Arden");
+//        moodHistory Hamidat = new moodHistory();
+//        Hamidat.setUserName("Hamidat");
+//
+//        Mood mood1 = new Mood("Happy", "I am happy");
+//        Mood mood2 = new Mood("Sad", "I am sad");
+//        Mood mood3 = new Mood("Angry", "I am angry");
+//        Mood mood4 = new Mood("Silly", "I am silly");
+//
+//        Mood mood5 = new Mood("Happy", "I am currently feeling good");
+//        Mood mood6 = new Mood("Intrigued", "I am currently feeling intrigued");
+//
+//        Arden.addMood(mood1);
+//        Arden.addMood(mood2);
+//        Arden.addMood(mood3);
+//        Arden.addMood(mood4);
+//
+//        Hamidat.addMood(mood5);
+//        Hamidat.addMood(mood6);
+
 // git add .
 // git commit -m
 // git push origin feature/moodHistory

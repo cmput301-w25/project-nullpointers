@@ -39,54 +39,7 @@ public class MainActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
-//
-//        moodHistory Arden = new moodHistory();
-//        Arden.setUserName("Arden");
-//        moodHistory Hamidat = new moodHistory();
-//        Hamidat.setUserName("Hamidat");
-//
-//        Mood mood1 = new Mood("Happy", "I am happy");
-//        Mood mood2 = new Mood("Sad", "I am sad");
-//        Mood mood3 = new Mood("Angry", "I am angry");
-//        Mood mood4 = new Mood("Silly", "I am silly");
-//
-//        Mood mood5 = new Mood("Happy", "I am currently feeling good");
-//        Mood mood6 = new Mood("Intrigued", "I am currently feeling intrigued");
-//
-//        Arden.addMood(mood1);
-//        Arden.addMood(mood2);
-//        Arden.addMood(mood3);
-//        Arden.addMood(mood4);
-//
-//        Hamidat.addMood(mood5);
-//        Hamidat.addMood(mood6);
-
-        firestoreHistory.firebaseToMoodHistory("Ou0s0fzTO28CCn7CmHJb", new  firestoreMoodHistory.MoodHistoryCallback() {
-            @Override
-            public void onSuccess(moodHistory userMoodHistory) {
-
-                ArrayList<Mood> filtered =  userMoodHistory.filterByText("feeling good");
-                int numMoods = filtered.size();
-
-//              int numMoods = userMoodHistory.getMoodArray().size();
-                Toast.makeText(MainActivity.this,
-                        "There are " + numMoods + " moods. Current ID is " + userMoodHistory.getUserID(),
-                        Toast.LENGTH_LONG).show();
-
-                for (Mood mood : filtered) {
-                    Log.d("FilterTest", "Mood Description's after filtered: " + mood.getMoodDescription());
-                }
-
-            }
-            @Override
-            public void onFailure(Exception e) {
-                Log.e("MainActivity", "Failed to load mood history", e);
-            }
-        });
-
     }
-
-
 
     public void addUser(moodHistory user) {
 //       Note: expecting user to already exist so this function will not be used
