@@ -3,6 +3,15 @@ package com.hamidat.nullpointersapp.moodClasses;
 import java.util.Date;
 import com.google.firebase.Timestamp;
 
+/**
+ * Represents a mood event in the system.
+ *
+ * <p>This class holds information about the user's emotional state and
+ * a short description.</p>
+ *
+ * @author  Arden Monaghan
+ * @version 1.0
+ */
 
 public class Mood {
 
