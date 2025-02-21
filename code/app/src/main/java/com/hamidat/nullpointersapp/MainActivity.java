@@ -1,8 +1,14 @@
 package com.hamidat.nullpointersapp;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.text.Html;
+import android.widget.TextView;
+
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
