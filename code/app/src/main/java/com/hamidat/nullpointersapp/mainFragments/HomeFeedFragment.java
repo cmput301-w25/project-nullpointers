@@ -1,5 +1,5 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
-// Place
+// Placeholder
 public class HomeFeedFragment {
 }
