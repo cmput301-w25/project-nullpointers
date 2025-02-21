@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.fragments;
+package com.hamidat.nullpointersapp.authFragments;
 
 import static com.hamidat.nullpointersapp.utils.AuthHelpers.giveAuthNotification;
 import static com.hamidat.nullpointersapp.utils.AuthHelpers.validateNoEmptyFields;

@@ -3,8 +3,7 @@ package com.hamidat.nullpointersapp;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import com.hamidat.nullpointersapp.fragments.LoginFragment;
-import com.hamidat.nullpointersapp.fragments.SignUpFragment;
+import com.hamidat.nullpointersapp.authFragments.LoginFragment;
 
 public class AuthActivity extends AppCompatActivity {
 

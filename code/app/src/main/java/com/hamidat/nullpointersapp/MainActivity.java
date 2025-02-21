@@ -1,15 +1,13 @@
 package com.hamidat.nullpointersapp;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import com.hamidat.nullpointersapp.fragments.HomeFeedFragment;
-import com.hamidat.nullpointersapp.fragments.MapFragment;
-import com.hamidat.nullpointersapp.fragments.ProfileFragment;
-import com.hamidat.nullpointersapp.fragments.SettingsFragment;
+
+import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
+import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.fragments;
+package com.hamidat.nullpointersapp.mainFragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.fragments;
+package com.hamidat.nullpointersapp.mainFragments;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.*;
 
