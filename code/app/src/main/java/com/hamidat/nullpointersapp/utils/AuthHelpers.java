@@ -1,15 +1,8 @@
 package com.hamidat.nullpointersapp.utils;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
-import android.content.Intent;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.hamidat.nullpointersapp.LoginActivity;
-import com.hamidat.nullpointersapp.MainActivity;
-import com.hamidat.nullpointersapp.SignUpActivity;
 
 public class AuthHelpers {
     public static boolean validateNoEmptyFields(Context context, EditText... textFieldsToCheck) {

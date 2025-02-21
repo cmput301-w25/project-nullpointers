@@ -5,11 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".AuthActivity">
 
-    <!-- Fragment container for MainApp Fragments like Profile, Home, etc. -->
+    <!-- This is only for login/signup fragments -->
     <FrameLayout
-        android:id="@+id/fragment_container"
+        android:id="@+id/auth_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
