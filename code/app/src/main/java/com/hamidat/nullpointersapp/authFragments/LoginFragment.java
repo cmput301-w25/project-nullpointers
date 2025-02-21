@@ -1,7 +1,7 @@
 package com.hamidat.nullpointersapp.authFragments;
 
-import static com.hamidat.nullpointersapp.utils.AuthHelpers.giveAuthNotification;
-import static com.hamidat.nullpointersapp.utils.AuthHelpers.validateNoEmptyFields;
+import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers.giveAuthNotification;
+import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers.validateNoEmptyFields;
 
 import android.content.Intent;
 import android.os.Bundle;

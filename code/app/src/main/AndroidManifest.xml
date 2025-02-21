@@ -13,7 +13,11 @@
         android:theme="@style/Theme.NullPointersApp"
         tools:targetApi="31">
 
-        <!-- Authentication Activity (Login/Sign Up) - Set as the Launcher Activity -->
+        <!-- Add this metadata tag -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAEXM6z7pPz1urQwRZnCzhesevaK6bQCn0"/>
+
         <activity
             android:name=".AuthActivity"
             android:exported="true">
@@ -22,10 +26,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <!-- Main Activity (After successful login) -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
 
     </application>
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
