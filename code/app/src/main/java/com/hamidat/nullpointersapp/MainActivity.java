@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         // Set click listeners with Toast feedback and load appropriate fragments
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new FirestoreTestFragment()); // Placeholder fragment
+            loadFragment(new ProfileFragment()); // Placeholder fragment
         });
 
         ivAddMood.setOnClickListener(view -> {

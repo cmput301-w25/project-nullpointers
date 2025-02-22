@@ -1,7 +1,7 @@
 package com.hamidat.nullpointersapp.authFragments;
 
-import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers.giveAuthNotification;
-import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers.validateNoEmptyFields;
+import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelper.giveAuthNotification;
+import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelper.validateNoEmptyFields;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,9 +17,12 @@ import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+
+import java.util.Map;
 
 /**
- * Handles a user login attempt
+ * Handles a user login attempt.
  */
 public class LoginFragment extends Fragment {
 
@@ -31,25 +34,23 @@ public class LoginFragment extends Fragment {
     }
 
     /**
-     * Inflates the fragment layout and initializes UI components.
+     * Inflates the layout for this fragment and sets up UI listeners.
      *
-     * @param inflater           LayoutInflater object to inflate views.
-     * @param container          Parent view that the fragment's UI should attach to.
-     * @param savedInstanceState Bundle containing saved state data.
-     * @return The inflated view for the fragment.
+     * @param inflater           The LayoutInflater object that can be used to inflate views.
+     * @param container          The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState A Bundle containing the fragment's previously saved state.
+     * @return The root View for the fragment's UI.
      */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_login, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // Bind UI elements
-        final EditText etLoginUsername = view.findViewById(R.id.etLoginUsername);
-        final EditText etLoginPassword = view.findViewById(R.id.etLoginPassword);
-        final Button btnLogin = view.findViewById(R.id.btnLogin);
-        final TextView tvRegisterNow = view.findViewById(R.id.tvRegisterNow);
+        final EditText etLoginUsername = rootView.findViewById(R.id.etLoginUsername);
+        final EditText etLoginPassword = rootView.findViewById(R.id.etLoginPassword);
+        final Button btnLogin = rootView.findViewById(R.id.btnLogin);
+        final TextView tvRegisterNow = rootView.findViewById(R.id.tvRegisterNow);
 
-        // Handle Login Button Click
         btnLogin.setOnClickListener(v -> {
             giveAuthNotification(requireContext(), "Request to login received");
 
@@ -60,33 +61,32 @@ public class LoginFragment extends Fragment {
             final String loginUsername = etLoginUsername.getText().toString().trim();
             final String loginPassword = etLoginPassword.getText().toString().trim();
 
-            // Attempt to login
-            boolean isLoginSuccessful = loginUser(loginUsername, loginPassword);
-            if (isLoginSuccessful) {
-                // Switch to MainActivity instead of trying to load ProfileFragment inside AuthActivity
-                Intent intent = new Intent(requireActivity(), MainActivity.class);
-                startActivity(intent);
-                requireActivity().finish(); // Close AuthActivity
-            }
+            FirestoreHelper firestoreHelper = new FirestoreHelper();
+            firestoreHelper.getUserByUsername(loginUsername, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    String storedPassword = (String) userData.get("password");
+
+                    if (storedPassword != null && storedPassword.equals(loginPassword)) {
+                        final Intent intent = new Intent(requireActivity(), MainActivity.class);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    } else {
+                        giveAuthNotification(requireContext(), "Incorrect password");
+                    }
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    giveAuthNotification(requireContext(), "Login failed: " + e.getMessage());
+                }
+            });
         });
 
-        // Navigate to SignUpFragment
-        tvRegisterNow.setOnClickListener(v -> {
-            ((AuthActivity) requireActivity()).switchToFragment(new SignUpFragment());
-        });
+        tvRegisterNow.setOnClickListener(v ->
+                ((AuthActivity) requireActivity()).switchToFragment(new SignUpFragment())
+        );
 
-        return view;
-    }
-
-    /**
-     * Attempts to authenticate a user with the provided credentials.
-     *
-     * @param username User's username.
-     * @param password User's password.
-     * @return True if authentication is successful, false otherwise.
-     */
-    private boolean loginUser(String username, String password) {
-        // TODO - Replace with real authentication logic
-        return true;
+        return rootView;
     }
 }
