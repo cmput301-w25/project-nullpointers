@@ -11,9 +11,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.Firebase;
 import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import androidx.annotation.NonNull;
 
 /**
  * Handles a user sign-up attempt.
@@ -47,6 +56,10 @@ public class SignUpFragment extends Fragment {
         final Button signUpButton = view.findViewById(R.id.btnSignUp);
         final TextView alreadyAMemberLink = view.findViewById(R.id.tvAlreadyMember);
 
+        // Firestore Auth creation
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
         // Handle Sign Up Button Click
         signUpButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "SignUp Request Received", Toast.LENGTH_SHORT).show();
@@ -63,7 +76,7 @@ public class SignUpFragment extends Fragment {
             }
 
             // Add valid user to DB
-            boolean isSignUpSuccessful = AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword);
+            boolean isSignUpSuccessful = AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword, auth, firestore);
             if (isSignUpSuccessful) {
                 // Switch back to LoginFragment after successful signup
                 ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
