@@ -16,14 +16,11 @@ import java.util.Map;
 
 /**
  * Provides methods for interacting with Firebase Firestore to manage a user's mood history.
- *
- * <p>This class encapsulates operations such as adding mood history data to Firebase,
+ * This class encapsulates operations such as adding mood history data to Firebase,
  * querying the mood history, and applying various filters and sorting orders.
  * It integrates with the com.hamidat.nullpointersapp.moodClasses.Mood and
- * com.hamidat.nullpointersapp.moodClasses.moodHistory classes to manage mood data.</p>
+ * com.hamidat.nullpointersapp.moodClasses.moodHistory classes to manage mood data.
  *
- * @author Arden Monaghan
- * @version 1.0
  */
 public class firestoreMoodHistory {
     protected FirebaseFirestore firestore;
@@ -58,9 +55,8 @@ public class firestoreMoodHistory {
 
     /**
      * Adds all mood entries from the given moodHistory to Firebase.
-     *
-     * <p>This method iterates over each Mood in the provided moodHistory and adds it
-     * to the moodHistory collection for the specified user document.</p>
+     * This method iterates over each Mood in the provided moodHistory and adds it
+     * to the moodHistory collection for the specified user document.
      *
      * @param userID          the unique identifier of the user.
      * @param userMoodHistory the moodHistory object containing the mood entries to add.
@@ -80,9 +76,8 @@ public class firestoreMoodHistory {
 //  ALL QUERYING RELATED FUNCTIONS
     /**
      * Attaches a snapshot listener to the given query to listen for real-time updates from Firestore.
-     *
-     * <p>The listener converts each document in the query snapshot to a link Mood object and adds it to
-     * a new moodHistory instance, which is then passed to the callback on success.</p>
+     * The listener converts each document in the query snapshot to a link Mood object and adds it to
+     * a new moodHistory instance, which is then passed to the callback on success.
      *
      * @param query    the Firestore query to attach the snapshot listener to.
      * @param userID   the unique identifier of the user.
@@ -110,9 +105,8 @@ public class firestoreMoodHistory {
 
     /**
      * Applies an ordering to the provided query for the timestamp field.
-     *
-     * <p>If the ascending parameter is true, the query is ordered in ascending order;
-     * otherwise, it is ordered in descending order.</p>
+     * If the ascending parameter is true, the query is ordered in ascending order;
+     * otherwise, it is ordered in descending order.
      *
      * @param query     the Firestore query to order.
      * @param ascending if true, orders in ascending order; if false, in descending order.
@@ -133,9 +127,8 @@ public class firestoreMoodHistory {
 
     /**
      * Retrieves the entire moodHistory collection for a specified user from Firestore.
-     *
-     * <p>This method attaches a snapshot listener to the user's moodHistory collection, returning
-     * the results via the provided callback.</p>
+     * This method attaches a snapshot listener to the user's moodHistory collection, returning
+     * the results via the provided callback.
      *
      * @param userID   the unique identifier of the user.
      * @param callback the callback to handle the retrieved mood history or errors.
@@ -149,9 +142,8 @@ public class firestoreMoodHistory {
 
     /**
      * Queries the moodHistory collection for entries matching a specific emotional state.
-     *
-     * <p>The query filters mood entries where the "mood" field equals the provided moodType.
-     * The results are returned in real time via the callback.</p>
+     * The query filters mood entries where the "mood" field equals the provided moodType.
+     * The results are returned in real time via the callback.
      *
      * @param userID   the unique identifier of the user.
      * @param moodType the emotional state to filter by (e.g., "Happy", "Sad").
@@ -168,10 +160,9 @@ public class firestoreMoodHistory {
 
     /**
      * Queries the moodHistory collection based on time constraints and orders the results.
-     *
-     * <p>If sevenDays is true, the query filters mood entries to those within the past week.
+     * If sevenDays is true, the query filters mood entries to those within the past week.
      * Additionally, the query is ordered by the "timestamp" field in ascending or descending order based
-     * on the ascending parameter.</p>
+     * on the ascending parameter.
      *
      * @param userID    the unique identifier of the user.
      * @param sevenDays if true, filters mood entries to only those from the most recent week.
@@ -190,20 +181,20 @@ public class firestoreMoodHistory {
         Timestamp nowTimestamp = new Timestamp(now);
         Timestamp oneWeekAgoTimestamp = new Timestamp(oneWeekAgo);
 
-//      Query within 7 days and no data can have a date higher than present date.
+        // Query within 7 days and no data can have a date higher than present date.
         Query queryTime = moodHistoryRef;
 
         if (sevenDays) {
             queryTime = moodHistoryRef.whereGreaterThanOrEqualTo("timestamp", oneWeekAgoTimestamp).whereLessThanOrEqualTo("timestamp", nowTimestamp);
         }
-//      Function for toggling ascending or descending.
+        // Function for toggling ascending or descending.
         queryTime = toggleOrder(queryTime, ascending);
 
         attachSnapshotListener(queryTime, userID, callback);
     }
 
     public void addUser(moodHistory user) {
-//       Note: expecting user to already exist so this function will not be used
+        // Note: expecting user to already exist so this function will not be used
         Map<String, Object> userFields = new HashMap<>();
         userFields.put("userName", user.getUserName());
         firestore.collection("Users").add(userFields);
@@ -212,29 +203,3 @@ public class firestoreMoodHistory {
 
 }
 
-//        Testing Functionality.
-//        Boolean seven_days = true;
-//        Boolean ascending = false;
-//
-//        firestoreHistory.firebaseQueryTime("v1YZAtyUPIHFJd4p0cwN", seven_days, ascending, new firestoreMoodHistory.MoodHistoryCallback() {
-//            @Override
-//            public void onSuccess(moodHistory userMoodHistory) {
-//                int numMoods = userMoodHistory.getMoodArray().size();
-//                Toast.makeText(MainActivity.this,
-//                        "There are " + numMoods + " moods. Current ID is " + userMoodHistory.getUserID(),
-//                        Toast.LENGTH_LONG).show();
-//
-//                for (Mood mood : userMoodHistory.getMoodArray()) {
-//                    Log.d("FilterTest", "Mood Description and Timestamp " + mood.getMoodDescription());
-//                }
-//
-//            }
-//            @Override
-//            public void onFailure(Exception e) {
-//                Toast.makeText(MainActivity.this, "Failed to get queried Moods",Toast.LENGTH_LONG).show();
-//            }
-//        });
-
-// git add .
-// git commit -m
-// git push origin feature/moodHistory

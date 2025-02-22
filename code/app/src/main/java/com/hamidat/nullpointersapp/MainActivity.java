@@ -13,18 +13,14 @@ import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
 
-/**
- * The main activity that manages the primary navigation.
- */
-// imports from models (mood classes and firebase Utils)
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.firestoreMoodHistory;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.moodHistory;
 
-
-
-
+/**
+ * The main activity that manages the primary navigation.
+ */
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -38,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Contains the fragment_container
+
+        if (savedInstanceState == null) {
+            loadFragment(new ProfileFragment());
+        }
+
 
         //  Setting up firebase and all the moodHistory firebase functions
         firestore = FirebaseFirestore.getInstance();

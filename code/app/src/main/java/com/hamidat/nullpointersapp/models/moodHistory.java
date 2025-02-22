@@ -4,13 +4,10 @@ import java.util.ArrayList;
 
 /**
  * Represents the history of mood entries for a user.
- *
- * <p>This class stores a list of Mood objects and provides methods to add moods,
+ * This class stores a list of Mood objects and provides methods to add moods,
  * retrieve the mood history, and filter moods based on certain criteria such as text contained in their description.
- * It is used in conjunction with Firebase queries to populate the history.</p>
+ * It is used in conjunction with Firebase queries to populate the history.
  *
- * @author Arden Monaghan
- * @version 1.0
  */
 public class moodHistory {
     protected String userName;
@@ -26,7 +23,6 @@ public class moodHistory {
     protected ArrayList<Mood> moodArray;
 
     public moodHistory(String userID) {
-//        this.userName = userName;
         this.moodArray = new ArrayList<>();
     }
 
@@ -36,17 +32,16 @@ public class moodHistory {
     public moodHistory() {
         this.moodArray = new ArrayList<>();
     }
-//    Getters and setters
 
+    //Getters and setters
     public String getUserName() {
         return this.userName;
     }
 
-
     /**
      * Returns the user ID associated with this mood history.
      *
-     * @return the user's ID.
+     * @return this.userID the unique identifier of the user associated with this instance.
      */
     public String getUserID() {
         return this.userID;
@@ -55,7 +50,7 @@ public class moodHistory {
     /**
      * Retrieves the complete list of mood entries.
      *
-     * @return an ArrayList of Mood objects.
+     * @return ArrayList<Mood>
      */
     public ArrayList<Mood> getMoodArray() {
         return this.moodArray;
@@ -68,6 +63,8 @@ public class moodHistory {
     /**
      * Sets the user ID for this mood history.
      * userID the unique identifier of the user.
+     *
+     * @param userID the unique identifier of the user.
      */
     public void setUserID(String userID) {
         this.userID = userID;
@@ -85,11 +82,10 @@ public class moodHistory {
     /**
      * Filters the mood history to return only those mood entries whose description contains
      * the specified text.
+     * This method performs a case-insensitive search of the mood description.
      *
-     * <p>This method performs a case-insensitive search of the mood description.</p>
-     *
-     * queryText: the text to search for within each mood's description.
-     * @return an ArrayList of Mood objects that contain the query text in their description.
+     * @param queryText (the text to search)
+     * @return an ArrayList of Mood objects containing query text.
      */
     public ArrayList<Mood> filterByText(String queryText) {
 

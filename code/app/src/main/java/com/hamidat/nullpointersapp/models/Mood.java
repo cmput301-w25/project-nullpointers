@@ -5,33 +5,30 @@ import com.google.firebase.Timestamp;
 
 /**
  * Represents a mood event in the system.
+ * This class holds information about the user's emotional state and
+ * a short description.
  *
- * <p>This class holds information about the user's emotional state and
- * a short description.</p>
- *
- * @author  Arden Monaghan
- * @version 1.0
  */
 
 public class Mood {
 
-//    Values for the mood (demo variables)
+    //Values for the mood (demo variables)
     protected String mood;
     protected String moodDescription;
     protected Timestamp timestamp;
 
-//    Constructor for creating the mood
+    // Constructor for creating the mood
     public Mood(String mood, String moodDescription) {
         this.mood = mood;
         this.moodDescription = moodDescription;
         this.timestamp = new Timestamp(new Date());
     }
 
-//  Empty constructor
+    // Empty constructor
     public Mood() {
     }
 
-//    Getters and setters for the mood
+    // Getters and setters for the mood
     public String getMood() {
         return this.mood;
     }
@@ -48,7 +45,7 @@ public class Mood {
     public void setMoodDescription(String moodDescription) {
         this.moodDescription = moodDescription;
     }
-    public void setDate(Timestamp timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }
