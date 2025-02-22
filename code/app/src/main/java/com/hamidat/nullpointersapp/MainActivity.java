@@ -3,8 +3,6 @@ package com.hamidat.nullpointersapp;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -12,11 +10,11 @@ import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.*;
+
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.firestoreMoodHistory;
-import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 /**
  * The main activity that manages the primary navigation.
@@ -28,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param savedInstanceState The previously saved state, if any.
      */
-    FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +36,8 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(new ProfileFragment());
         }
 
-
         //  Setting up firebase and all the moodHistory firebase functions
-        firestore = FirebaseFirestore.getInstance();
-        firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
+        FirestoreHelper firestoreDbInstance = new FirestoreHelper();
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         // Set click listeners with Toast feedback and load appropriate fragments
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new SettingsFragment()); // Placeholder fragment
+            loadFragment(new FirestoreTestFragment()); // Placeholder fragment
         });
 
         ivAddMood.setOnClickListener(view -> {
