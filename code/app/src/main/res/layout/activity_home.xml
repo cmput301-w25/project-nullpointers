@@ -191,9 +191,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMoodList"
                 android:layout_width="match_parent"
-                android:layout_height="425dp"
-                android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="16dp" />
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"/>
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

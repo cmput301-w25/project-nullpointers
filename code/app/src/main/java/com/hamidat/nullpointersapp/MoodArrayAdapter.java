@@ -10,44 +10,48 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MoodArrayAdapter extends ArrayAdapter<Mood> {
-    public MoodArrayAdapter(Context context, ArrayList<Mood> moods) {
-        super(context, 0, moods);
+public class MoodArrayAdapter extends RecyclerView.Adapter<MoodArrayAdapter.MoodViewHolder> {
+    private Context context;
+    private List<Mood> moodList;
+
+    public MoodArrayAdapter(Context context, List<Mood> moodList) {
+        this.context = context;
+        this.moodList = moodList;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View view = (convertView == null) ? LayoutInflater.from(getContext()).inflate(R.layout.mood_item, parent, false) : convertView;
+    public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mood_item, parent, false);
+        return new MoodViewHolder(view);
+    }
 
-        Mood mood = getItem(position);
-        if (mood != null) {
-            TextView moodNameView = view.findViewById(R.id.edit_text_mood_name);
-            TextView dateView = view.findViewById(R.id.edit_text_date);
-            TextView descriptionView = view.findViewById(R.id.edit_text_description);
+    @Override
+    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
+        Mood mood = moodList.get(position);
+        holder.moodNameView.setText(mood.getMoodName());
+        holder.dateView.setText("Date: " + mood.getDate());
+        holder.descriptionView.setText("Description: " + mood.getDescription());
+    }
 
+    @Override
+    public int getItemCount() {
+        return moodList.size();
+    }
 
-            moodNameView.setText(mood.getMoodName());
-            dateView.setText("Date: " + mood.getDate());
-            descriptionView.setText("Description: " + mood.getDescription());
+    public static class MoodViewHolder extends RecyclerView.ViewHolder {
+        TextView moodNameView, dateView, descriptionView;
 
-//            editButton.setOnClickListener(v -> {
-//                if (getContext() instanceof MainActivity) {
-//                    MainActivity activity = (MainActivity) getContext();
-//                    activity.openEditMoodDialog(mood, position);
-//                }
-//            });
-//
-//            deleteButton.setOnClickListener(v -> {
-//                if (getContext() instanceof MainActivity) {
-//                    MainActivity activity = (MainActivity) getContext();
-//                    activity.deleteMood(position);
-//                }
-//            });
+        public MoodViewHolder(View itemView) {
+            super(itemView);
+            moodNameView = itemView.findViewById(R.id.mood_name);
+            dateView = itemView.findViewById(R.id.mood_date);
+            descriptionView = itemView.findViewById(R.id.mood_description);
         }
-        return view;
     }
 }
