@@ -1,12 +1,16 @@
 package com.hamidat.nullpointersapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.hamidat.nullpointersapp.mainFragments.AddMoodFragment;
+import com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
@@ -40,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
         // Set click listeners with Toast feedback and load appropriate fragments
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new SettingsFragment()); // Placeholder fragment
+            loadFragment(new HomeFeedFragment());
         });
 
         ivAddMood.setOnClickListener(view -> {
             Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());  // Placeholder fragment
+            loadFragment(new AddMoodFragment());
         });
 
         ivProfile.setOnClickListener(view -> {
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
             loadFragment(new MapFragment()); // Placeholder fragment
         });
+
     }
 
     /**
@@ -68,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
+    }
+    // Add this method to MainActivity.java
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof AddMoodFragment) {
+            ((AddMoodFragment) currentFragment).handleImageActivityResult(requestCode, resultCode, data);
+        }
     }
 
 }
