@@ -136,7 +136,7 @@ public class firestoreMoodHistory {
     public void firebaseToMoodHistory(String userID, MoodHistoryCallback callback) {
 
 //      Retrieving the moodHistory Reference from firestore
-        CollectionReference moodHistoryRef = firestore.collection("Users").document(userID).collection("moodHistory");
+        CollectionReference moodHistoryRef = firestore.collection("users").document(userID).collection("moodHistory");
         attachSnapshotListener(moodHistoryRef, userID, callback);
     }
 
@@ -197,7 +197,7 @@ public class firestoreMoodHistory {
         // Note: expecting user to already exist so this function will not be used
         Map<String, Object> userFields = new HashMap<>();
         userFields.put("userName", user.getUserName());
-        firestore.collection("Users").add(userFields);
+        firestore.collection("users").add(userFields);
     }
 
 

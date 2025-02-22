@@ -11,12 +11,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.utils.authUtils.AuthHelpers;
 
 /**
  * Handles a user login attempt
@@ -60,14 +63,19 @@ public class LoginFragment extends Fragment {
             final String loginUsername = etLoginUsername.getText().toString().trim();
             final String loginPassword = etLoginPassword.getText().toString().trim();
 
-            // Attempt to login
-            boolean isLoginSuccessful = loginUser(loginUsername, loginPassword);
-            if (isLoginSuccessful) {
-                // Switch to MainActivity instead of trying to load ProfileFragment inside AuthActivity
-                Intent intent = new Intent(requireActivity(), MainActivity.class);
-                startActivity(intent);
-                requireActivity().finish(); // Close AuthActivity
-            }
+//          Callback to login and be sent to MainActivity
+            AuthHelpers.loginUser(loginUsername, loginPassword, new AuthHelpers.LoginCallback() {
+                @Override
+                public void onLoginResult(boolean success) {
+                    if(success) {
+                        Intent intent = new Intent(requireActivity(), MainActivity.class);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    } else {
+                        Toast.makeText(requireContext(), "Login failed. Please check your credentials.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         });
 
         // Navigate to SignUpFragment
@@ -76,17 +84,5 @@ public class LoginFragment extends Fragment {
         });
 
         return view;
-    }
-
-    /**
-     * Attempts to authenticate a user with the provided credentials.
-     *
-     * @param username User's username.
-     * @param password User's password.
-     * @return True if authentication is successful, false otherwise.
-     */
-    private boolean loginUser(String username, String password) {
-        // TODO - Replace with real authentication logic
-        return true;
     }
 }

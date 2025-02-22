@@ -9,6 +9,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
         //  Setting up firebase and all the moodHistory firebase functions
         firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d("CURRENT_USER", "User ID: " + currentUser.getUid());
+
         firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
         // Bind navigation icons

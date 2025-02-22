@@ -56,10 +56,6 @@ public class SignUpFragment extends Fragment {
         final Button signUpButton = view.findViewById(R.id.btnSignUp);
         final TextView alreadyAMemberLink = view.findViewById(R.id.tvAlreadyMember);
 
-        // Firestore Auth creation
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
         // Handle Sign Up Button Click
         signUpButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "SignUp Request Received", Toast.LENGTH_SHORT).show();
@@ -75,12 +71,18 @@ public class SignUpFragment extends Fragment {
                 return;
             }
 
-            // Add valid user to DB
-            boolean isSignUpSuccessful = AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword, auth, firestore);
-            if (isSignUpSuccessful) {
-                // Switch back to LoginFragment after successful signup
-                ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
-            }
+            // Using a callback to send back to login if signUp was successful.
+            AuthHelpers.addNewUserToDB(requireContext(), signupUsername, signUpPassword, new AuthHelpers.SignupCallback() {
+                @Override
+                public void onSignupResult(boolean success) {
+                    if (success) {
+                        ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
+                    } else {
+                        // Show an error message or take other appropriate action
+                        Toast.makeText(requireContext(), "Signup failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         });
 
         // Navigate back to LoginFragment so the newly signed up user can login
