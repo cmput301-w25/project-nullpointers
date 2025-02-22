@@ -12,4 +12,5 @@
     <color name="accentColor">#7FB446</color>
     <color name="buttonColor">#AFBC9E</color>
     <color name="tertiaryColor">#d5e0cb</color>
+    <color name="backgroundColor">#EAF0D9</color>
 </resources>
