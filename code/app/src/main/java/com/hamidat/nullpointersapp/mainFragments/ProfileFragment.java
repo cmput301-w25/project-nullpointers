@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.models.profileModel.UserProfile;
+import com.hamidat.nullpointersapp.models.UserProfile;
 
 /**
  * Displays the user's profile information.

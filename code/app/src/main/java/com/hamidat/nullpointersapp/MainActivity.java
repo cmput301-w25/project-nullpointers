@@ -3,6 +3,8 @@ package com.hamidat.nullpointersapp;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -10,6 +12,11 @@ import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.firestoreMoodHistory;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.moodHistory;
 
 /**
  * The main activity that manages the primary navigation.
@@ -21,15 +28,21 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param savedInstanceState The previously saved state, if any.
      */
+    FirebaseFirestore firestore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Contains the fragment_container
 
-        // Load ProfileFragment by default if not already restored
         if (savedInstanceState == null) {
             loadFragment(new ProfileFragment());
         }
+
+
+        //  Setting up firebase and all the moodHistory firebase functions
+        firestore = FirebaseFirestore.getInstance();
+        firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
@@ -57,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
             loadFragment(new MapFragment()); // Placeholder fragment
         });
+
     }
 
     /**
