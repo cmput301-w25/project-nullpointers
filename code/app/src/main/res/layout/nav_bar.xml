@@ -3,14 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"> <!-- was match_parent, now wrap_content -->
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingBottom="10dp">
 
     <!-- App Title -->
     <TextView
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Moodify"
+        android:text="@string/moodify"
         android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="@color/textColor"
@@ -20,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Navigation Bar (Evenly Spaced Icons) -->
+    <!-- Navigation Bar -->
     <LinearLayout
         android:id="@+id/navigationIcons"
         android:layout_width="0dp"
@@ -32,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Example: 4 icons, each in its own LinearLayout -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,7 +60,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Home"/>
+                    android:text="@string/home"/>
 
             </LinearLayout>
 
@@ -80,7 +82,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add Mood"/>
+                    android:text="@string/add_mood"/>
             </LinearLayout>
 
             <!-- Profile icon -->
@@ -102,7 +104,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profile"/>
+                    android:text="@string/profile"/>
             </LinearLayout>
 
             <!-- Map icon -->
@@ -123,7 +125,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Map"/>
+                    android:text="@string/map"/>
 
             </LinearLayout>
         </LinearLayout>

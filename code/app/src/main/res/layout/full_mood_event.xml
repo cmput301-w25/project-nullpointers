@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Navigation Bar (Evenly Spaced Icons) -->
+    <!-- Navigation Bar -->
     <LinearLayout
         android:id="@+id/navigationIcons"
         android:layout_width="0dp"
@@ -98,7 +98,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Mood Events Card (With Green Box Inside) -->
+    <!-- Mood Events Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/moodEventsCard"
         android:layout_width="0dp"
