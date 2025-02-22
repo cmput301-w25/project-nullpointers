@@ -26,8 +26,9 @@ public class MoodActivity extends AppCompatActivity implements AddMoodFragment.A
         setContentView(R.layout.activity_home); // Use the existing XML layout
 
         // Retrieve the mood list from MoodManager instead of creating a new one
-        moodList = (ArrayList<Mood>) MoodManager.getInstance().getMoodList();
+        moodList = (ArrayList<Mood>) MoodManager.getInstance().getMoodListSorted();
         moodAdapter = new MoodArrayAdapter(this, moodList);
+
 
         RecyclerView moodRecyclerView = findViewById(R.id.rvMoodList);
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -48,12 +49,11 @@ public class MoodActivity extends AppCompatActivity implements AddMoodFragment.A
     // **Add this missing method**
     @Override
     public void addMood(Mood mood, int index) {
-        if (index >= 0 && index < moodList.size()) {
-            moodList.set(index, mood);
-        } else {
-            moodList.add(mood);
-        }
+        MoodManager.getInstance().addMood(mood, index);
+        moodList.clear();
+        moodList.addAll(MoodManager.getInstance().getMoodListSorted());
         moodAdapter.notifyDataSetChanged();
     }
+
 }
 

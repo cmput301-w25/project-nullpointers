@@ -39,34 +39,34 @@
             android:text="Short Description"
             android:textSize="16sp"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/black"/>
+            android:textColor="@color/white"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:gravity="end">
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:gravity="end">-->
 
-            <Button
-                android:id="@+id/button_edit_mood"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:textSize="14sp"
-                android:backgroundTint="@android:color/holo_blue_light"
-                android:textColor="@android:color/white"/>
+<!--            <Button-->
+<!--                android:id="@+id/button_edit_mood"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Edit"-->
+<!--                android:textSize="14sp"-->
+<!--                android:backgroundTint="@android:color/holo_blue_light"-->
+<!--                android:textColor="@android:color/white"/>-->
 
-            <Button
-                android:id="@+id/button_delete_mood"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                android:textSize="14sp"
-                android:backgroundTint="@android:color/holo_red_light"
-                android:textColor="@android:color/white"
-                android:layout_marginStart="8dp"/>
-        </LinearLayout>
+<!--            <Button-->
+<!--                android:id="@+id/button_delete_mood"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Delete"-->
+<!--                android:textSize="14sp"-->
+<!--                android:backgroundTint="@android:color/holo_red_light"-->
+<!--                android:textColor="@android:color/white"-->
+<!--                android:layout_marginStart="8dp"/>-->
+<!--        </LinearLayout>-->
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
