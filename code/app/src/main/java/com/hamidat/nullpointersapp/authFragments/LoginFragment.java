@@ -67,9 +67,13 @@ public class LoginFragment extends Fragment {
                 public void onSuccess(Object result) {
                     Map<String, Object> userData = (Map<String, Object>) result;
                     String storedPassword = (String) userData.get("password");
+                    String userId = (String) userData.get("userId"); // The document ID
+
 
                     if (storedPassword != null && storedPassword.equals(loginPassword)) {
                         final Intent intent = new Intent(requireActivity(), MainActivity.class);
+                        // Pass the userId of the currently logged in user as an extra
+                        intent.putExtra("USER_ID", userId);
                         startActivity(intent);
                         requireActivity().finish();
                     } else {

@@ -13,12 +13,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.UserProfile;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import java.util.Map;
 
 /**
  * Displays the user's profile information.
- * Converted from an Activity to a Fragment.
  */
 public class ProfileFragment extends Fragment {
     /**
@@ -37,31 +39,58 @@ public class ProfileFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
-    /**
-     * Binds UI elements and initializes user profile data.
-     *
-     * @param view               The view returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState Saved state data.
-     */
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // Bind UI elements
         ImageView profileIcon = view.findViewById(R.id.profile_icon);
-        TextView usernameText = view.findViewById(R.id.username_text);
+        final TextView usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
 
-        // Initialize user profile and display username
-        UserProfile userProfile = new UserProfile(DEFAULT_USERNAME);
-        usernameText.setText(String.format("My Username: %s", userProfile.getUsername()));
+        // Retrieve the shared FirestoreHelper and currentUserId from MainActivity
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            FirestoreHelper firestoreHelper = mainActivity.getFirestoreHelper();
+            String currentUserId = mainActivity.getCurrentUserId();
+
+            // Fetch the user data from Firestore using the current user ID
+            firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        String username = (String) userData.get("username");
+                        // Update the UI with the fetched username
+                        usernameText.setText(String.format("My Username: %s", username));
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getActivity(), "Failed to fetch user data: "
+                            + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(getActivity(), "Error retrieving Firestore instance",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        // if we want to test without auth, initialize a default UserProfile if needed)
+        // UserProfile userProfile = new UserProfile(DEFAULT_USERNAME);
+        // usernameText.setText(String.format("My Username: %s", userProfile.getUsername()));
 
         // Set button listeners with Toast feedback
         viewMoodHistoryButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "View Mood History clicked", Toast.LENGTH_SHORT).show());
+                Toast.makeText(getActivity(), "View Mood History clicked",
+                        Toast.LENGTH_SHORT).show());
 
         settingsButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Settings clicked", Toast.LENGTH_SHORT).show());
+                Toast.makeText(getActivity(), "Settings clicked",
+                        Toast.LENGTH_SHORT).show());
     }
 }

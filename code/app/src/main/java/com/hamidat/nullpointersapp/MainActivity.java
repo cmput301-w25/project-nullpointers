@@ -10,34 +10,37 @@ import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.*;
-
-
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreTestFragment;
 
-/**
- * The main activity that manages the primary navigation.
- */
 public class MainActivity extends AppCompatActivity {
+    private String currentUserId;
+    private FirestoreHelper currentUserFirestoreInstance;
 
     /**
      * Called when the activity is created.
      *
      * @param savedInstanceState The previously saved state, if any.
      */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Contains the fragment_container
 
+        // Retrieve the passed user ID
+        currentUserId = getIntent().getStringExtra("USER_ID");
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "Error: No logged in user ID provided", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Create a single FirestoreHelper instance for the logged in user
+        currentUserFirestoreInstance = new FirestoreHelper();
+
         if (savedInstanceState == null) {
             loadFragment(new ProfileFragment());
         }
-
-        //  Setting up firebase and all the moodHistory firebase functions
-        FirestoreHelper firestoreDbInstance = new FirestoreHelper();
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
@@ -45,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
 
-        // Set click listeners with Toast feedback and load appropriate fragments
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
             loadFragment(new ProfileFragment()); // Placeholder fragment
@@ -65,7 +67,24 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
             loadFragment(new MapFragment()); // Placeholder fragment
         });
+    }
 
+    /**
+     * Getter for the current user's FirestoreHelper instance.
+     *
+     * @return The FirestoreHelper instance.
+     */
+    public FirestoreHelper getFirestoreHelper() {
+        return currentUserFirestoreInstance;
+    }
+
+    /**
+     * Getter for the current user's document ID (user ID)
+     *
+     * @return The userID of the current user.
+     */
+    public String getCurrentUserId() {
+        return currentUserId;
     }
 
     /**
@@ -78,5 +97,4 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
-
 }

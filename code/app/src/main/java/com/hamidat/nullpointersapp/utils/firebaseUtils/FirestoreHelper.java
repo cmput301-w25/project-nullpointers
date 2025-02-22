@@ -55,6 +55,7 @@ public class FirestoreHelper {
 
     /**
      * Retrieves a user by their unique ID.
+     * On success, returns a Map<String, Object> containing user data (has the fields).
      *
      * @param userID   The unique identifier of the user.
      * @param callback The callback to receive the result.
