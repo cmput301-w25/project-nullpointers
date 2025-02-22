@@ -54,7 +54,7 @@
                     android:id="@+id/tvAddNewMoodEvent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_mood"
+                    android:text="@string/add_new_mood"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -77,7 +77,7 @@
                     android:id="@+id/tvDateLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date (picker)"
+                    android:text="@string/date_picker"
                     android:textSize="12sp"
                     android:textColor="@color/textColor"
                     android:layout_marginBottom="4dp" />
@@ -86,7 +86,7 @@
                     android:id="@+id/tvDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="February 8, 2025"
+                    android:text="@string/february_8_2025"
                     android:textSize="16sp"
                     android:textColor="@color/black" />
 
@@ -94,49 +94,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:layout_marginTop="4dp"
-                    android:background="#86A658" />
+                    android:background="@color/accentColor" />
             </LinearLayout>
 
-
-
-<!--            &lt;!&ndash; Date Picker &ndash;&gt;-->
-<!--            <TextView-->
-<!--                android:id="@+id/tvDateLabel"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Date (picker)"-->
-<!--                android:textColor="#455234"-->
-<!--                android:textStyle="bold" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnPickDate"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="February 8, 2025"-->
-<!--                android:layout_marginTop="4dp"-->
-<!--                android:layout_marginBottom="16dp"-->
-<!--                android:backgroundTint="#dfead0"-->
-<!--                android:textColor="#455234" />-->
-
-
-<!--            &lt;!&ndash; Time Picker &ndash;&gt;-->
-<!--            <TextView-->
-<!--                android:id="@+id/tvTimeLabel"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Time (picker)"-->
-<!--                android:textColor="#455234"-->
-<!--                android:textStyle="bold" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnPickTime"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="1:00PM"-->
-<!--                android:layout_marginTop="4dp"-->
-<!--                android:layout_marginBottom="16dp"-->
-<!--                android:backgroundTint="#dfead0"-->
-<!--                android:textColor="#455234" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -151,7 +111,7 @@
                     android:id="@+id/tvTimeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time (picker)"
+                    android:text="@string/time_picker"
                     android:textSize="12sp"
                     android:textColor="@color/textColor"
                     android:layout_marginBottom="4dp" />
@@ -160,9 +120,9 @@
                     android:id="@+id/tvTimeValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1:00PM"
+                    android:text="@string/_1_00pm"
                     android:textSize="16sp"
-                    android:textColor="#455234"/>
+                    android:textColor="@color/black"/>
 
             </LinearLayout>
 
@@ -178,7 +138,7 @@
                     android:id="@+id/ReasonLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reason Why (max 20 chars / 3 words):"
+                    android:text="@string/reason_why"
                     android:textColor="@color/textColor"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -189,10 +149,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
-                    android:background="#ffffff"
                     android:hint="Please type your thoughts here..."
                     android:inputType="textMultiLine"
-                    android:backgroundTint="#d5e0cb"
                     android:maxLength="20"
                     android:maxLines="3"
                     android:padding="12dp" />
@@ -202,9 +160,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:backgroundTint="#AFBC9E"
+                    android:backgroundTint="@color/buttonColor"
                     android:padding="8dp"
-                    android:text="Attach Photo Instead ( &lt; 65536 bytes )"
+                    android:text="@string/attach_photo"
                     android:textColor="@android:color/white" />
             </LinearLayout>
 
@@ -219,7 +177,7 @@
                     android:id="@+id/tvSocialSituation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Social Situation"
+                    android:text="@string/social_situation"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColor"
@@ -238,7 +196,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Alone"
+                        android:text="@string/alone"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -248,7 +206,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.1"
-                        android:text="One-On-One"
+                        android:text="@string/one_on_one"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -258,7 +216,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Group"
+                        android:text="@string/group"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -268,7 +226,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Crowd"
+                        android:text="@string/crowd"
                         android:textColor="@color/textColor"
                         android:textSize="10sp"
                         android:gravity="center" />
@@ -283,8 +241,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="10"
-                        android:text="Attach Location (Optional)"
-                        android:backgroundTint="#dfead0"
+                        android:text="@string/attach_location"
+                        android:backgroundTint="@color/buttonColor"
                         android:textColor="@color/textColor" />
 
                     <ImageView
@@ -294,7 +252,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:src="@drawable/ic_map"
-                        app:tint="#64a9e5" />
+                        app:tint="#64a9e5"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -309,7 +267,6 @@
         android:id="@+id/bottomButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center"
@@ -323,7 +280,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:text="SAVE ENTRY"
+            android:text="@string/save_entry"
             android:textAllCaps="true"
             android:textColor="@color/textColor"
             android:backgroundTint="@null"
@@ -337,7 +294,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:text="CANCEL"
+            android:text="@string/cancel"
             android:textAllCaps="true"
             android:textColor="@color/textColor"
             android:backgroundTint="@null"

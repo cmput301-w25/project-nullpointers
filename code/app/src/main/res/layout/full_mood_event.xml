@@ -5,26 +5,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
+    <!-- App Title -->
+    <TextView
+        android:id="@+id/tvAppTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Moodify"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/textColor"
+        android:fontFamily="sans-serif"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-
-<!--    commented code below was another nav graph making it appear double, can redo this file or delete-->
-
-<!--    &lt;!&ndash; App Title &ndash;&gt;-->
-<!--    <TextView-->
-<!--        android:id="@+id/tvAppTitle"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Moodify"-->
-<!--        android:textSize="30sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:textColor="@color/textColor"-->
-<!--        android:fontFamily="sans-serif"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:layout_marginStart="24dp"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
-
-<!--    &lt;!&ndash; Navigation Bar (Evenly Spaced Icons) &ndash;&gt;-->
+    <!-- Navigation Bar -->
 <!--    <LinearLayout-->
 <!--        android:id="@+id/navigationIcons"-->
 <!--        android:layout_width="0dp"-->

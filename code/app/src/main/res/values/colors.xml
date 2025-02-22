@@ -6,8 +6,11 @@
 
     <!-- our custom UI colours -->
     <color name="textColor">#27470F</color>
+    <color name="primary">#e9f3dc</color>
     <color name="primaryColor">#8DC34C</color>
     <color name="secondaryColor">#96DCC8</color>
     <color name="accentColor">#7FB446</color>
+    <color name="buttonColor">#AFBC9E</color>
+    <color name="tertiaryColor">#d5e0cb</color>
     <color name="backgroundColor">#EAF0D9</color>
 </resources>
