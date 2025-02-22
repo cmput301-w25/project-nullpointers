@@ -54,6 +54,10 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_home"
                     app:tint="@color/textColor" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home"/>
             </LinearLayout>
 
             <LinearLayout
@@ -69,6 +73,11 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_add"
                     app:tint="@color/textColor" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Mood"/>
+
             </LinearLayout>
 
             <LinearLayout
@@ -83,6 +92,11 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_profile"
                     app:tint="@color/textColor" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile"/>
             </LinearLayout>
 
             <LinearLayout
@@ -97,6 +111,11 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_map"
                     app:tint="@color/textColor" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Map"/>
             </LinearLayout>
 
         </LinearLayout>

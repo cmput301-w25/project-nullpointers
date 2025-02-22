@@ -13,7 +13,7 @@
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Following Moodify"
+        android:text="Moodify"
         android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="@color/textColor"
@@ -145,7 +145,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:text="Mood Events - Following"
+                        android:text="Followed Mood Events"
                         android:textColor="@color/white"
                         android:textSize="22sp"
                         android:textStyle="bold" />
