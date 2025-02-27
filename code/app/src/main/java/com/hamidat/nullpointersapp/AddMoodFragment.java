@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,9 +47,13 @@ public class AddMoodFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_add_mood, null);
 
-        moodNameInput = view.findViewById(R.id.edit_text_mood_name);
-        dateInput = view.findViewById(R.id.edit_text_date);
-        descriptionInput = view.findViewById(R.id.edit_text_description);
+        moodNameInput = view.findViewById(R.id.mood_name);
+        dateInput = view.findViewById(R.id.mood_date);
+        descriptionInput = view.findViewById(R.id.mood_description);
+
+
+
+
 
         if (mood != null) {
             moodNameInput.setText(mood.getMoodName());

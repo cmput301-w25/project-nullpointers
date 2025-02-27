@@ -25,7 +25,7 @@
             android:paddingBottom="8dp" />
 
         <EditText
-            android:id="@+id/edit_text_mood_name"
+            android:id="@+id/mood_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Mood Name"
@@ -34,16 +34,52 @@
             android:padding="12dp"/>
 
         <EditText
-            android:id="@+id/edit_text_date"
+            android:id="@+id/mood_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Date"
+            android:hint="Date (YYYY-MM-DD)"
             android:inputType="date"
             android:backgroundTint="@android:color/darker_gray"
             android:padding="12dp"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/mood_hour"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="HH"
+                android:inputType="number"
+                android:maxLength="2"
+                android:backgroundTint="@android:color/darker_gray"
+                android:padding="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:textSize="18sp"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/mood_minute"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="MM"
+                android:inputType="number"
+                android:maxLength="2"
+                android:backgroundTint="@android:color/darker_gray"
+                android:padding="12dp"/>
+        </LinearLayout>
+
         <EditText
-            android:id="@+id/edit_text_description"
+            android:id="@+id/mood_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Short Description"
@@ -51,14 +87,6 @@
             android:backgroundTint="@android:color/darker_gray"
             android:padding="12dp"/>
 
-        <Button
-            android:id="@+id/button_save_mood"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Mood"
-            android:backgroundTint="@android:color/holo_green_light"
-            android:textColor="@android:color/white"
-            android:padding="12dp"
-            android:layout_marginTop="12dp"/>
+
     </LinearLayout>
 </ScrollView>

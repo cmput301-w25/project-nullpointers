@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp; //gg
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,23 +25,33 @@ public class MoodManager {
         this.listener = listener;
     }
 
+    public List<Mood> getMoodList() {
+        return moodList;
+    }
+
     public List<Mood> getMoodListSorted() {
         List<Mood> sortedList = new ArrayList<>(moodList);
         Collections.sort(sortedList, new Comparator<Mood>() {
             @Override
             public int compare(Mood m1, Mood m2) {
-                return extractYear(m2.getDate()) - extractYear(m1.getDate()); // Sort descending
+                int yearDiff = m2.getYear() - m1.getYear();
+                if (yearDiff != 0) return yearDiff;
+
+                int monthDiff = m2.getMonth() - m1.getMonth();
+                if (monthDiff != 0) return monthDiff;
+
+                int dayDiff = m2.getDay() - m1.getDay();
+                if (dayDiff != 0) return dayDiff;
+
+                int hourDiff = m2.getHour() - m1.getHour();
+                if (hourDiff != 0) return hourDiff;
+
+                return m2.getMinute() - m1.getMinute();
             }
         });
         return sortedList;
     }
-    private int extractYear(String date) {
-        try {
-            return Integer.parseInt(date.substring(date.lastIndexOf("-") + 1));
-        } catch (Exception e) {
-            return 0; // Default if parsing fails
-        }
-    }
+
     public void addMood(Mood mood, int index) {
         if (index >= 0 && index < moodList.size()) {
             moodList.set(index, mood);
@@ -57,4 +67,3 @@ public class MoodManager {
         void onMoodListUpdated();
     }
 }
-
