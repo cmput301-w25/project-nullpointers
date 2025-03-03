@@ -5,13 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- this time include the custom nav_bar layout -->
-    <include
-        android:id="@+id/topNavBar"
-        layout="@layout/nav_bar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Mood Events  -->
     <androidx.cardview.widget.CardView
@@ -24,8 +18,8 @@
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/fadedGreen"
-        app:layout_constraintTop_toBottomOf="@id/topNavBar"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
