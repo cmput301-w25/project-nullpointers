@@ -164,6 +164,16 @@
                     android:padding="8dp"
                     android:text="@string/attach_photo"
                     android:textColor="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/ivPhotoPreview"
+                    android:layout_width="300dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:layout_marginTop="10dp" />
+
             </LinearLayout>
 
             <LinearLayout
