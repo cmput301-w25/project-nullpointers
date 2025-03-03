@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            navController.navigate(R.id.profileNavGraphFragment);
+            navController.navigate(R.id.homeFeedFragment);
         });
 
         ivAddMood.setOnClickListener(view -> {

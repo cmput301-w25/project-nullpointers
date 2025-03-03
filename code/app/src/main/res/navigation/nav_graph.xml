@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/profileNavGraphFragment">  <!-- Start at Profile -->
 
@@ -22,4 +23,11 @@
         android:id="@+id/mapFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.MapFragment"
         android:label="Map" />
+
+    <fragment
+        android:id="@+id/homeFeedFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment"
+        android:label="Home"
+        tools:layout="@layout/full_mood_event" />
+
 </navigation>
