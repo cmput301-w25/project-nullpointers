@@ -80,42 +80,36 @@ public class AddMoodFragment extends Fragment {
                     return;
                 }
 
-                if (base64Image != null) {
+                FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        if (isAdded() && getView() != null) { // Check if fragment is still attached
+                            Toast.makeText(requireContext(), "Mood saved successfully!", Toast.LENGTH_SHORT).show();
+
+                            // Safely navigate back to ProfileFragment
+                            NavController navController = Navigation.findNavController(getView());
+                            navController.navigate(R.id.action_addNewMoodNavGraphFragment_to_profileNavGraphFragment);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (isAdded()) { // Ensure fragment is attached before showing error
+                            Toast.makeText(requireContext(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                };
+                if
+                (base64Image != null) {
                     // Save mood with image
                     Mood moodWithImage = new Mood("User Mood", reasonText, base64Image);
-                    firestoreHelper.addMoodWithPhoto(currentUserId, moodWithImage, new FirestoreHelper.FirestoreCallback() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            if (getActivity() != null) { // Prevent crashes if activity closes
-                                Toast.makeText(getActivity(), result.toString(), Toast.LENGTH_SHORT).show();
-
-                                // Navigate back to ProfileFragment for now idk
-                                NavController navController = Navigation.findNavController(requireView());
-                                navController.navigate(R.id.action_addNewMoodNavGraphFragment_to_profileNavGraphFragment);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    firestoreHelper.addMoodWithPhoto(currentUserId, moodWithImage, moodCallback);
                 } else {
                     // Save mood without image
                     Mood moodWithoutImage = new Mood("User Mood", reasonText);
-                    firestoreHelper.addMood(currentUserId, moodWithoutImage, new FirestoreHelper.FirestoreCallback() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            Toast.makeText(getActivity(), "Mood saved successfully! 😊", Toast.LENGTH_SHORT).show();
-                            getActivity().onBackPressed(); // Navigate back
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    firestoreHelper.addMood(currentUserId, moodWithoutImage, moodCallback);
                 }
+
             });
 
             btnCancel.setOnClickListener(v -> {
