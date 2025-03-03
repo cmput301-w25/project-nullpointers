@@ -1,6 +1,7 @@
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hamidat.nullpointersapp.models.Mood;
 
 /**
  * FirestoreHelper provides a unified interface for interacting with Firestore.
@@ -11,6 +12,7 @@ public class FirestoreHelper {
     private FirebaseFirestore firestore;
     private FirestoreUsers firestoreUsers;
     private FirestoreMoodHistory firestoreMoodHistory;
+    private FirestoreAddEditMoods firestoreAddEditMoods;
 
     /**
      * Callback interface for Firestore operations.
@@ -38,6 +40,7 @@ public class FirestoreHelper {
         this.firestore = FirebaseFirestore.getInstance();
         this.firestoreUsers = new FirestoreUsers(firestore);
         this.firestoreMoodHistory = new FirestoreMoodHistory(firestore);
+        this.firestoreAddEditMoods = new FirestoreAddEditMoods(firestore);
     }
 
     // ======= USER FUNCTIONS =======
@@ -74,18 +77,51 @@ public class FirestoreHelper {
         firestoreUsers.getUserByUsername(username, callback);
     }
 
-    // ======= MOOD HISTORY FUNCTIONS (unchanged) =======
+    // ======= ADD/EDIT MOOD FUNCTIONS =======
+
     /**
-     * Uploads the user's mood history to Firestore.
+     * Saves a mood WITHOUT an image.
      *
-     * @param userID         The unique identifier of the user.
-     * @param userMoodHistory The mood history object.
-     * @param callback       The callback to receive the result.
+     * @param userID   The user identifier.
+     * @param mood     The Mood object (without image).
+     * @param callback The callback for Firestore operations.
      */
-    public void moodHistoryToFirebase(String userID, com.hamidat.nullpointersapp.models.moodHistory userMoodHistory, FirestoreCallback callback) {
-        firestoreMoodHistory.moodHistoryToFirebase(userID, userMoodHistory, callback);
+    public void addMood(String userID, Mood mood, FirestoreCallback callback) {
+        firestoreAddEditMoods.saveMoodWithoutImage(userID, mood, new FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                callback.onSuccess("Mood saved successfully! 😊 Mood ID: " + result);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(new Exception("Oops! Couldn't save your mood. Try again."));
+            }
+        });
     }
 
+    /**
+     * Saves a mood WITH an image.
+     *
+     * @param userID   The user identifier.
+     * @param mood     The Mood object (with image).
+     * @param callback The callback for Firestore operations.
+     */
+    public void addMoodWithPhoto(String userID, Mood mood, FirestoreCallback callback) {
+        firestoreAddEditMoods.saveMoodWithImage(userID, mood, new FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                callback.onSuccess("Mood with photo saved! 🎉 Mood ID: " + result);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(new Exception("Something went wrong while saving your mood with the image. Try again!"));
+            }
+        });
+    }
+
+    // ======= MOOD HISTORY FUNCTIONS =======
     /**
      * Retrieves the mood history for a user from Firestore.
      *

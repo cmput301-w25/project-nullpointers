@@ -37,6 +37,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

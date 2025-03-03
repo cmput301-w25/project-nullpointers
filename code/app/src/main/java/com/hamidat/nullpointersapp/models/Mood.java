@@ -16,6 +16,15 @@ public class Mood {
     protected String mood;
     protected String moodDescription;
     protected Timestamp timestamp;
+    protected String imageBase64;
+
+    // Constructor for creating the mood with an optional image
+    public Mood(String mood, String moodDescription, String imageBase64) {
+        this.mood = mood;
+        this.moodDescription = moodDescription;
+        this.timestamp = new Timestamp(new Date());
+        this.imageBase64 = imageBase64;
+    }
 
     // Constructor for creating the mood
     public Mood(String mood, String moodDescription) {
@@ -42,10 +51,19 @@ public class Mood {
     public void setMood(String mood) {
         this.mood = mood;
     }
+
+    public String getImageBase64() {
+        return this.imageBase64;
+    }
     public void setMoodDescription(String moodDescription) {
         this.moodDescription = moodDescription;
     }
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
+
+    public void setImageBase64(String imageBase64) {
+        this.imageBase64 = imageBase64;
+    }
+
 }
