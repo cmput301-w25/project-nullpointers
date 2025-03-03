@@ -15,6 +15,8 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.fragment.app.Fragment;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.MainActivity;
@@ -86,7 +88,10 @@ public class AddMoodFragment extends Fragment {
                         public void onSuccess(Object result) {
                             if (getActivity() != null) { // Prevent crashes if activity closes
                                 Toast.makeText(getActivity(), result.toString(), Toast.LENGTH_SHORT).show();
-                                getActivity().onBackPressed(); // Only navigate back if safe
+
+                                // Navigate back to ProfileFragment for now idk
+                                NavController navController = Navigation.findNavController(requireView());
+                                navController.navigate(R.id.action_addNewMoodNavGraphFragment_to_profileNavGraphFragment);
                             }
                         }
 

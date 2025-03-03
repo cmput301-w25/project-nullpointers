@@ -3,4 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph">
 
+    <fragment
+        android:id="@+id/profileNavGraphFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.ProfileFragment"
+        android:label="Profile" />
+
+    <fragment
+        android:id="@+id/addNewMoodNavGraphFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.AddMoodFragment"
+        android:label="Profile" >
+        <action
+            android:id="@+id/action_addNewMoodNavGraphFragment_to_profileNavGraphFragment"
+            app:destination="@id/profileNavGraphFragment" />
+    </fragment>
+
 </navigation>
