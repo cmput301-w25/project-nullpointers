@@ -61,56 +61,63 @@ public class AddMoodFragment extends Fragment {
         // Get Firestore helper from MainActivity
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
-            FirestoreHelper firestoreHelper = mainActivity.getFirestoreHelper();
-            currentUserId = mainActivity.getCurrentUserId();
-        }
+            this.firestoreHelper = mainActivity.getFirestoreHelper();
+            this.currentUserId = mainActivity.getCurrentUserId();
 
-        btnAttachPhoto.setOnClickListener(v -> openImagePicker());
-
-        btnSaveEntry.setOnClickListener(v -> {
-            String reasonText = etReason.getText().toString().trim();
-            if (reasonText.isEmpty()) {
-                Toast.makeText(getActivity(), "Please enter a reason for your mood.", Toast.LENGTH_SHORT).show();
+            if (firestoreHelper == null) {
+                Toast.makeText(getActivity(), "Error: Firestore is unavailable!", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            if (base64Image != null) {
-                // Save mood with image
-                Mood moodWithImage = new Mood("User Mood", reasonText, base64Image);
-                firestoreHelper.addMoodWithPhoto(currentUserId, moodWithImage, new FirestoreHelper.FirestoreCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        Toast.makeText(getActivity(), "Mood with photo saved successfully! 🎉", Toast.LENGTH_SHORT).show();
-                        getActivity().onBackPressed(); // Navigate back
-                    }
+            btnAttachPhoto.setOnClickListener(v -> openImagePicker());
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                // Save mood without image
-                Mood moodWithoutImage = new Mood("User Mood", reasonText);
-                firestoreHelper.addMood(currentUserId, moodWithoutImage, new FirestoreHelper.FirestoreCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        Toast.makeText(getActivity(), "Mood saved successfully! 😊", Toast.LENGTH_SHORT).show();
-                        getActivity().onBackPressed(); // Navigate back
-                    }
+            btnSaveEntry.setOnClickListener(v -> {
+                String reasonText = etReason.getText().toString().trim();
+                if (reasonText.isEmpty()) {
+                    Toast.makeText(getActivity(), "Please enter a reason for your mood.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
+                if (base64Image != null) {
+                    // Save mood with image
+                    Mood moodWithImage = new Mood("User Mood", reasonText, base64Image);
+                    firestoreHelper.addMoodWithPhoto(currentUserId, moodWithImage, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            if (getActivity() != null) { // Prevent crashes if activity closes
+                                Toast.makeText(getActivity(), result.toString(), Toast.LENGTH_SHORT).show();
+                                getActivity().onBackPressed(); // Only navigate back if safe
+                            }
+                        }
 
-        btnCancel.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Entry cancelled", Toast.LENGTH_SHORT).show();
-            getActivity().onBackPressed(); // Go back
-        });
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    // Save mood without image
+                    Mood moodWithoutImage = new Mood("User Mood", reasonText);
+                    firestoreHelper.addMood(currentUserId, moodWithoutImage, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            Toast.makeText(getActivity(), "Mood saved successfully! 😊", Toast.LENGTH_SHORT).show();
+                            getActivity().onBackPressed(); // Navigate back
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getActivity(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+            btnCancel.setOnClickListener(v -> {
+                Toast.makeText(getActivity(), "Entry cancelled", Toast.LENGTH_SHORT).show();
+                getActivity().onBackPressed(); // Go back
+            });
+        }
     }
 
     /**

@@ -78,7 +78,6 @@ public class FirestoreAddEditMoods {
         moodRef.set(moodData)
                 .addOnSuccessListener(aVoid -> {
                     updateUserMoodHistory(userID, moodID, callback);
-                    callback.onSuccess("Mood with photo saved! Looking good 😊 Mood ID: " + moodID);
                 })
                 .addOnFailureListener(e -> callback.onFailure(new Exception("Something went wrong while saving your mood with the image. Try again!")));
     }
