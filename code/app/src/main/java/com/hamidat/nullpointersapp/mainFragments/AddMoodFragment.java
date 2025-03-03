@@ -91,6 +91,8 @@ public class AddMoodFragment extends Fragment {
                     public void onFailure(Exception e) {
                         if (isAdded()) { // Ensure fragment is attached before showing error
                             Toast.makeText(requireContext(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
+
                         }
                     }
                 };
