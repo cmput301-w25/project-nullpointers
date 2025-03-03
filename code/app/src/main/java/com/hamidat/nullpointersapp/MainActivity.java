@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.hamidat.nullpointersapp.mainFragments.AddMoodFragment;
 import com.hamidat.nullpointersapp.mainFragments.MapFragment;
 import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
 import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         ivAddMood.setOnClickListener(view -> {
             Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());  // Placeholder fragment
+            loadFragment(new AddMoodFragment());  // Placeholder fragment
         });
 
         ivProfile.setOnClickListener(view -> {
