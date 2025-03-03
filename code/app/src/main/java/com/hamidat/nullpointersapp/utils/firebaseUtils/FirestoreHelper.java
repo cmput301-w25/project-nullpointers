@@ -123,17 +123,6 @@ public class FirestoreHelper {
 
     // ======= MOOD HISTORY FUNCTIONS =======
     /**
-     * Uploads the user's mood history to Firestore.
-     *
-     * @param userID         The unique identifier of the user.
-     * @param userMoodHistory The mood history object.
-     * @param callback       The callback to receive the result.
-     */
-    public void moodHistoryToFirebase(String userID, com.hamidat.nullpointersapp.models.moodHistory userMoodHistory, FirestoreCallback callback) {
-        firestoreMoodHistory.moodHistoryToFirebase(userID, userMoodHistory, callback);
-    }
-
-    /**
      * Retrieves the mood history for a user from Firestore.
      *
      * @param userID   The unique identifier of the user.

@@ -15,18 +15,14 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.fragment.app.Fragment;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreAddEditMoods;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import java.io.InputStream;
-import java.util.UUID;
 
 /**
  * Fragment to add a mood event with an optional image.
@@ -87,8 +83,7 @@ public class AddMoodFragment extends Fragment {
                             Toast.makeText(requireContext(), "Mood saved successfully!", Toast.LENGTH_SHORT).show();
 
                             // Safely navigate back to ProfileFragment
-                            NavController navController = Navigation.findNavController(getView());
-                            navController.navigate(R.id.action_addNewMoodNavGraphFragment_to_profileNavGraphFragment);
+                            Navigation.findNavController(getView()).navigate(R.id.profileNavGraphFragment);
                         }
                     }
 

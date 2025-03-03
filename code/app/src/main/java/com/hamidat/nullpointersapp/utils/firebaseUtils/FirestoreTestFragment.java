@@ -157,18 +157,6 @@ public class FirestoreTestFragment extends Fragment {
             moodHistory userMoodHistory = new moodHistory();
             userMoodHistory.setUserID(userId);
             userMoodHistory.addMood(mood);
-
-            firestoreHelper.moodHistoryToFirebase(userId, userMoodHistory,
-                    new FirestoreHelper.FirestoreCallback() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            showToast(result.toString());
-                        }
-                        @Override
-                        public void onFailure(Exception e) {
-                            showToast("Error: " + e.getMessage());
-                        }
-                    });
         });
 
         // Retrieve Mood History Button.

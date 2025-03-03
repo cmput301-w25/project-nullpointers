@@ -5,28 +5,19 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
-import com.hamidat.nullpointersapp.mainFragments.AddMoodFragment;
-import com.hamidat.nullpointersapp.mainFragments.MapFragment;
-import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
-import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreTestFragment;
 
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
     private FirestoreHelper currentUserFirestoreInstance;
+    private NavController navController;
 
-    /**
-     * Called when the activity is created.
-     *
-     * @param savedInstanceState The previously saved state, if any.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Contains the fragment_container
+        setContentView(R.layout.activity_main);
 
         // Retrieve the passed user ID
         currentUserId = getIntent().getStringExtra("USER_ID");
@@ -39,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
         // Create a single FirestoreHelper instance for the logged in user
         currentUserFirestoreInstance = new FirestoreHelper();
 
-        if (savedInstanceState == null) {
-            loadFragment(new ProfileFragment());
-        }
+        // Initialize NavController
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        navController = navHostFragment.getNavController();
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
@@ -51,51 +43,30 @@ public class MainActivity extends AppCompatActivity {
 
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment()); // Placeholder fragment
+            navController.navigate(R.id.profileNavGraphFragment);
         });
 
         ivAddMood.setOnClickListener(view -> {
             Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new AddMoodFragment());  // Placeholder fragment
+            navController.navigate(R.id.addNewMoodNavGraphFragment);
         });
 
         ivProfile.setOnClickListener(view -> {
             Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());
+            navController.navigate(R.id.profileNavGraphFragment);
         });
 
         ivMap.setOnClickListener(view -> {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new MapFragment()); // Placeholder fragment
+            navController.navigate(R.id.mapFragment);
         });
     }
 
-    /**
-     * Getter for the current user's FirestoreHelper instance.
-     *
-     * @return The FirestoreHelper instance.
-     */
     public FirestoreHelper getFirestoreHelper() {
         return currentUserFirestoreInstance;
     }
 
-    /**
-     * Getter for the current user's document ID (user ID)
-     *
-     * @return The userID of the current user.
-     */
     public String getCurrentUserId() {
         return currentUserId;
-    }
-
-    /**
-     * Loads a fragment into the fragment container.
-     *
-     * @param fragment The fragment to load.
-     */
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
     }
 }
