@@ -71,43 +71,48 @@ public class AddMoodFragment extends Fragment {
 
             btnSaveEntry.setOnClickListener(v -> {
                 String reasonText = etReason.getText().toString().trim();
-                if (reasonText.isEmpty()) {
-                    Toast.makeText(getActivity(), "Please enter a reason for your mood.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                // Validate reasonText, etc.
 
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
-                        if (isAdded() && getView() != null) { // Check if fragment is still attached
-                            Toast.makeText(requireContext(), "Mood saved successfully!", Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            // Construct your new Mood object
+                            Mood newMood;
+                            if (base64Image != null) {
+                                newMood = new Mood("User Mood", reasonText, base64Image);
+                            } else {
+                                newMood = new Mood("User Mood", reasonText);
+                            }
 
-                            // Safely navigate back to ProfileFragment
-                            Navigation.findNavController(getView()).navigate(R.id.profileNavGraphFragment);
+                            // Put the new Mood into a Bundle
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("NEW_MOOD", newMood);
+
+                            // Navigate to HomeFeedFragment, passing the new mood
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.homeFeedFragment, bundle);
+
+                            Toast.makeText(requireContext(), "Mood saved successfully!", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Exception e) {
-                        if (isAdded()) { // Ensure fragment is attached before showing error
+                        if (isAdded()) {
                             Toast.makeText(requireContext(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
-
                         }
                     }
                 };
-                if
-                (base64Image != null) {
-                    // Save mood with image
-                    Mood moodWithImage = new Mood("User Mood", reasonText, base64Image);
-                    firestoreHelper.addMoodWithPhoto(currentUserId, moodWithImage, moodCallback);
-                } else {
-                    // Save mood without image
-                    Mood moodWithoutImage = new Mood("User Mood", reasonText);
-                    firestoreHelper.addMood(currentUserId, moodWithoutImage, moodCallback);
-                }
 
+                // Actually save to Firestore (existing code)
+                if (base64Image != null) {
+                    firestoreHelper.addMoodWithPhoto(currentUserId, new Mood("User Mood", reasonText, base64Image), moodCallback);
+                } else {
+                    firestoreHelper.addMood(currentUserId, new Mood("User Mood", reasonText), moodCallback);
+                }
             });
+
 
             btnCancel.setOnClickListener(v -> {
                 Toast.makeText(getActivity(), "Entry cancelled", Toast.LENGTH_SHORT).show();
