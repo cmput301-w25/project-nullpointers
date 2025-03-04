@@ -1,104 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
 
-    <!-- App Title -->
-    <TextView
-        android:id="@+id/tvAppTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Moodify"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:textColor="@color/textColor"
-        android:fontFamily="sans-serif"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="24dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Navigation Bar -->
-    <LinearLayout
-        android:id="@+id/navigationIcons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvAppTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="4"
-            android:gravity="center">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
-                <ImageView
-                    android:id="@+id/ivHome"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_home"
-                    app:tint="@color/textColor" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
-                <ImageView
-                    android:id="@+id/ivAddMood"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_add"
-                    app:tint="@color/textColor" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
-                <ImageView
-                    android:id="@+id/ivProfile"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="@color/textColor" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
-                <ImageView
-                    android:id="@+id/ivMap"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_map"
-                    app:tint="@color/textColor" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Mood Events Card -->
+    <!-- Mood Events  -->
     <androidx.cardview.widget.CardView
         android:id="@+id/moodEventsCard"
         android:layout_width="0dp"
@@ -109,17 +18,16 @@
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/fadedGreen"
-        app:layout_constraintTop_toBottomOf="@id/navigationIcons"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="436dp"
-            android:layout_height="531dp"
+            android:layout_height="464dp"
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Mood Events Green Header Inside Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/moodEventsHeader"
                 android:layout_width="match_parent"
@@ -131,11 +39,10 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:gravity="start"
+                    android:orientation="vertical"
                     android:padding="12dp">
 
-                    <!-- Main Header -->
                     <TextView
                         android:id="@+id/tvMoodEvents"
                         android:layout_width="wrap_content"
@@ -144,33 +51,31 @@
                         android:text="Mood Events"
                         android:textColor="@color/white"
                         android:textSize="22sp"
-
                         android:textStyle="bold" />
 
-                    <!-- Subtext: Most Recent First -->
                     <TextView
                         android:id="@+id/tvMostRecentFirst"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
                         android:text="(Most Recent First)"
                         android:textColor="@color/white"
                         android:textSize="14sp"
-                        android:textStyle="italic"
-                        android:layout_marginTop="4dp" /> <!-- Added spacing between texts -->
+                        android:textStyle="italic" /> <!-- Added spacing -->
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-
             <!-- RecyclerView for Mood Cards -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMoodList"
                 android:layout_width="match_parent"
-                android:layout_height="425dp"
+                android:layout_height="385dp"
                 android:nestedScrollingEnabled="false"
                 android:paddingHorizontal="16dp" />
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
@@ -183,10 +88,10 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/moodEventsCard"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/moodEventsCard">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
             android:id="@+id/btnFilter"
@@ -216,6 +121,7 @@
             android:text="You Are Offline"
             android:textColor="@color/accentColor"
             android:textSize="16sp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

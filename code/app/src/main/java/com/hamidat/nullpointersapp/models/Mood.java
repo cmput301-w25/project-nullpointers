@@ -1,5 +1,6 @@
 package com.hamidat.nullpointersapp.models;
 
+import java.io.Serializable;
 import java.util.Date;
 import com.google.firebase.Timestamp;
 
@@ -10,7 +11,7 @@ import com.google.firebase.Timestamp;
  *
  */
 
-public class Mood {
+public class Mood implements Serializable {
 
     //Values for the mood (demo variables)
     protected String mood;

@@ -7,12 +7,29 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
     private FirestoreHelper currentUserFirestoreInstance;
     private NavController navController;
+
+    //for in memory list of moods
+    private final List<Mood> moodCache = new ArrayList<>();
+    public List<Mood> getMoodCache() {
+        return moodCache;
+    }
+
+    // Add a helper to add a new mood to moodCache
+    public void addMoodToCache(Mood newMood) {
+        // insert at the start so newest appears first
+        moodCache.add(0, newMood);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +58,10 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
 
+        //navigation changed to real homescreen by Salim
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            navController.navigate(R.id.profileNavGraphFragment);
+            navController.navigate(R.id.homeFeedFragment);
         });
 
         ivAddMood.setOnClickListener(view -> {
