@@ -17,16 +17,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * A RecyclerView adapter for displaying a list of Mood objects
+ * in item_mood_card.xml layouts. Each item view shows the
+ * Mood's main fields such as mood state, description,
+ * and timestamp.
+ *
+ * @author
+ *  (Salim Soufi)
+ * @version 1.0
+ * @since 2025-03-03
+ */
+
+
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
     private final List<Mood> moods;
 
-    // Constructor: store the list of moods
     public MoodAdapter(List<Mood> moods) {
         this.moods = moods;
     }
 
-    // For creating new ViewHolders when needed
     @NonNull
     @Override
     public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,17 +53,22 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         holder.bind(currentMood);
     }
 
-    // Number of items in the list
     @Override
     public int getItemCount() {
         return moods.size();
     }
 
-    // Method to add a new Mood at the top of the list
+    // adds a new Mood at the top of the list
     public void addMood(Mood newMood) {
-        moods.add(0, newMood);         // Insert at position 0
-        notifyItemInserted(0);         // Notify the adapter
+        moods.add(0, newMood);         // Insert at position top
+        notifyItemInserted(0);
     }
+    public void updateMoods(List<Mood> newMoods) {
+        moods.clear();
+        moods.addAll(newMoods);
+        notifyDataSetChanged();
+    }
+
 
     // ViewHolder holds references to views for each item
     /**
@@ -73,10 +89,9 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
 
         void bind(Mood mood) {
-            // Show the primary mood field
             tvMood.setText("Mood: " + mood.getMood());
 
-            // Show the mood description
+            // shows the mood description
             tvMoodDescription.setText(mood.getMoodDescription());
 
             // Convert Firebase Timestamp to a readable string

@@ -23,6 +23,7 @@ import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Fragment to add a mood event with an optional image.
@@ -71,48 +72,52 @@ public class AddMoodFragment extends Fragment {
 
             btnSaveEntry.setOnClickListener(v -> {
                 String reasonText = etReason.getText().toString().trim();
-                // Validate reasonText, etc.
+                if (reasonText.isEmpty()) {
+                    Toast.makeText(getActivity(), "Please enter a reason for your mood.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
+                // 1) Create the Mood object *before* setting up the callback
+                Mood newlyCreatedMood;
+                if (base64Image != null) {
+                    newlyCreatedMood = new Mood("User Mood", reasonText, base64Image);
+                } else {
+                    newlyCreatedMood = new Mood("User Mood", reasonText);
+                }
+
+                // 2) Define the callback, referencing newlyCreatedMood
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
-                        if (isAdded()) {
-                            // Construct your new Mood object
-                            Mood newMood;
-                            if (base64Image != null) {
-                                newMood = new Mood("User Mood", reasonText, base64Image);
-                            } else {
-                                newMood = new Mood("User Mood", reasonText);
-                            }
+                        if (!isAdded()) return;
 
-                            // Put the new Mood into a Bundle
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable("NEW_MOOD", newMood);
+                        Toast.makeText(requireContext(),
+                                "Mood saved successfully!", Toast.LENGTH_SHORT).show();
 
-                            // Navigate to HomeFeedFragment, passing the new mood
-                            Navigation.findNavController(requireView())
-                                    .navigate(R.id.homeFeedFragment, bundle);
+                        // insert the newly created Mood into MainActivity's LOCAL cache
+                        mainActivity.addMoodToCache(newlyCreatedMood);
 
-                            Toast.makeText(requireContext(), "Mood saved successfully!", Toast.LENGTH_SHORT).show();
-                        }
+                        //  navigate to HomeFeed
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.homeFeedFragment);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
-                        if (isAdded()) {
-                            Toast.makeText(requireContext(), "Failed to save mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        if (!isAdded()) return;
+                        Toast.makeText(requireContext(),
+                                "Failed to save mood: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 };
 
-                // Actually save to Firestore (existing code)
+                // save to Firestore using newlyCreatedMood
                 if (base64Image != null) {
-                    firestoreHelper.addMoodWithPhoto(currentUserId, new Mood("User Mood", reasonText, base64Image), moodCallback);
+                    firestoreHelper.addMoodWithPhoto(currentUserId, newlyCreatedMood, moodCallback);
                 } else {
-                    firestoreHelper.addMood(currentUserId, new Mood("User Mood", reasonText), moodCallback);
+                    firestoreHelper.addMood(currentUserId, newlyCreatedMood, moodCallback);
                 }
             });
-
 
             btnCancel.setOnClickListener(v -> {
                 Toast.makeText(getActivity(), "Entry cancelled", Toast.LENGTH_SHORT).show();
