@@ -183,6 +183,9 @@ public class FirestoreHelper {
         firestoreUsers.getAllUsers(callback);
     }
 
+    public void getOutgoingFriendRequests(String currentUserId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.getOutgoingFriendRequests(currentUserId, callback);
+    }
 
 }
 

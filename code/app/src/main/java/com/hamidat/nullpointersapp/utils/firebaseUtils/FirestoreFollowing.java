@@ -10,6 +10,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,4 +133,23 @@ public class FirestoreFollowing {
                 .addOnSuccessListener(aVoid -> callback.onSuccess("updated"))
                 .addOnFailureListener(callback::onFailure);
     }
+
+    public void getOutgoingFriendRequests(String currentUserId, FollowingCallback callback) {
+        firestore.collection(FRIEND_REQUESTS_COLLECTION)
+                .whereEqualTo("fromUserId", currentUserId)
+                .whereEqualTo("status", "pending")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    ArrayList<String> pendingUserIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()){
+                        String toUserId = doc.getString("toUserId");
+                        if (toUserId != null) {
+                            pendingUserIds.add(toUserId);
+                        }
+                    }
+                    callback.onSuccess(pendingUserIds);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
 }

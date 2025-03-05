@@ -306,21 +306,37 @@ public class FollowingFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
-                ArrayList<User> updatedAvailable = new ArrayList<>();
-                ArrayList<String> acceptedIds = new ArrayList<>();
-                for (User u : acceptedList) {
-                    acceptedIds.add(u.userId);
-                }
-                for (Map<String, Object> userData : users) {
-                    String username = (String) userData.get("username");
-                    String userId = (String) userData.get("userId");
-                    if (userId != null && !userId.equals(currentUserId) && !acceptedIds.contains(userId)) {
-                        updatedAvailable.add(new User(userId, username));
+                // Get the list of pending outgoing requests.
+                firestoreHelper.getOutgoingFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        ArrayList<String> pendingOutgoing = (ArrayList<String>) result; // user IDs with pending requests
+                        ArrayList<User> updatedAvailable = new ArrayList<>();
+                        ArrayList<String> acceptedIds = new ArrayList<>();
+                        for (User u : acceptedList) {
+                            acceptedIds.add(u.userId);
+                        }
+                        for (Map<String, Object> userData : users) {
+                            String username = (String) userData.get("username");
+                            String userId = (String) userData.get("userId");
+                            // Exclude the current user, accepted users, and those with pending outgoing requests.
+                            if (userId != null
+                                    && !userId.equals(currentUserId)
+                                    && !acceptedIds.contains(userId)
+                                    && !pendingOutgoing.contains(userId)) {
+                                updatedAvailable.add(new User(userId, username));
+                            }
+                        }
+                        availableList.clear();
+                        availableList.addAll(updatedAvailable);
+                        requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
                     }
-                }
-                availableList.clear();
-                availableList.addAll(updatedAvailable);
-                requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
+                    @Override
+                    public void onFailure(Exception e) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Error fetching pending requests: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
+                });
             }
             @Override
             public void onFailure(Exception e) {
@@ -329,4 +345,5 @@ public class FollowingFragment extends Fragment {
             }
         });
     }
+
 }
