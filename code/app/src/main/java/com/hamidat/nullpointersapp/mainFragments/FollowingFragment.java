@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +22,6 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
-import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -96,7 +95,7 @@ public class FollowingFragment extends Fragment {
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
         currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
 
-        // Fetch current username (like in ProfileFragment).
+        // Fetch current username (using same logic as in ProfileFragment)
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -104,16 +103,14 @@ public class FollowingFragment extends Fragment {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     currentUsername = (String) userData.get("username");
-                    requireActivity().runOnUiThread(() -> {
-                        tvCurrentUser.setText("Current User: " + currentUsername);
-                    });
+                    requireActivity().runOnUiThread(() ->
+                            tvCurrentUser.setText("Current User: " + currentUsername));
                 }
             }
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() -> {
-                    tvCurrentUser.setText("Current User: Unknown");
-                });
+                requireActivity().runOnUiThread(() ->
+                        tvCurrentUser.setText("Current User: Unknown"));
             }
         });
 
@@ -133,6 +130,7 @@ public class FollowingFragment extends Fragment {
                     String username = (String) userData.get("username");
                     String userId = (String) userData.get("userId");
                     if (userId != null && !userId.equals(currentUserId)) {
+                        // Only add if not already in acceptedList (i.e. already friends or pending)
                         availableList.add(new User(userId, username));
                     }
                 }
@@ -145,6 +143,27 @@ public class FollowingFragment extends Fragment {
             }
         });
 
+        // When an available user is tapped, send a friend request and remove them from available list.
+        lvAvailable.setOnItemClickListener((parent, view1, position, id) -> {
+            User selectedUser = availableList.get(position);
+            firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show();
+                        // Remove the user from available list so they don't show up again.
+                        availableList.remove(selectedUser);
+                        availableAdapter.notifyDataSetChanged();
+                    });
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error sending request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+            });
+        });
+
         // Listen for real-time updates to the current user's following list.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(currentUserId)
@@ -152,7 +171,8 @@ public class FollowingFragment extends Fragment {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
                     ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
                     if (followingIds == null) followingIds = new ArrayList<>();
-                    acceptedList.clear();
+                    // Build a temporary list of accepted users.
+                    final ArrayList<User> updatedAccepted = new ArrayList<>();
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
@@ -162,10 +182,13 @@ public class FollowingFragment extends Fragment {
                                     Map<String, Object> data = (Map<String, Object>) result;
                                     String username = (String) data.get("username");
                                     User user = new User(followUserId, username);
-                                    if (!acceptedList.contains(user)) {
-                                        acceptedList.add(user);
-                                    }
-                                    requireActivity().runOnUiThread(() -> acceptedAdapter.notifyDataSetChanged());
+                                    updatedAccepted.add(user);
+                                    // Update acceptedList on UI thread once all users are fetched.
+                                    requireActivity().runOnUiThread(() -> {
+                                        acceptedList.clear();
+                                        acceptedList.addAll(updatedAccepted);
+                                        acceptedAdapter.notifyDataSetChanged();
+                                    });
                                 }
                             }
                             @Override
@@ -173,24 +196,6 @@ public class FollowingFragment extends Fragment {
                         });
                     }
                 });
-
-
-        // When an available user is tapped, send a friend request.
-        lvAvailable.setOnItemClickListener((parent, view1, position, id) -> {
-            User selectedUser = availableList.get(position);
-            firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
-                @Override
-                public void onSuccess(Object result) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show());
-                }
-                @Override
-                public void onFailure(Exception e) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Error sending request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
-            });
-        });
 
         // Listen for incoming friend requests for the current user in real time.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
@@ -225,9 +230,7 @@ public class FollowingFragment extends Fragment {
                 });
             }
             @Override
-            public void onFailure(Exception e) {
-                // Optionally handle errors.
-            }
+            public void onFailure(Exception e) { }
         });
 
         // Accept friend request: update both users' following lists.
@@ -236,10 +239,9 @@ public class FollowingFragment extends Fragment {
                 firestoreHelper.acceptFriendRequest(pendingRequestDocId, new FirestoreFollowing.FollowingCallback() {
                     @Override
                     public void onSuccess(Object result) {
-                        // The snapshot listener will update the accepted list for both users.
                         requireActivity().runOnUiThread(() -> {
-                            llPendingRequest.setVisibility(View.GONE);
                             Toast.makeText(requireContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+                            llPendingRequest.setVisibility(View.GONE);
                         });
                         pendingRequestDocId = null;
                         pendingRequestUser = null;
@@ -260,8 +262,8 @@ public class FollowingFragment extends Fragment {
                     @Override
                     public void onSuccess(Object result) {
                         requireActivity().runOnUiThread(() -> {
-                            llPendingRequest.setVisibility(View.GONE);
                             Toast.makeText(requireContext(), "Friend request declined", Toast.LENGTH_SHORT).show();
+                            llPendingRequest.setVisibility(View.GONE);
                         });
                         pendingRequestDocId = null;
                         pendingRequestUser = null;
@@ -281,9 +283,9 @@ public class FollowingFragment extends Fragment {
             firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
                 @Override
                 public void onSuccess(Object result) {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show();
-                    });
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show());
+                    // Do not manually modify acceptedList here; the snapshot listener will update it.
                 }
                 @Override
                 public void onFailure(Exception e) {
