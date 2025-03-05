@@ -60,7 +60,7 @@ public class HomeFeedFragment extends Fragment {
     private void fetchMoodData() {
         if (currentUserId == null || firestoreHelper == null) return;
 
-        // First, fetch current user document to get the "following" array.
+        // Fetch the current user's document to get the "following" array.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -71,7 +71,7 @@ public class HomeFeedFragment extends Fragment {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
-                    // Ensure the current user's ID is included.
+                    // Always include the current user.
                     if (!followingIds.contains(currentUserId)) {
                         followingIds.add(currentUserId);
                     }
@@ -79,10 +79,19 @@ public class HomeFeedFragment extends Fragment {
                     firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
                         @Override
                         public void onSuccess(Object result) {
+                            // Expecting result as a moodHistory object
                             moodHistory history = (moodHistory) result;
-                            // Update our local list and notify adapter.
                             allMoods.clear();
                             allMoods.addAll(history.getMoodArray());
+                            // Sort moods by descending timestamp (newest at the top)
+                            java.util.Collections.sort(allMoods, (m1, m2) -> {
+                                if (m1.getTimestamp() == null || m2.getTimestamp() == null) {
+                                    return 0;
+                                }
+                                // Compare in descending order: newest (higher timestamp) first.
+                                return m2.getTimestamp().compareTo(m1.getTimestamp());
+                            });
+
                             requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
                         }
                         @Override
