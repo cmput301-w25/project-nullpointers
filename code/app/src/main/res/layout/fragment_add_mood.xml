@@ -18,7 +18,8 @@
         android:paddingBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomButtons"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/ReasonWhy"
@@ -28,27 +29,18 @@
             android:background="@drawable/rounded_box"
             android:padding="16dp">
 
-            <LinearLayout
-                android:id="@+id/layoutTitleBar"
+            <TextView
+                android:id="@+id/tvAddNewMoodEvent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:text="@string/add_new_mood"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:background="@drawable/rounded_title"
                 android:gravity="center"
-                android:layout_marginBottom="10dp"
                 android:paddingVertical="10dp"
-                android:paddingHorizontal="16dp"
-                android:background="@drawable/rounded_title">
-
-                <TextView
-                    android:id="@+id/tvAddNewMoodEvent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_new_mood"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
+                android:layout_marginBottom="16dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -56,11 +48,7 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/rounded_bin"
-                android:paddingTop="12dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingBottom="2dp"
-                >
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/tvDateLabel"
@@ -86,15 +74,13 @@
                     android:background="@color/accentColor" />
             </LinearLayout>
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/rounded_bin"
-                android:padding="12dp"
-                >
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/tvTimeLabel"
@@ -113,6 +99,74 @@
                     android:textSize="16sp"
                     android:textColor="@color/black"/>
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/rounded_bin"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvMoodLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mood"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColor"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgMood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp"
+                    android:weightSum="4">
+
+                    <RadioButton
+                        android:id="@+id/rbHappy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/happy"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbSad"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/sad"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbAngry"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/angry"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbChill"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/chill"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+                </RadioGroup>
             </LinearLayout>
 
             <LinearLayout
@@ -256,11 +310,8 @@
 
             </LinearLayout>
 
-
-
         </LinearLayout>
     </ScrollView>
-
 
     <LinearLayout
         android:id="@+id/bottomButtons"

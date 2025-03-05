@@ -3,6 +3,7 @@ package com.hamidat.nullpointersapp.utils.firebaseUtils;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,4 +90,20 @@ public class FirestoreUsers {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
+
+    public void getAllUsers(FirestoreHelper.FirestoreCallback callback) {
+        firestore.collection(USERS_COLLECTION)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    ArrayList<Map<String, Object>> userList = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Map<String, Object> userData = doc.getData();
+                        userData.put("userId", doc.getId());
+                        userList.add(userData);
+                    }
+                    callback.onSuccess(userList);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
 }

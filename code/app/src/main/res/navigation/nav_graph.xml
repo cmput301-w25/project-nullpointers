@@ -3,12 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFeedFragment">  <!-- Start at Profile -->
+    app:startDestination="@id/homeFeedFragment">
 
     <fragment
         android:id="@+id/profileNavGraphFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.ProfileFragment"
-        android:label="Profile" />
+        android:label="Profile">
+        <!-- Add an action to navigate to FollowingFragment -->
+        <action
+            android:id="@+id/action_profileNavGraphFragment_to_followingFragment"
+            app:destination="@id/followingFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/addNewMoodNavGraphFragment"
@@ -29,5 +34,12 @@
         android:name="com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment"
         android:label="Home"
         tools:layout="@layout/full_mood_event" />
+
+    <!-- New FollowingFragment entry -->
+    <fragment
+        android:id="@+id/followingFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.FollowingFragment"
+        android:label="Following"
+        tools:layout="@layout/fragment_following" />
 
 </navigation>
