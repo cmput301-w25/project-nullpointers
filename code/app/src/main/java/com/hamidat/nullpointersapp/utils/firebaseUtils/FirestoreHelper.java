@@ -14,6 +14,9 @@ public class FirestoreHelper {
     private FirestoreMoodHistory firestoreMoodHistory;
     private FirestoreAddEditMoods firestoreAddEditMoods;
 
+    private FirestoreFollowing firestoreFollowing;
+
+
     /**
      * Callback interface for Firestore operations.
      */
@@ -41,6 +44,7 @@ public class FirestoreHelper {
         this.firestoreUsers = new FirestoreUsers(firestore);
         this.firestoreMoodHistory = new FirestoreMoodHistory(firestore);
         this.firestoreAddEditMoods = new FirestoreAddEditMoods(firestore);
+        this.firestoreFollowing = new FirestoreFollowing(firestore);
     }
 
     // ======= USER FUNCTIONS =======
@@ -154,4 +158,32 @@ public class FirestoreHelper {
     public void firebaseQueryTime(String userID, boolean sevenDays, boolean ascending, FirestoreCallback callback) {
         firestoreMoodHistory.firebaseQueryTime(userID, sevenDays, ascending, callback);
     }
+
+    public void sendFriendRequest(String fromUserId, String toUserId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.sendFriendRequest(fromUserId, toUserId, callback);
+    }
+
+    public void acceptFriendRequest(String requestId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.acceptFriendRequest(requestId, callback);
+    }
+
+    public void declineFriendRequest(String requestId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.declineFriendRequest(requestId, callback);
+    }
+
+    public void removeFollowing(String userId, String unfollowUserId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.removeFollowing(userId, unfollowUserId, callback);
+    }
+
+    public void listenForFriendRequests(String currentUserId, FirestoreFollowing.FollowingCallback callback) {
+        firestoreFollowing.listenForFriendRequests(currentUserId, callback);
+    }
+
+    public void getAllUsers(FirestoreCallback callback) {
+        firestoreUsers.getAllUsers(callback);
+    }
+
+
 }
+
+
