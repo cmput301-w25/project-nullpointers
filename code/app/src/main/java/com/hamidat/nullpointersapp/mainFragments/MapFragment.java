@@ -358,19 +358,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void fetchMoodData() {
         if (currentUserId == null || firestoreHelper == null) return;
 
-        firestoreHelper.firebaseToMoodHistory(currentUserId, new FirestoreHelper.FirestoreCallback() {
+        // Fetch the current user's document to get the "following" field.
+        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
-                moodHistory history = (moodHistory) result;
-                updateMapData(history);
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
+                    if (followingIds == null) {
+                        followingIds = new ArrayList<>();
+                    }
+                    // Include the current user's ID as well.
+                    if (!followingIds.contains(currentUserId)) {
+                        followingIds.add(currentUserId);
+                    }
+                    // Now fetch mood events for all these user IDs.
+                    firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            moodHistory history = (moodHistory) result;
+                            updateMapData(history);
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Failed to load moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
-
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(getContext(), "Failed to load moods", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
 
 
