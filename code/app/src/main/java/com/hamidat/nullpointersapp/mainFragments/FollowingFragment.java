@@ -15,8 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class FollowingFragment extends Fragment {
 
-    // Simple model for a user
+    // Simple User model storing userId and username.
     public static class User {
         public String userId;
         public String username;
@@ -40,7 +40,15 @@ public class FollowingFragment extends Fragment {
 
         @Override
         public String toString() {
-            return username; // Display username in the list
+            return username; // For display in the list.
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof User) {
+                return this.userId.equals(((User) obj).userId);
+            }
+            return false;
         }
     }
 
@@ -56,7 +64,7 @@ public class FollowingFragment extends Fragment {
     private ArrayList<User> acceptedList = new ArrayList<>();
     private ArrayList<User> availableList = new ArrayList<>();
 
-    // For pending friend request
+    // For pending friend request (received by the current user)
     private String pendingRequestDocId = null;
     private User pendingRequestUser = null;
 
@@ -84,10 +92,11 @@ public class FollowingFragment extends Fragment {
         btnAccept = view.findViewById(R.id.btnAccept);
         btnDecline = view.findViewById(R.id.btnDecline);
 
-        // Get FirestoreHelper from MainActivity
+        // Get FirestoreHelper and current user id from MainActivity.
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
         currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
-        // Fetch current username from Firestore (like in ProfileFragment)
+
+        // Fetch current username (like in ProfileFragment).
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -95,24 +104,26 @@ public class FollowingFragment extends Fragment {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     currentUsername = (String) userData.get("username");
-                    requireActivity().runOnUiThread(() ->
-                            tvCurrentUser.setText("Current User: " + currentUsername));
+                    requireActivity().runOnUiThread(() -> {
+                        tvCurrentUser.setText("Current User: " + currentUsername);
+                    });
                 }
             }
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        tvCurrentUser.setText("Current User: Unknown"));
+                requireActivity().runOnUiThread(() -> {
+                    tvCurrentUser.setText("Current User: Unknown");
+                });
             }
         });
 
-        // Initialize adapters using our User model
+        // Initialize adapters using our User model.
         acceptedAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, acceptedList);
         availableAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, availableList);
         lvAccepted.setAdapter(acceptedAdapter);
         lvAvailable.setAdapter(availableAdapter);
 
-        // Fetch all users from Firestore and populate availableList (exclude current user)
+        // Fetch all users from Firestore and populate availableList (excluding current user).
         firestoreHelper.getAllUsers(new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -134,7 +145,37 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        // When an available user is tapped, send a friend request
+        // Listen for real-time updates to the current user's following list.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(currentUserId)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+                    ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
+                    if (followingIds == null) followingIds = new ArrayList<>();
+                    acceptedList.clear();
+                    for (String followUserId : followingIds) {
+                        firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                if (result instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> data = (Map<String, Object>) result;
+                                    String username = (String) data.get("username");
+                                    User user = new User(followUserId, username);
+                                    if (!acceptedList.contains(user)) {
+                                        acceptedList.add(user);
+                                    }
+                                    requireActivity().runOnUiThread(() -> acceptedAdapter.notifyDataSetChanged());
+                                }
+                            }
+                            @Override
+                            public void onFailure(Exception e) { }
+                        });
+                    }
+                });
+
+
+        // When an available user is tapped, send a friend request.
         lvAvailable.setOnItemClickListener((parent, view1, position, id) -> {
             User selectedUser = availableList.get(position);
             firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
@@ -151,15 +192,15 @@ public class FollowingFragment extends Fragment {
             });
         });
 
-        // Listen for incoming friend requests for the current user in real time
+        // Listen for incoming friend requests for the current user in real time.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
             @Override
             public void onSuccess(Object result) {
-                // Expect a Map with friend request details
+                // Expect a Map with friend request details.
                 Map<String, Object> requestData = (Map<String, Object>) result;
                 pendingRequestDocId = (String) requestData.get("requestId");
                 String fromUserId = (String) requestData.get("fromUserId");
-                // Instead of displaying the user id, fetch the sender's username
+                // Fetch sender's username.
                 firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
@@ -185,28 +226,18 @@ public class FollowingFragment extends Fragment {
             }
             @Override
             public void onFailure(Exception e) {
-                // Optionally handle errors
+                // Optionally handle errors.
             }
         });
 
-        // Accept friend request: update both users' following lists
+        // Accept friend request: update both users' following lists.
         btnAccept.setOnClickListener(v -> {
             if (pendingRequestDocId != null && pendingRequestUser != null) {
                 firestoreHelper.acceptFriendRequest(pendingRequestDocId, new FirestoreFollowing.FollowingCallback() {
                     @Override
                     public void onSuccess(Object result) {
-                        // Add the accepted user to the accepted list
-                        acceptedList.add(pendingRequestUser);
-                        // Also remove them from available list if present
-                        for (int i = 0; i < availableList.size(); i++) {
-                            if (availableList.get(i).userId.equals(pendingRequestUser.userId)) {
-                                availableList.remove(i);
-                                break;
-                            }
-                        }
+                        // The snapshot listener will update the accepted list for both users.
                         requireActivity().runOnUiThread(() -> {
-                            acceptedAdapter.notifyDataSetChanged();
-                            availableAdapter.notifyDataSetChanged();
                             llPendingRequest.setVisibility(View.GONE);
                             Toast.makeText(requireContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
                         });
@@ -222,7 +253,7 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        // Decline friend request
+        // Decline friend request.
         btnDecline.setOnClickListener(v -> {
             if (pendingRequestDocId != null) {
                 firestoreHelper.declineFriendRequest(pendingRequestDocId, new FirestoreFollowing.FollowingCallback() {
@@ -244,18 +275,13 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        // Long-click on an accepted user to unfollow (remove from both sides)
+        // Long-click on an accepted user to unfollow (remove relationship from both sides).
         lvAccepted.setOnItemLongClickListener((parent, view12, position, id) -> {
             User removedUser = acceptedList.get(position);
             firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
                 @Override
                 public void onSuccess(Object result) {
-                    acceptedList.remove(position);
-                    // Optionally add back to available list
-                    availableList.add(removedUser);
                     requireActivity().runOnUiThread(() -> {
-                        acceptedAdapter.notifyDataSetChanged();
-                        availableAdapter.notifyDataSetChanged();
                         Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show();
                     });
                 }
