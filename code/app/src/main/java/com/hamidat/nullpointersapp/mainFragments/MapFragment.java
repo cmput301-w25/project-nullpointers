@@ -70,7 +70,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Fragment that displays a map with mood markers and filters.
+ * A Fragment that displays a map with mood markers and allows filtering of mood events.
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -91,16 +91,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private EmotionAdapter adapter;
     private boolean isEventRegistered = false;
 
-
-    // Executors for filtering and geocoding
+    // Executors for filtering and geocoding.
     private final ExecutorService filterExecutor = Executors.newCachedThreadPool();
     private final ExecutorService geocodeExecutor = Executors.newFixedThreadPool(2);
 
-    // Cache for geocoding results (key is "lat,lng")
+    // Cache for geocoding results.
     private final Map<String, String> geocodeCache = new HashMap<>();
 
     // Date filter: only events on the selected day are shown.
-    // If no date is selected, only today's events are shown.
     private Date selectedDate = null;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -112,10 +110,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private String currentUserId;
     private boolean isFirstLoad = true;
 
+    /**
+     * Called when the fragment resumes.
+     * Checks for location permissions and retrieves the last known location.
+     */
     @Override
     public void onResume() {
         super.onResume();
-        // Check for location permissions each time the fragment resumes
         if (checkLocationPermission()) {
             if (currentLocation == null) {
                 getLastLocation();
@@ -124,6 +125,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             requestLocationPermission();
         }
     }
+
+    /**
+     * Called when the fragment starts.
+     * Registers the event bus if not already registered.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -133,12 +139,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Handles MoodAddedEvent from the event bus.
+     *
+     * @param event The MoodAddedEvent.
+     */
     @Subscribe
     public void onMoodAddedEvent(AppEventBus.MoodAddedEvent event) {
         fetchMoodData();
     }
 
-
+    /**
+     * Called when the fragment stops.
+     * Unregisters the event bus.
+     */
     @Override
     public void onStop() {
         super.onStop();
@@ -151,29 +165,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Inflates the fragment layout.
      *
-     * @param inflater LayoutInflater instance
-     * @param container Parent container
-     * @param savedInstanceState Saved instance state
-     * @return The root view of the fragment
+     * @param inflater           The LayoutInflater.
+     * @param container          The parent view group.
+     * @param savedInstanceState Saved instance state bundle.
+     * @return The root view of the fragment.
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment (you may need to create fragment_map.xml based on activity_map.xml)
         return inflater.inflate(R.layout.fragment_map, container, false);
-
     }
 
     /**
-     * Initializes UI components and permissions.
+     * Initializes UI components, permissions, and event listeners after the view is created.
      *
-     * @param view The root view of the fragment
-     * @param savedInstanceState Saved instance state
+     * @param view               The root view of the fragment.
+     * @param savedInstanceState Saved instance state bundle.
      */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-
-
 
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -181,43 +191,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             this.currentUserId = mainActivity.getCurrentUserId();
         }
 
-
         showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
-        // Bind the new Last 7 Days switch (ensure it's added to your XML layout)
         showLast7DaysSwitch = view.findViewById(R.id.showLast7DaysSwitch);
         showLast7DaysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isLast7DaysFilter = isChecked;
-            // Clear any manually selected date if switching to last 7 days
             selectedDate = null;
             filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
         });
 
-
-
-
-
         networkMonitor = new NetworkMonitor(requireContext());
         networkMonitor.startMonitoring();
 
-        // Initialize UI components.
-        showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
         FloatingActionButton fab = view.findViewById(R.id.fab_filter);
         emotionListContainer = view.findViewById(R.id.emotion_list_container);
-        // Ensure the filter list is hidden by default
         emotionListContainer.setVisibility(View.GONE);
         emotionListView = emotionListContainer.findViewById(R.id.emotion_list);
 
-        // Header click now shows the calendar dialog.
         LinearLayout headerContainer = emotionListContainer.findViewById(R.id.header_container);
         headerContainer.setOnClickListener(v -> showCalendarDialog());
 
-        // Close button listener.
         ImageButton closeButton = emotionListContainer.findViewById(R.id.close_button);
         closeButton.setOnClickListener(v -> emotionListContainer.setVisibility(View.GONE));
 
-        // Info Window setup.
         ViewGroup rootView = (ViewGroup) view.findViewById(android.R.id.content);
-        // If rootView is null, fallback to the fragment's view
         if (rootView == null) {
             rootView = (ViewGroup) view;
         }
@@ -225,7 +221,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         infoWindow.setVisibility(View.GONE);
         rootView.addView(infoWindow);
 
-        // FAB click toggles the emotion list container.
         fab.setOnClickListener(v -> {
             if (emotionListContainer.getVisibility() == View.VISIBLE) {
                 emotionListContainer.setVisibility(View.GONE);
@@ -238,21 +233,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        // Check location permissions.
         if (checkLocationPermission()) {
             getLastLocation();
         } else {
             requestLocationPermission();
         }
 
-        // Map setup.
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
-        // Nearby switch listener.
         showNearbySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (currentLocation != null) {
                 filterAndDisplayMoodEventsAsync(isChecked, currentLocation);
@@ -263,7 +255,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Sets up emotion filter list with checkboxes and switch.
+     * Sets up the emotion filter list with checkboxes and switches.
      */
     private void setupEmotionList() {
         List<String> emotions = Arrays.asList("Happy", "Sad", "Angry", "Chill");
@@ -272,7 +264,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         adapter = new EmotionAdapter(emotions, allSwitch);
 
-        // All switch listener.
         allSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (buttonView.isPressed()) {
                 if (isChecked) {
@@ -287,7 +278,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        // Done button listener.
         doneButton.setOnClickListener(v -> {
             selectedMoods = adapter.getSelectedEmotions();
             filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
@@ -301,7 +291,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Checks if location permissions are granted.
      *
-     * @return true if permissions are granted, false otherwise
+     * @return True if permissions are granted, false otherwise.
      */
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -311,7 +301,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Requests fine location permission from user.
+     * Requests fine location permission from the user.
      */
     private void requestLocationPermission() {
         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -319,11 +309,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Handles permission request results.
+     * Handles the result of the location permission request.
      *
-     * @param requestCode  Request code identifier
-     * @param permissions  Requested permissions
-     * @param grantResults Permission grant results
+     * @param requestCode  Request code identifier.
+     * @param permissions  Requested permissions.
+     * @param grantResults Permission grant results.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -338,28 +328,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Fetches device's last known location.
+     * Retrieves the device's last known location.
      */
-
     private void getLastLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         if (checkLocationPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
                 if (location != null) {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    fetchMoodData(); // Changed from generateDummyData()
+                    fetchMoodData();
                     setupMap();
                 }
             });
         }
     }
 
-
+    /**
+     * Fetches mood data for the current user and their following list.
+     */
     private void fetchMoodData() {
         if (currentUserId == null || firestoreHelper == null) return;
 
-        // Fetch the current user's document to get the "following" field.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when user data is successfully fetched.
+             *
+             * @param result A map containing user data.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -369,17 +364,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
-                    // Include the current user's ID as well.
                     if (!followingIds.contains(currentUserId)) {
                         followingIds.add(currentUserId);
                     }
-                    // Now fetch mood events for all these user IDs.
                     firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when mood history is successfully fetched.
+                         *
+                         * @param result The moodHistory object.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             moodHistory history = (moodHistory) result;
                             updateMapData(history);
                         }
+                        /**
+                         * Called when there is an error fetching mood history.
+                         *
+                         * @param e The exception encountered.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(getContext(), "Failed to load moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -387,6 +390,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     });
                 }
             }
+            /**
+             * Called when there is an error fetching user data.
+             *
+             * @param e The exception encountered.
+             */
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -394,68 +402,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-
-
-
-
-//    private void updateMapData(moodHistory history) {
-//        allDummyItems.clear();
-//        for (Mood mood : history.getMoodArray()) {
-//            // Skip invalid coordinates
-//            if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
-//
-//            try {
-//                LatLng position = new LatLng(mood.getLatitude(), mood.getLongitude());
-//                String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-//                        .format(mood.getTimestamp().toDate());
-//
-//                allDummyItems.add(new MoodClusterItem(
-//                        position,
-//                        mood.getMood(),
-//                        dateString,
-//                        mood.getMoodDescription(),
-//                        mood.getSocialSituation()
-//                ));
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        new Handler(Looper.getMainLooper()).post(() -> {
-//            if (clusterManager != null) {
-//                clusterManager.clearItems();
-//                clusterManager.addItems(allDummyItems);
-//                clusterManager.cluster();
-//
-//                // Zoom to show all markers on first load
-//                if (isFirstLoad && !allDummyItems.isEmpty()) {
-//                    isFirstLoad = false;
-//                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-//                    for (MoodClusterItem item : allDummyItems) {
-//                        builder.include(item.getPosition());
-//                    }
-//                    try {
-//                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
-//    }
-
+    /**
+     * Updates the map with mood data by creating and clustering mood markers.
+     *
+     * @param history The moodHistory object containing mood events.
+     */
     private void updateMapData(moodHistory history) {
         allDummyItems.clear();
         List<LatLng> usedPositions = new ArrayList<>();
         for (Mood mood : history.getMoodArray()) {
-            // Skip invalid coordinates
             if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
-
             double lat = mood.getLatitude();
             double lng = mood.getLongitude();
             LatLng originalPos = new LatLng(lat, lng);
 
-            // Check for duplicate position
             boolean duplicate = false;
             for (LatLng pos : usedPositions) {
                 if (Math.abs(pos.latitude - originalPos.latitude) < 1e-6 &&
@@ -465,7 +425,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
             if (duplicate) {
-                // Add small jitter to differentiate markers
                 double jitterLat = (Math.random() - 0.5) * 0.0002;
                 double jitterLng = (Math.random() - 0.5) * 0.0002;
                 lat += jitterLat;
@@ -474,7 +433,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             LatLng position = new LatLng(lat, lng);
             usedPositions.add(position);
 
-            // Safely format the date; use a default string if the timestamp is null
             String dateString = "Unknown Date";
             if (mood.getTimestamp() != null) {
                 dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -487,17 +445,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     dateString,
                     mood.getMoodDescription(),
                     mood.getSocialSituation(),
-                    mood.getUserId() // new parameter
+                    mood.getUserId()
             ));
-
         }
         new Handler(Looper.getMainLooper()).post(() -> {
             if (clusterManager != null) {
                 clusterManager.clearItems();
                 clusterManager.addItems(allDummyItems);
                 clusterManager.cluster();
-
-                // Zoom to show all markers on first load
                 if (isFirstLoad && !allDummyItems.isEmpty()) {
                     isFirstLoad = false;
                     LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -514,19 +469,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-
-
     /**
-     * Filters and displays events based on selected criteria (async).
+     * Filters and displays mood events based on selected criteria asynchronously.
      *
-     * @param showNearby      True to show events within 5km
-     * @param currentLocation Reference location for proximity checks
+     * @param showNearby      True to filter events within 5km.
+     * @param currentLocation The reference location for proximity filtering.
      */
-    // Debounced asynchronous filtering:
-    // Only events whose date (formatted as yyyy-MM-dd) exactly matches the selected day are shown.
-    // If no date is selected, only today's events are shown.
     private void filterAndDisplayMoodEventsAsync(boolean showNearby, LatLng currentLocation) {
-        // Cancel any pending filter task.
         if (pendingFilterRunnable != null) {
             filterHandler.removeCallbacks(pendingFilterRunnable);
         }
@@ -546,7 +495,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             cal.setTime(today);
                             cal.add(Calendar.DAY_OF_YEAR, -7);
                             Date sevenDaysAgo = cal.getTime();
-                            // Check if the item's date is within the last 7 days (inclusive)
                             dateMatch = (itemDate.equals(sevenDaysAgo) || itemDate.after(sevenDaysAgo)) &&
                                     (itemDate.equals(today) || itemDate.before(today));
                         } else if (selectedDate != null) {
@@ -571,14 +519,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 });
             });
         };
-        // Debounce filtering
         filterHandler.postDelayed(pendingFilterRunnable, 300);
     }
 
     /**
-     * Handles map readiness callback.
+     * Called when the map is ready.
      *
-     * @param googleMap Initialized GoogleMap instance
+     * @param googleMap The initialized GoogleMap instance.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -589,7 +536,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Configures map settings and cluster manager.
+     * Configures the map settings and cluster manager.
      */
     private void setupMap() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -624,16 +571,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Displays an info window with event details at marker position.
+     * Displays an info window with details of the selected mood event.
      *
-     * @param item MoodClusterItem to display
+     * @param item The MoodClusterItem to display.
      */
     private void showInfoWindow(MoodClusterItem item) {
         if (isInfoWindowVisible) {
             infoWindow.setVisibility(View.GONE);
         }
-
-        // Bind UI elements from the info window layout.
         TextView username = infoWindow.findViewById(R.id.username);
         TextView emotion = infoWindow.findViewById(R.id.emotion);
         TextView date = infoWindow.findViewById(R.id.date);
@@ -641,10 +586,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView description = infoWindow.findViewById(R.id.description);
         TextView socialSituationView = infoWindow.findViewById(R.id.tvSocialSituation);
 
-        // Fetch the mood event owner's username using the userId stored in the item.
         if (username != null) {
             username.setText("Username: Loading...");
             firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the user's data is successfully fetched.
+                 *
+                 * @param result A map containing user data.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     if (result instanceof Map) {
@@ -656,6 +605,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         username.setText("Username: Unknown");
                     }
                 }
+                /**
+                 * Called when there is an error fetching the user's data.
+                 *
+                 * @param e The exception encountered.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     username.setText("Username: Unavailable");
@@ -663,8 +617,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
-
-        // Set other info window fields.
         if (emotion != null) {
             emotion.setText("Emotion: " + item.getEmotion());
         }
@@ -681,7 +633,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             location.setText("Location: Loading...");
         }
 
-        // Use cached geocoding if available; otherwise, fetch location details.
         String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
         if (geocodeCache.containsKey(cacheKey)) {
             String cachedLocation = geocodeCache.get(cacheKey);
@@ -716,7 +667,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
-        // Position the info window above the marker.
         Point screenPosition = mMap.getProjection().toScreenLocation(item.getPosition());
         infoWindow.setX(screenPosition.x - infoWindow.getWidth() / 2);
         infoWindow.setY(screenPosition.y - infoWindow.getHeight() - 100);
@@ -724,10 +674,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         isInfoWindowVisible = true;
     }
 
-
-
     /**
-     * Cleans up resources on fragment destruction.
+     * Cleans up resources when the fragment is destroyed.
      */
     @Override
     public void onDestroy() {
@@ -741,10 +689,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Shows calendar dialog for date filtering.
+     * Shows a calendar dialog for date filtering.
      */
-    // display calendar in a dialog
-    // when a date is selected, it persists and used for filteringgggggggggggggggggggggg
     private void showCalendarDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View calendarDialogView = LayoutInflater.from(getContext()).inflate(R.layout.calendar_dialog, null);
@@ -757,7 +703,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Calendar cal = Calendar.getInstance();
             cal.set(year, month, dayOfMonth, 23, 59, 59);
             selectedDate = cal.getTime();
-            // If a date is manually selected, disable the Last 7 Days filter.
             if (isLast7DaysFilter) {
                 isLast7DaysFilter = false;
                 showLast7DaysSwitch.setChecked(false);
@@ -771,5 +716,4 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 }

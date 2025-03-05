@@ -10,12 +10,23 @@ import androidx.core.app.NotificationCompat;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 
+/**
+ * Helper class for sending notifications related to friend requests.
+ */
 public class NotificationHelper {
     public static final String CHANNEL_ID = "friend_request_channel";
     public static final String CHANNEL_NAME = "Friend Requests";
     public static final String ACTION_ACCEPT = "com.hamidat.nullpointersapp.ACTION_ACCEPT";
     public static final String ACTION_DECLINE = "com.hamidat.nullpointersapp.ACTION_DECLINE";
 
+    /**
+     * Sends a notification for an incoming friend request.
+     *
+     * @param context        The application context.
+     * @param senderUsername The username of the sender.
+     * @param currentUserId  The current user's ID.
+     * @param requestId      The unique identifier of the friend request.
+     */
     public static void sendFriendRequestNotification(Context context, String senderUsername, String currentUserId, String requestId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -70,11 +81,55 @@ public class NotificationHelper {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(tapPendingIntent);
-//                .addAction(R.drawable.ic_notification, "Accept", acceptPendingIntent)
-//                .addAction(R.drawable.ic_notification, "Decline", declinePendingIntent);
+        // Actions for Accept and Decline are commented out.
 
         if (notificationManager != null) {
             notificationManager.notify(1001, builder.build());
+        }
+    }
+
+    /**
+     * Sends a notification to the sender when their friend request is accepted.
+     *
+     * @param context         The application context.
+     * @param accepterUsername The username of the user who accepted the request.
+     * @param senderUserId    The sender's user ID.
+     */
+    public static void sendFriendAcceptedNotification(Context context, String accepterUsername, String senderUserId) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Notifications for friend request responses");
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        // Create an intent that opens MainActivity and navigates to FollowingFragment.
+        Intent tapIntent = new Intent(context, MainActivity.class);
+        tapIntent.putExtra("open_following", true);
+        tapIntent.putExtra("USER_ID", senderUserId);
+        tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent tapPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                tapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        String contentTitle = accepterUsername + " has accepted your request!";
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(contentTitle)
+                .setContentText("Tap to view your following list.")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(tapPendingIntent);
+
+        if (notificationManager != null) {
+            notificationManager.notify(1002, builder.build());
         }
     }
 }

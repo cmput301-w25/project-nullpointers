@@ -20,27 +20,51 @@ import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * Fragment for managing following and friend requests.
+ * It displays accepted friends, available users, and pending friend requests.
+ */
 public class FollowingFragment extends Fragment {
 
-    // Model for a user.
+    /**
+     * Model representing a user.
+     */
     public static class User {
         public String userId;
         public String username;
 
+        /**
+         * Constructs a new User.
+         *
+         * @param userId   The unique identifier for the user.
+         * @param username The username of the user.
+         */
         public User(String userId, String username) {
             this.userId = userId;
             this.username = username;
         }
 
+        /**
+         * Returns the username.
+         *
+         * @return The username.
+         */
         @Override
         public String toString() {
             return username;
         }
 
+        /**
+         * Checks equality based on userId.
+         *
+         * @param obj The object to compare.
+         * @return True if the userIds are equal, false otherwise.
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof User) {
@@ -50,21 +74,40 @@ public class FollowingFragment extends Fragment {
         }
     }
 
-    // Model for a pending friend request.
+    /**
+     * Model representing a pending friend request.
+     */
     public static class PendingRequest {
         public String requestId;
-        public User sender;  // The user who sent the request.
+        public User sender;
 
+        /**
+         * Constructs a new PendingRequest.
+         *
+         * @param requestId The unique identifier for the friend request.
+         * @param sender    The user who sent the request.
+         */
         public PendingRequest(String requestId, User sender) {
             this.requestId = requestId;
             this.sender = sender;
         }
 
+        /**
+         * Returns the sender's username.
+         *
+         * @return The sender's username.
+         */
         @Override
         public String toString() {
             return sender.username;
         }
 
+        /**
+         * Checks equality based on requestId.
+         *
+         * @param obj The object to compare.
+         * @return True if the requestIds are equal, false otherwise.
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof PendingRequest) {
@@ -94,6 +137,14 @@ public class FollowingFragment extends Fragment {
 
     private FirestoreHelper firestoreHelper;
 
+    /**
+     * Inflates the fragment view.
+     *
+     * @param inflater           LayoutInflater to inflate the view.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved instance state bundle.
+     * @return The inflated view.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -102,6 +153,12 @@ public class FollowingFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_following, container, false);
     }
 
+    /**
+     * Called when the view has been created. Initializes UI components and sets up listeners.
+     *
+     * @param view               The fragment's root view.
+     * @param savedInstanceState Saved instance state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -115,6 +172,11 @@ public class FollowingFragment extends Fragment {
 
         // Fetch current user's username.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the username is successfully fetched.
+             *
+             * @param result A map containing user data.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (isAdded() && result instanceof Map) {
@@ -125,6 +187,11 @@ public class FollowingFragment extends Fragment {
                             tvCurrentUser.setText("Current User: " + currentUsername));
                 }
             }
+            /**
+             * Called when there is a failure in fetching user data.
+             *
+             * @param e The exception encountered.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (isAdded()) {
@@ -144,6 +211,11 @@ public class FollowingFragment extends Fragment {
 
         // Populate available users.
         firestoreHelper.getAllUsers(new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the list of users is successfully fetched.
+             *
+             * @param result A list of maps containing user data.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (!isAdded()) return;
@@ -158,6 +230,11 @@ public class FollowingFragment extends Fragment {
                 }
                 requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
             }
+            /**
+             * Called when there is a failure fetching users.
+             *
+             * @param e The exception encountered.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (isAdded()) {
@@ -167,12 +244,25 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        // When an available user is tapped, send a friend request.
+        // Send friend request when an available user is tapped.
         lvAvailable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Handles tap events on available users.
+             *
+             * @param parent   The AdapterView where the click happened.
+             * @param view1    The view within the AdapterView that was clicked.
+             * @param position The position of the view in the adapter.
+             * @param id       The row id of the item.
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
                 User selectedUser = availableList.get(position);
                 firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the friend request is successfully sent.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         if (isAdded()) {
@@ -180,6 +270,11 @@ public class FollowingFragment extends Fragment {
                                     Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show());
                         }
                     }
+                    /**
+                     * Called when there is an error sending the friend request.
+                     *
+                     * @param e The exception encountered.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         if (isAdded()) {
@@ -208,6 +303,11 @@ public class FollowingFragment extends Fragment {
                     }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when a followed user's data is successfully fetched.
+                             *
+                             * @param result A map containing user data.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (!isAdded()) return;
@@ -224,6 +324,11 @@ public class FollowingFragment extends Fragment {
                                     });
                                 }
                             }
+                            /**
+                             * Called when there is an error fetching the followed user's data.
+                             *
+                             * @param e The exception encountered.
+                             */
                             @Override
                             public void onFailure(Exception e) { }
                         });
@@ -231,15 +336,20 @@ public class FollowingFragment extends Fragment {
                     refreshAvailableUsers();
                 });
 
-        // Listen for incoming friend requests and add them to the pending list.
+        // Listen for incoming friend requests.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when a friend request is received.
+             *
+             * @param result A map containing the friend request data.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (!isAdded()) return;
                 Map<String, Object> requestData = (Map<String, Object>) result;
                 final String requestId = (String) requestData.get("requestId");
                 final String fromUserId = (String) requestData.get("fromUserId");
-                // Check if a pending request from this sender already exists.
+                // Check if request already exists.
                 boolean alreadyPending = false;
                 for (PendingRequest pr : pendingList) {
                     if (pr.sender.userId.equals(fromUserId)) {
@@ -250,6 +360,11 @@ public class FollowingFragment extends Fragment {
                 if (alreadyPending) return;
                 // Fetch sender's username.
                 firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
+                    /**
+                     * Called when sender's data is successfully fetched.
+                     *
+                     * @param result A map containing sender's data.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         if (!isAdded()) return;
@@ -265,6 +380,11 @@ public class FollowingFragment extends Fragment {
                         pendingList.add(pr);
                         requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
                     }
+                    /**
+                     * Called when there is an error fetching sender's data.
+                     *
+                     * @param e The exception encountered.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         if (!isAdded()) return;
@@ -274,12 +394,25 @@ public class FollowingFragment extends Fragment {
                     }
                 });
             }
+            /**
+             * Called when there is an error listening for friend requests.
+             *
+             * @param e The exception encountered.
+             */
             @Override
             public void onFailure(Exception e) { }
         });
 
-        // When a pending request is tapped, show an AlertDialog with Accept and Decline options.
+        // Show dialog when a pending request is tapped.
         lvPending.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Handles tap on a pending friend request.
+             *
+             * @param parent   The AdapterView where the click happened.
+             * @param view1    The view that was clicked.
+             * @param position The position of the item in the adapter.
+             * @param id       The row id of the item.
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
                 PendingRequest pr = pendingList.get(position);
@@ -287,12 +420,26 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        // Long-click on an accepted user to unfollow.
+        // Handle long-click on an accepted user to unfollow.
         lvAccepted.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            /**
+             * Handles long-click to remove a following relationship.
+             *
+             * @param parent   The AdapterView where the click happened.
+             * @param view1    The view that was clicked.
+             * @param position The position of the item in the adapter.
+             * @param id       The row id of the item.
+             * @return true if the long-click was handled.
+             */
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view1, int position, long id) {
                 User removedUser = acceptedList.get(position);
                 firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when unfollowing is successful.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         if (isAdded()) {
@@ -304,6 +451,11 @@ public class FollowingFragment extends Fragment {
                             });
                         }
                     }
+                    /**
+                     * Called when there is an error unfollowing.
+                     *
+                     * @param e The exception encountered.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         if (isAdded()) {
@@ -317,9 +469,16 @@ public class FollowingFragment extends Fragment {
         });
     }
 
-    // Refresh the available users list.
+    /**
+     * Refreshes the available users list.
+     */
     private void refreshAvailableUsers() {
         firestoreHelper.getAllUsers(new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the user list is successfully fetched.
+             *
+             * @param result A list of maps containing user data.
+             */
             @Override
             public void onSuccess(Object result) {
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
@@ -341,6 +500,11 @@ public class FollowingFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
                 }
             }
+            /**
+             * Called when there is an error refreshing the available users.
+             *
+             * @param e The exception encountered.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (isAdded()) {
@@ -351,7 +515,13 @@ public class FollowingFragment extends Fragment {
         });
     }
 
-    // Shows an AlertDialog with Accept and Decline options for a pending request.
+    /**
+     * Displays an AlertDialog for accepting or declining a friend request.
+     *
+     * @param senderUsername The username of the request sender.
+     * @param requestId      The unique request identifier.
+     * @param fromUserId     The sender's user ID.
+     */
     private void showFriendRequestDialog(String senderUsername, String requestId, String fromUserId) {
         if (getActivity() == null) return;
         currentPendingRequestId = requestId;
@@ -361,6 +531,11 @@ public class FollowingFragment extends Fragment {
                 .setMessage(senderUsername + " has sent you an add request!")
                 .setPositiveButton("Accept", (dialog, which) -> {
                     firestoreHelper.acceptFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
+                        /**
+                         * Called when the friend request is successfully accepted.
+                         *
+                         * @param result The result of the operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             if (isAdded()) {
@@ -369,6 +544,11 @@ public class FollowingFragment extends Fragment {
                             }
                             removePendingRequest(requestId);
                         }
+                        /**
+                         * Called when there is an error accepting the friend request.
+                         *
+                         * @param e The exception encountered.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             if (isAdded()) {
@@ -380,6 +560,11 @@ public class FollowingFragment extends Fragment {
                 })
                 .setNegativeButton("Decline", (dialog, which) -> {
                     firestoreHelper.declineFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
+                        /**
+                         * Called when the friend request is successfully declined.
+                         *
+                         * @param result The result of the operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             if (isAdded()) {
@@ -388,6 +573,11 @@ public class FollowingFragment extends Fragment {
                             }
                             removePendingRequest(requestId);
                         }
+                        /**
+                         * Called when there is an error declining the friend request.
+                         *
+                         * @param e The exception encountered.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             if (isAdded()) {
@@ -400,7 +590,11 @@ public class FollowingFragment extends Fragment {
                 .show();
     }
 
-    // Removes a pending request from the pending list.
+    /**
+     * Removes a pending friend request from the list.
+     *
+     * @param requestId The unique identifier of the friend request.
+     */
     private void removePendingRequest(String requestId) {
         for (int i = 0; i < pendingList.size(); i++) {
             if (pendingList.get(i).requestId.equals(requestId)) {

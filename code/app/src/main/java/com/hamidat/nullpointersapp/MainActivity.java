@@ -83,7 +83,9 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.followingFragment);
         }
 
-        FriendRequestNotifier.getInstance().startListening(this, currentUserId, currentUserFirestoreInstance);
+        FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
+        notifier.startListeningIncomingRequests(this, currentUserId, currentUserFirestoreInstance);
+        notifier.startListeningAcceptedRequests(this, currentUserId);
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
