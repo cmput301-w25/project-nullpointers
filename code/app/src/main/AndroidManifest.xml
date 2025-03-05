@@ -28,8 +28,10 @@
         </activity>
         <!-- Main Activity (After successful login) -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
+        <receiver android:name="com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestActionReceiver" />
 
     </application>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />

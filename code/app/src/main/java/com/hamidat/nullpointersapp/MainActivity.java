@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,9 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreHelper currentUserFirestoreInstance;
     private NavController navController;
 
-    //for in memory list of moods
+    // for in memory list of moods
     private final List<Mood> moodCache = new ArrayList<>();
+
     public List<Mood> getMoodCache() {
         return moodCache;
     }
@@ -52,13 +54,20 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
+        // If launched via notification, navigate directly to FollowingFragment.
+        if (getIntent() != null && getIntent().getBooleanExtra("open_following", false)) {
+            navController.navigate(R.id.followingFragment);
+        }
+
+        FriendRequestNotifier.getInstance().startListening(this, currentUserId, currentUserFirestoreInstance);
+
+
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
         final ImageView ivAddMood = findViewById(R.id.ivAddMood);
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
 
-        //navigation changed to real homescreen by Salim
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.homeFeedFragment);

@@ -1,13 +1,12 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.TextView;
@@ -27,7 +26,7 @@ import java.util.Map;
 
 public class FollowingFragment extends Fragment {
 
-    // Simple User model storing userId and username.
+    // Model for a User.
     public static class User {
         public String userId;
         public String username;
@@ -39,7 +38,7 @@ public class FollowingFragment extends Fragment {
 
         @Override
         public String toString() {
-            return username; // For display in the list.
+            return username;
         }
 
         @Override
@@ -51,25 +50,47 @@ public class FollowingFragment extends Fragment {
         }
     }
 
-    private TextView tvCurrentUser;
-    private ListView lvAccepted, lvAvailable;
-    private LinearLayout llPendingRequest;
-    private TextView tvPendingMessage;
-    private Button btnAccept, btnDecline;
+    // Model for a pending friend request.
+    public static class PendingRequest {
+        public String requestId;
+        public User sender;  // The user who sent the request.
 
+        public PendingRequest(String requestId, User sender) {
+            this.requestId = requestId;
+            this.sender = sender;
+        }
+
+        @Override
+        public String toString() {
+            return sender.username;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof PendingRequest) {
+                return this.requestId.equals(((PendingRequest) obj).requestId);
+            }
+            return false;
+        }
+    }
+
+    private TextView tvCurrentUser;
+    private ListView lvAccepted, lvAvailable, lvPending;
+    // We'll use local ArrayAdapters.
     private ArrayAdapter<User> acceptedAdapter;
     private ArrayAdapter<User> availableAdapter;
+    private ArrayAdapter<PendingRequest> pendingAdapter;
 
     private ArrayList<User> acceptedList = new ArrayList<>();
     private ArrayList<User> availableList = new ArrayList<>();
-    private ArrayList<String> currentFollowingIds = new ArrayList<>();
-
-    // For pending friend request (received by the current user)
-    private String pendingRequestDocId = null;
-    private User pendingRequestUser = null;
+    private ArrayList<PendingRequest> pendingList = new ArrayList<>();
 
     private String currentUsername;
     private String currentUserId;
+
+    // These variables track the currently selected pending request (if any).
+    private String currentPendingRequestId = null;
+    private User currentPendingSender = null;
 
     private FirestoreHelper firestoreHelper;
 
@@ -87,20 +108,16 @@ public class FollowingFragment extends Fragment {
         tvCurrentUser = view.findViewById(R.id.tvCurrentUser);
         lvAccepted = view.findViewById(R.id.lvAccepted);
         lvAvailable = view.findViewById(R.id.lvAvailable);
-        llPendingRequest = view.findViewById(R.id.llPendingRequest);
-        tvPendingMessage = view.findViewById(R.id.tvPendingMessage);
-        btnAccept = view.findViewById(R.id.btnAccept);
-        btnDecline = view.findViewById(R.id.btnDecline);
+        lvPending = view.findViewById(R.id.lvPending);
 
-        // Get FirestoreHelper and current user id from MainActivity.
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
         currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
 
-        // Fetch current username (using same logic as in ProfileFragment)
+        // Fetch and display current user's name.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
-                if (result instanceof Map) {
+                if (isAdded() && result instanceof Map) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     currentUsername = (String) userData.get("username");
@@ -110,21 +127,27 @@ public class FollowingFragment extends Fragment {
             }
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        tvCurrentUser.setText("Current User: Unknown"));
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() ->
+                            tvCurrentUser.setText("Current User: Unknown"));
+                }
             }
         });
 
-        // Initialize adapters using our User model.
+        // Initialize adapters.
         acceptedAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, acceptedList);
         availableAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, availableList);
+        pendingAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, pendingList);
+
         lvAccepted.setAdapter(acceptedAdapter);
         lvAvailable.setAdapter(availableAdapter);
+        lvPending.setAdapter(pendingAdapter);
 
-        // Fetch all users from Firestore and populate availableList (excluding current user).
+        // Populate available users.
         firestoreHelper.getAllUsers(new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
+                if (!isAdded()) return;
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
                 availableList.clear();
                 for (Map<String, Object> userData : users) {
@@ -138,50 +161,57 @@ public class FollowingFragment extends Fragment {
             }
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Error fetching users: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error fetching users: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
             }
         });
 
-        // When an available user is tapped, send a friend request and remove them from available list.
-        lvAvailable.setOnItemClickListener((parent, view1, position, id) -> {
-            User selectedUser = availableList.get(position);
-            firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
-                @Override
-                public void onSuccess(Object result) {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show();
-                        // Do not remove the user from availableList so that they remain available until accepted.
-                    });
-                }
-                @Override
-                public void onFailure(Exception e) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Error sending request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
-            });
+        // When an available user is tapped, send a friend request.
+        lvAvailable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
+                User selectedUser = availableList.get(position);
+                firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "Error sending request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                });
+            }
         });
 
-
-        // Listen for real-time updates to the current user's following list.
+        // Listen for changes to the current user's following list.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(currentUserId)
                 .addSnapshotListener((snapshot, error) -> {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
                     ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
-                    if (followingIds == null) followingIds = new ArrayList<>();
-                    // Save the following IDs for filtering available users.
-                    currentFollowingIds = followingIds;
-
-                    // Clear and update acceptedList based on these IDs (using getUser to fetch details)
-                    requireActivity().runOnUiThread(() -> {
-                        acceptedList.clear();
-                        acceptedAdapter.notifyDataSetChanged();
-                    });
+                    if (followingIds == null) {
+                        followingIds = new ArrayList<>();
+                    }
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            acceptedList.clear();
+                            acceptedAdapter.notifyDataSetChanged();
+                        });
+                    }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
                             public void onSuccess(Object result) {
+                                if (!isAdded()) return;
                                 if (result instanceof Map) {
                                     @SuppressWarnings("unchecked")
                                     Map<String, Object> data = (Map<String, Object>) result;
@@ -199,38 +229,49 @@ public class FollowingFragment extends Fragment {
                             public void onFailure(Exception e) { }
                         });
                     }
-                    // Refresh available users after updating following IDs.
                     refreshAvailableUsers();
                 });
 
-
-        // Listen for incoming friend requests for the current user in real time.
+        // Listen for incoming friend requests and add them to the pending list.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
             @Override
             public void onSuccess(Object result) {
+                if (!isAdded()) return;
                 Map<String, Object> requestData = (Map<String, Object>) result;
-                pendingRequestDocId = (String) requestData.get("requestId");
-                String fromUserId = (String) requestData.get("fromUserId");
+                final String requestId = (String) requestData.get("requestId");
+                final String fromUserId = (String) requestData.get("fromUserId");
+                // Check if a pending request from this user already exists.
+                boolean alreadyPending = false;
+                for (PendingRequest pr : pendingList) {
+                    if (pr.sender.userId.equals(fromUserId)) {
+                        alreadyPending = true;
+                        break;
+                    }
+                }
+                if (alreadyPending) return;
+                // Fetch the sender's username.
                 firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
+                        if (!isAdded()) return;
+                        String senderUsername = fromUserId;
                         if (result instanceof Map) {
                             @SuppressWarnings("unchecked")
                             Map<String, Object> userData = (Map<String, Object>) result;
-                            String senderUsername = (String) userData.get("username");
-                            pendingRequestUser = new User(fromUserId, senderUsername);
-                            requireActivity().runOnUiThread(() -> {
-                                tvPendingMessage.setText("Friend request from " + pendingRequestUser.username);
-                                llPendingRequest.setVisibility(View.VISIBLE);
-                            });
+                            if (userData.get("username") != null) {
+                                senderUsername = (String) userData.get("username");
+                            }
                         }
+                        PendingRequest pr = new PendingRequest(requestId, new User(fromUserId, senderUsername));
+                        pendingList.add(pr);
+                        requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
                     }
                     @Override
                     public void onFailure(Exception e) {
-                        requireActivity().runOnUiThread(() -> {
-                            tvPendingMessage.setText("Friend request from " + fromUserId);
-                            llPendingRequest.setVisibility(View.VISIBLE);
-                        });
+                        if (!isAdded()) return;
+                        PendingRequest pr = new PendingRequest(requestId, new User(fromUserId, fromUserId));
+                        pendingList.add(pr);
+                        requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
                     }
                 });
             }
@@ -238,68 +279,13 @@ public class FollowingFragment extends Fragment {
             public void onFailure(Exception e) { }
         });
 
-        // Accept friend request: update both users' following lists.
-        btnAccept.setOnClickListener(v -> {
-            if (pendingRequestDocId != null && pendingRequestUser != null) {
-                firestoreHelper.acceptFriendRequest(pendingRequestDocId, new FirestoreFollowing.FollowingCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(requireContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
-                            llPendingRequest.setVisibility(View.GONE);
-                        });
-                        pendingRequestDocId = null;
-                        pendingRequestUser = null;
-                    }
-                    @Override
-                    public void onFailure(Exception e) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(), "Error accepting request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                    }
-                });
+        // When a pending request is tapped, show the decision dialog.
+        lvPending.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
+                PendingRequest pr = pendingList.get(position);
+                showFriendRequestDialog(pr.sender.username, pr.requestId, pr.sender.userId);
             }
-        });
-
-        // Decline friend request.
-        btnDecline.setOnClickListener(v -> {
-            if (pendingRequestDocId != null) {
-                firestoreHelper.declineFriendRequest(pendingRequestDocId, new FirestoreFollowing.FollowingCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(requireContext(), "Friend request declined", Toast.LENGTH_SHORT).show();
-                            llPendingRequest.setVisibility(View.GONE);
-                        });
-                        pendingRequestDocId = null;
-                        pendingRequestUser = null;
-                    }
-                    @Override
-                    public void onFailure(Exception e) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(), "Error declining request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                    }
-                });
-            }
-        });
-
-        // Long-click on an accepted user to unfollow (remove relationship from both sides).
-        lvAccepted.setOnItemLongClickListener((parent, view12, position, id) -> {
-            User removedUser = acceptedList.get(position);
-            firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
-                @Override
-                public void onSuccess(Object result) {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show();
-                        refreshAvailableUsers();
-                    });
-                }
-                @Override
-                public void onFailure(Exception e) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Error unfollowing: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
-            });
-            return true;
         });
     }
 
@@ -310,26 +296,90 @@ public class FollowingFragment extends Fragment {
             public void onSuccess(Object result) {
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
                 ArrayList<User> updatedAvailable = new ArrayList<>();
-                // Use currentFollowingIds for filtering.
+                ArrayList<String> acceptedIds = new ArrayList<>();
+                for (User u : acceptedList) {
+                    acceptedIds.add(u.userId);
+                }
                 for (Map<String, Object> userData : users) {
                     String username = (String) userData.get("username");
                     String userId = (String) userData.get("userId");
-                    // Exclude the current user and any user whose ID is in currentFollowingIds.
-                    if (userId != null && !userId.equals(currentUserId) && !currentFollowingIds.contains(userId)) {
+                    if (userId != null && !userId.equals(currentUserId) && !acceptedIds.contains(userId)) {
                         updatedAvailable.add(new User(userId, username));
                     }
                 }
                 availableList.clear();
                 availableList.addAll(updatedAvailable);
-                requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
+                }
             }
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Error refreshing available users: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Error refreshing available users: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
             }
         });
     }
 
+    // Shows an AlertDialog with Accept and Decline options for a pending request.
+    private void showFriendRequestDialog(String senderUsername, String requestId, String fromUserId) {
+        if (getActivity() == null) return;
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Friend Request")
+                .setMessage(senderUsername + " has sent you an add request!")
+                .setPositiveButton("Accept", (dialog, which) -> {
+                    firestoreHelper.acceptFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show());
+                            }
+                            removePendingRequest(requestId);
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(getContext(), "Error accepting request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                    });
+                })
+                .setNegativeButton("Decline", (dialog, which) -> {
+                    firestoreHelper.declineFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(getContext(), "Friend request declined", Toast.LENGTH_SHORT).show());
+                            }
+                            removePendingRequest(requestId);
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(getContext(), "Error declining request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                    });
+                })
+                .show();
+    }
 
+    // Removes a pending request from the pending list.
+    private void removePendingRequest(String requestId) {
+        for (int i = 0; i < pendingList.size(); i++) {
+            if (pendingList.get(i).requestId.equals(requestId)) {
+                pendingList.remove(i);
+                break;
+            }
+        }
+        if (isAdded()) {
+            requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
+        }
+    }
 }
