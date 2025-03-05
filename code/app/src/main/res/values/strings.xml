@@ -27,4 +27,9 @@
     <string name="attach_location">Attach Location (Optional)</string>
     <string name="save_entry">SAVE ENTRY</string>
     <string name="cancel">CANCEL</string>
+    <string name="mood">What Mood are you feeling?</string>
+    <string name="happy">Happy</string>
+    <string name="sad">Sad</string>
+    <string name="angry">Angry</string>
+    <string name="chill">Chill</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.models.profileModel;
+package com.hamidat.nullpointersapp.models;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.MAX_USERNAME_LENGTH;
 import androidx.annotation.NonNull;

@@ -15,6 +15,8 @@ public class MoodClusterItem implements ClusterItem {
 
     private final String date;
     private final String description;
+    private final String socialSituation;
+
 
     /**
      * Constructs a mood cluster item with location and emotional metadata.
@@ -24,8 +26,8 @@ public class MoodClusterItem implements ClusterItem {
      * @param date        Event date in yyyy-MM-dd format
      * @param description Descriptive text about the event
      */
-    public MoodClusterItem(LatLng position, String emotion, String date, String description) {
-        this.position = position;
+    public MoodClusterItem(LatLng position, String emotion, String date, String description, String socialSituation) {        this.position = position;
+        this.socialSituation = socialSituation;
         this.emotion = emotion;
         this.date = date;
         this.description = description;
@@ -47,6 +49,12 @@ public class MoodClusterItem implements ClusterItem {
      */
     @Override
     public String getTitle() { return title; }
+
+    public String getSocialSituation() {
+        return socialSituation;
+    }
+
+
     /**
      * Gets formatted metadata for marker info windows.
      * @return Multiline string with date, location, and description

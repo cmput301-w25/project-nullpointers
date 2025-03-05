@@ -1,39 +1,56 @@
 package com.hamidat.nullpointersapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.hamidat.nullpointersapp.mainFragments.AddMoodFragment;
-import com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment;
-import com.hamidat.nullpointersapp.mainFragments.MapFragment;
-import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
-import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
-/**
- * The main activity that manages the primary navigation.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+    private String currentUserId;
+    private FirestoreHelper currentUserFirestoreInstance;
+    private NavController navController;
 
-    /**
-     * Called when the activity is created.
-     *
-     * @param savedInstanceState The previously saved state, if any.
-     */
+    //for in memory list of moods
+    private final List<Mood> moodCache = new ArrayList<>();
+    public List<Mood> getMoodCache() {
+        return moodCache;
+    }
+
+    // Add a helper to add a new mood to moodCache
+    public void addMoodToCache(Mood newMood) {
+        // insert at the start so newest appears first
+        moodCache.add(0, newMood);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Contains the fragment_container
+        setContentView(R.layout.activity_main);
 
-        // Load ProfileFragment by default if not already restored
-        if (savedInstanceState == null) {
-            loadFragment(new ProfileFragment());
+        // Retrieve the passed user ID
+        currentUserId = getIntent().getStringExtra("USER_ID");
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "Error: No logged in user ID provided", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
+
+        // Create a single FirestoreHelper instance for the logged in user
+        currentUserFirestoreInstance = new FirestoreHelper();
+
+        // Initialize NavController
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        navController = navHostFragment.getNavController();
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
@@ -41,47 +58,33 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
 
-        // Set click listeners with Toast feedback and load appropriate fragments
+        //navigation changed to real homescreen by Salim
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new HomeFeedFragment());
+            navController.navigate(R.id.homeFeedFragment);
         });
 
         ivAddMood.setOnClickListener(view -> {
             Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new AddMoodFragment());
+            navController.navigate(R.id.addNewMoodNavGraphFragment);
         });
 
         ivProfile.setOnClickListener(view -> {
             Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());
+            navController.navigate(R.id.profileNavGraphFragment);
         });
 
         ivMap.setOnClickListener(view -> {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new MapFragment()); // Placeholder fragment
+            navController.navigate(R.id.mapFragment);
         });
-
     }
 
-    /**
-     * Loads a fragment into the fragment container.
-     *
-     * @param fragment The fragment to load.
-     */
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
-    }
-    // Add this method to MainActivity.java
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (currentFragment instanceof AddMoodFragment) {
-            ((AddMoodFragment) currentFragment).handleImageActivityResult(requestCode, resultCode, data);
-        }
+    public FirestoreHelper getFirestoreHelper() {
+        return currentUserFirestoreInstance;
     }
 
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
 }

@@ -1,5 +1,7 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 
 import android.Manifest;
@@ -40,10 +42,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.ClusterManager;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
 import com.hamidat.nullpointersapp.utils.mapUtils.EmotionAdapter;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterItem;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterRenderer;
 import com.hamidat.nullpointersapp.utils.networkUtils.NetworkMonitor;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -73,12 +81,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private List<MoodClusterItem> allDummyItems = new ArrayList<>();
     private RecyclerView emotionListView;
     private SwitchMaterial showNearbySwitch;
+    private SwitchMaterial showLast7DaysSwitch;
+    private boolean isLast7DaysFilter;
     private View infoWindow;
     private boolean isInfoWindowVisible = false;
     private View emotionListContainer;
     private Set<String> selectedMoods = new HashSet<>();
     private Switch allSwitch;
     private EmotionAdapter adapter;
+    private boolean isEventRegistered = false;
+
 
     // Executors for filtering and geocoding
     private final ExecutorService filterExecutor = Executors.newCachedThreadPool();
@@ -96,7 +108,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final Handler filterHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingFilterRunnable;
     private NetworkMonitor networkMonitor;
+    private FirestoreHelper firestoreHelper;
+    private String currentUserId;
+    private boolean isFirstLoad = true;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Check for location permissions each time the fragment resumes
+        if (checkLocationPermission()) {
+            if (currentLocation == null) {
+                getLastLocation();
+            }
+        } else {
+            requestLocationPermission();
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!isEventRegistered) {
+            AppEventBus.getInstance().register(this);
+            isEventRegistered = true;
+        }
+    }
+
+    @Subscribe
+    public void onMoodAddedEvent(AppEventBus.MoodAddedEvent event) {
+        fetchMoodData();
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isEventRegistered) {
+            AppEventBus.getInstance().unregister(this);
+            isEventRegistered = false;
+        }
+    }
 
     /**
      * Inflates the fragment layout.
@@ -123,6 +173,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 
+
+
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            this.firestoreHelper = mainActivity.getFirestoreHelper();
+            this.currentUserId = mainActivity.getCurrentUserId();
+        }
+
+
+        showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
+        // Bind the new Last 7 Days switch (ensure it's added to your XML layout)
+        showLast7DaysSwitch = view.findViewById(R.id.showLast7DaysSwitch);
+        showLast7DaysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isLast7DaysFilter = isChecked;
+            // Clear any manually selected date if switching to last 7 days
+            selectedDate = null;
+            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+        });
+
+
+
+
+
         networkMonitor = new NetworkMonitor(requireContext());
         networkMonitor.startMonitoring();
 
@@ -130,6 +203,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
         FloatingActionButton fab = view.findViewById(R.id.fab_filter);
         emotionListContainer = view.findViewById(R.id.emotion_list_container);
+        // Ensure the filter list is hidden by default
+        emotionListContainer.setVisibility(View.GONE);
         emotionListView = emotionListContainer.findViewById(R.id.emotion_list);
 
         // Header click now shows the calendar dialog.
@@ -265,49 +340,156 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Fetches device's last known location.
      */
+
     private void getLastLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         if (checkLocationPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
                 if (location != null) {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    allDummyItems = generateDummyData(currentLocation);
+                    fetchMoodData(); // Changed from generateDummyData()
                     setupMap();
                 }
             });
         }
     }
 
-    /**
-     * Generates dummy data for testing purposes.
-     *
-     * @param currentLocation Reference location for generating nearby points
-     * @return List of mock MoodClusterItems
-     */
-    private List<MoodClusterItem> generateDummyData(LatLng currentLocation) {
-        List<MoodClusterItem> dummyData = new ArrayList<>();
-        Random random = new Random();
-        String[] emotions = {"Happy", "Sad", "Angry", "Chill"};
 
-        for (int i = 0; i < 50; i++) {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, -random.nextInt(30));
-            String date = dateFormat.format(cal.getTime());
-            if (random.nextFloat() < 0.2) {
-                date = dateFormat.format(new Date());
+    private void fetchMoodData() {
+        if (currentUserId == null || firestoreHelper == null) return;
+
+        firestoreHelper.firebaseToMoodHistory(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                moodHistory history = (moodHistory) result;
+                updateMapData(history);
             }
-            double distance = random.nextDouble() * 10000;
-            double angle = random.nextDouble() * 360;
-            LatLng eventLocation = SphericalUtil.computeOffset(currentLocation, distance, angle);
-            dummyData.add(new MoodClusterItem(
-                    eventLocation,
-                    emotions[random.nextInt(4)],
-                    date,
-                    "Description " + (i + 1)
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Failed to load moods", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+
+//    private void updateMapData(moodHistory history) {
+//        allDummyItems.clear();
+//        for (Mood mood : history.getMoodArray()) {
+//            // Skip invalid coordinates
+//            if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
+//
+//            try {
+//                LatLng position = new LatLng(mood.getLatitude(), mood.getLongitude());
+//                String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//                        .format(mood.getTimestamp().toDate());
+//
+//                allDummyItems.add(new MoodClusterItem(
+//                        position,
+//                        mood.getMood(),
+//                        dateString,
+//                        mood.getMoodDescription(),
+//                        mood.getSocialSituation()
+//                ));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        new Handler(Looper.getMainLooper()).post(() -> {
+//            if (clusterManager != null) {
+//                clusterManager.clearItems();
+//                clusterManager.addItems(allDummyItems);
+//                clusterManager.cluster();
+//
+//                // Zoom to show all markers on first load
+//                if (isFirstLoad && !allDummyItems.isEmpty()) {
+//                    isFirstLoad = false;
+//                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+//                    for (MoodClusterItem item : allDummyItems) {
+//                        builder.include(item.getPosition());
+//                    }
+//                    try {
+//                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//    }
+
+    private void updateMapData(moodHistory history) {
+        allDummyItems.clear();
+        List<LatLng> usedPositions = new ArrayList<>();
+        for (Mood mood : history.getMoodArray()) {
+            // Skip invalid coordinates
+            if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
+
+            double lat = mood.getLatitude();
+            double lng = mood.getLongitude();
+            LatLng originalPos = new LatLng(lat, lng);
+
+            // Check for duplicate position
+            boolean duplicate = false;
+            for (LatLng pos : usedPositions) {
+                if (Math.abs(pos.latitude - originalPos.latitude) < 1e-6 &&
+                        Math.abs(pos.longitude - originalPos.longitude) < 1e-6) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate) {
+                // Add small jitter to differentiate markers
+                double jitterLat = (Math.random() - 0.5) * 0.0002;
+                double jitterLng = (Math.random() - 0.5) * 0.0002;
+                lat += jitterLat;
+                lng += jitterLng;
+            }
+            LatLng position = new LatLng(lat, lng);
+            usedPositions.add(position);
+
+            // Safely format the date; use a default string if the timestamp is null
+            String dateString = "Unknown Date";
+            if (mood.getTimestamp() != null) {
+                dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        .format(mood.getTimestamp().toDate());
+            }
+
+            allDummyItems.add(new MoodClusterItem(
+                    position,
+                    mood.getMood(),
+                    dateString,
+                    mood.getMoodDescription(),
+                    mood.getSocialSituation()
             ));
         }
-        return dummyData;
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (clusterManager != null) {
+                clusterManager.clearItems();
+                clusterManager.addItems(allDummyItems);
+                clusterManager.cluster();
+
+                // Zoom to show all markers on first load
+                if (isFirstLoad && !allDummyItems.isEmpty()) {
+                    isFirstLoad = false;
+                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                    for (MoodClusterItem item : allDummyItems) {
+                        builder.include(item.getPosition());
+                    }
+                    try {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
+
+
 
     /**
      * Filters and displays events based on selected criteria (async).
@@ -323,7 +505,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (pendingFilterRunnable != null) {
             filterHandler.removeCallbacks(pendingFilterRunnable);
         }
-        // Create a new filtering task.
         pendingFilterRunnable = () -> {
             filterExecutor.execute(() -> {
                 List<MoodClusterItem> filteredItems = new ArrayList<>();
@@ -334,7 +515,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     boolean dateMatch = true;
                     try {
                         Date itemDate = dateFormat.parse(item.getDate());
-                        if (selectedDate != null) {
+                        if (isLast7DaysFilter) {
+                            Date today = new Date();
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(today);
+                            cal.add(Calendar.DAY_OF_YEAR, -7);
+                            Date sevenDaysAgo = cal.getTime();
+                            // Check if the item's date is within the last 7 days (inclusive)
+                            dateMatch = (itemDate.equals(sevenDaysAgo) || itemDate.after(sevenDaysAgo)) &&
+                                    (itemDate.equals(today) || itemDate.before(today));
+                        } else if (selectedDate != null) {
                             dateMatch = dateFormat.format(itemDate).equals(dateFormat.format(selectedDate));
                         } else {
                             Date today = new Date();
@@ -356,7 +546,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 });
             });
         };
-        // Post the filtering task with a slight delay (e.g., 300ms) to debounce rapid changes.
+        // Debounce filtering
         filterHandler.postDelayed(pendingFilterRunnable, 300);
     }
 
@@ -417,19 +607,55 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (isInfoWindowVisible) {
             infoWindow.setVisibility(View.GONE);
         }
+
+        // Bind UI elements from the info window layout
         TextView username = infoWindow.findViewById(R.id.username);
         TextView emotion = infoWindow.findViewById(R.id.emotion);
         TextView date = infoWindow.findViewById(R.id.date);
         TextView location = infoWindow.findViewById(R.id.location);
         TextView description = infoWindow.findViewById(R.id.description);
+        TextView socialSituationView = infoWindow.findViewById(R.id.tvSocialSituation);
 
-        username.setText("Username: Placeholder");
-        emotion.setText("Emotion: " + item.getEmotion());
-        date.setText("Date: " + item.getDate());
-        description.setText("Description: " + item.getDescription());
-        location.setText("Location: Loading...");
+        // Update username with real data from Firestore
+        if (username != null) {
+            username.setText("Username: Loading...");
+            firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        String usernameStr = (String) userData.get("username");
+                        username.setText("Username: " + usernameStr);
+                    } else {
+                        username.setText("Username: Unknown");
+                    }
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    username.setText("Username: Unavailable");
+                }
+            });
+        }
 
-        // Use a cache key for geocoding results.
+        // Set other info window fields
+        if (emotion != null) {
+            emotion.setText("Emotion: " + item.getEmotion());
+        }
+        if (socialSituationView != null) {
+            socialSituationView.setText("Social Situation: " + item.getSocialSituation());
+        }
+        if (date != null) {
+            date.setText("Date: " + item.getDate());
+        }
+        if (description != null) {
+            description.setText("Description: " + item.getDescription());
+        }
+        if (location != null) {
+            location.setText("Location: Loading...");
+        }
+
+        // Use cached geocoding if available; otherwise, fetch location details
         String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
         if (geocodeCache.containsKey(cacheKey)) {
             String cachedLocation = geocodeCache.get(cacheKey);
@@ -470,12 +696,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
+        // Position the info window above the marker
         Point screenPosition = mMap.getProjection().toScreenLocation(item.getPosition());
         infoWindow.setX(screenPosition.x - infoWindow.getWidth() / 2);
         infoWindow.setY(screenPosition.y - infoWindow.getHeight() - 100);
         infoWindow.setVisibility(View.VISIBLE);
         isInfoWindowVisible = true;
     }
+
 
     /**
      * Cleans up resources on fragment destruction.
@@ -508,6 +736,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Calendar cal = Calendar.getInstance();
             cal.set(year, month, dayOfMonth, 23, 59, 59);
             selectedDate = cal.getTime();
+            // If a date is manually selected, disable the Last 7 Days filter.
+            if (isLast7DaysFilter) {
+                isLast7DaysFilter = false;
+                showLast7DaysSwitch.setChecked(false);
+            }
         });
         builder.setView(calendarDialogView);
         builder.setPositiveButton("Apply", (dialog, which) -> {
@@ -517,4 +750,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 }
