@@ -149,19 +149,22 @@ public class AddMoodFragment extends Fragment {
                             moodType,
                             reasonText,
                             base64Image,
-                            finalLat,
-                            finalLng,
-                            socialSituation
+                            latitude,
+                            longitude,
+                            socialSituation,
+                            currentUserId  // Pass current user's ID
                     );
                 } else {
                     newlyCreatedMood = new Mood(
                             moodType,
                             reasonText,
-                            finalLat,
-                            finalLng,
-                            socialSituation
+                            latitude,
+                            longitude,
+                            socialSituation,
+                            currentUserId  // Pass current user's ID
                     );
                 }
+
 
                 // Save to Firestore
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {

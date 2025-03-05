@@ -463,8 +463,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     mood.getMood(),
                     dateString,
                     mood.getMoodDescription(),
-                    mood.getSocialSituation()
+                    mood.getSocialSituation(),
+                    mood.getUserId() // new parameter
             ));
+
         }
         new Handler(Looper.getMainLooper()).post(() -> {
             if (clusterManager != null) {
@@ -608,7 +610,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             infoWindow.setVisibility(View.GONE);
         }
 
-        // Bind UI elements from the info window layout
+        // Bind UI elements from the info window layout.
         TextView username = infoWindow.findViewById(R.id.username);
         TextView emotion = infoWindow.findViewById(R.id.emotion);
         TextView date = infoWindow.findViewById(R.id.date);
@@ -616,10 +618,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView description = infoWindow.findViewById(R.id.description);
         TextView socialSituationView = infoWindow.findViewById(R.id.tvSocialSituation);
 
-        // Update username with real data from Firestore
+        // Fetch the mood event owner's username using the userId stored in the item.
         if (username != null) {
             username.setText("Username: Loading...");
-            firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     if (result instanceof Map) {
@@ -638,7 +640,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
-        // Set other info window fields
+
+        // Set other info window fields.
         if (emotion != null) {
             emotion.setText("Emotion: " + item.getEmotion());
         }
@@ -655,13 +658,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             location.setText("Location: Loading...");
         }
 
-        // Use cached geocoding if available; otherwise, fetch location details
+        // Use cached geocoding if available; otherwise, fetch location details.
         String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
         if (geocodeCache.containsKey(cacheKey)) {
             String cachedLocation = geocodeCache.get(cacheKey);
             new Handler(Looper.getMainLooper()).post(() ->
-                    location.setText("Location: " + cachedLocation)
-            );
+                    location.setText("Location: " + cachedLocation));
         } else {
             geocodeExecutor.execute(() -> {
                 try {
@@ -669,40 +671,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     List<Address> addresses = geocoder.getFromLocation(
                             item.getPosition().latitude,
                             item.getPosition().longitude,
-                            1
-                    );
+                            1);
                     if (addresses != null && !addresses.isEmpty()) {
                         Address address = addresses.get(0);
                         String street = address.getThoroughfare();
                         final String result = (street != null ? street : "Nearby area");
                         geocodeCache.put(cacheKey, result);
                         new Handler(Looper.getMainLooper()).post(() ->
-                                location.setText("Location: " + result)
-                        );
+                                location.setText("Location: " + result));
                     } else {
                         new Handler(Looper.getMainLooper()).post(() ->
-                                location.setText("Location: Unknown")
-                        );
+                                location.setText("Location: Unknown"));
                     }
                 } catch (IOException | IllegalStateException e) {
                     new Handler(Looper.getMainLooper()).post(() ->
-                            location.setText("Location: Unavailable")
-                    );
+                            location.setText("Location: Unavailable"));
                 } catch (Exception e) {
                     new Handler(Looper.getMainLooper()).post(() ->
-                            location.setText("Location: Error")
-                    );
+                            location.setText("Location: Error"));
                 }
             });
         }
 
-        // Position the info window above the marker
+        // Position the info window above the marker.
         Point screenPosition = mMap.getProjection().toScreenLocation(item.getPosition());
         infoWindow.setX(screenPosition.x - infoWindow.getWidth() / 2);
         infoWindow.setY(screenPosition.y - infoWindow.getHeight() - 100);
         infoWindow.setVisibility(View.VISIBLE);
         isInfoWindowVisible = true;
     }
+
 
 
     /**

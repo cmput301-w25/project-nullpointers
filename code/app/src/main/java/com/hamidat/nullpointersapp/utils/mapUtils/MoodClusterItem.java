@@ -11,73 +11,33 @@ public class MoodClusterItem implements ClusterItem {
     private final String title;
     private final String snippet;
     private final String emotion;
-
-
     private final String date;
     private final String description;
     private final String socialSituation;
+    private final String userId;  // new field
 
-
-    /**
-     * Constructs a mood cluster item with location and emotional metadata.
-     *
-     * @param position    Geographic coordinates of the event
-     * @param emotion     Emotional state (e.g., "Happy", "Sad")
-     * @param date        Event date in yyyy-MM-dd format
-     * @param description Descriptive text about the event
-     */
-    public MoodClusterItem(LatLng position, String emotion, String date, String description, String socialSituation) {        this.position = position;
+    public MoodClusterItem(LatLng position, String emotion, String date, String description, String socialSituation, String userId) {
+        this.position = position;
         this.socialSituation = socialSituation;
         this.emotion = emotion;
         this.date = date;
         this.description = description;
+        this.userId = userId;
         this.title = emotion;
         this.snippet = "Date: " + date
                 + "\nLocation: " + position.latitude + ", " + position.longitude
                 + "\nDescription: " + description;
     }
-    /**
-     * Gets the geographic position of the event.
-     * @return LatLng coordinates of the event
-     */
-    @NonNull
+
     @Override
     public LatLng getPosition() { return position; }
-    /**
-     * Gets the emotion label for display.
-     * @return Emotion string (e.g., "Happy")
-     */
     @Override
     public String getTitle() { return title; }
-
-    public String getSocialSituation() {
-        return socialSituation;
-    }
-
-
-    /**
-     * Gets formatted metadata for marker info windows.
-     * @return Multiline string with date, location, and description
-     */
     @Override
     public String getSnippet() { return snippet; }
-    /**
-     * Retrieves the emotion type.
-     * @return Emotion string
-     */
     public String getEmotion() { return emotion; }
-    /**
-     * Gets the event date.
-     * @return Date string in yyyy-MM-dd format
-     */
-    public String getDate() {
-        return date;
-    }
-    /**
-     * Gets the event description.
-     * @return Descriptive text
-     */
-    public String getDescription() {
-        return description;
-    }
+    public String getDate() { return date; }
+    public String getDescription() { return description; }
+    public String getSocialSituation() { return socialSituation; }
+    public String getUserId() { return userId; }
 }
