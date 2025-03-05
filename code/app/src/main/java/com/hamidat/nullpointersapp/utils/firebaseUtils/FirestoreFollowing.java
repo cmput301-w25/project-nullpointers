@@ -113,9 +113,16 @@ public class FirestoreFollowing {
         firestore.collection(USERS_COLLECTION)
                 .document(userId)
                 .update("following", FieldValue.arrayRemove(unfollowUserId))
-                .addOnSuccessListener(aVoid -> callback.onSuccess("removed"))
+                .addOnSuccessListener(aVoid -> {
+                    firestore.collection(USERS_COLLECTION)
+                            .document(unfollowUserId)
+                            .update("following", FieldValue.arrayRemove(userId))
+                            .addOnSuccessListener(aVoid2 -> callback.onSuccess("removed"))
+                            .addOnFailureListener(callback::onFailure);
+                })
                 .addOnFailureListener(callback::onFailure);
     }
+
 
     // Helper: add a user to the following list of another user
     private void updateUserFollowing(String userId, String followUserId, FollowingCallback callback) {
