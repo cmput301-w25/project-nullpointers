@@ -62,6 +62,7 @@ public class FollowingFragment extends Fragment {
 
     private ArrayList<User> acceptedList = new ArrayList<>();
     private ArrayList<User> availableList = new ArrayList<>();
+    private ArrayList<String> currentFollowingIds = new ArrayList<>();
 
     // For pending friend request (received by the current user)
     private String pendingRequestDocId = null;
@@ -169,12 +170,14 @@ public class FollowingFragment extends Fragment {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
                     ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
                     if (followingIds == null) followingIds = new ArrayList<>();
+                    // Save the following IDs for filtering available users.
+                    currentFollowingIds = followingIds;
 
+                    // Clear and update acceptedList based on these IDs (using getUser to fetch details)
                     requireActivity().runOnUiThread(() -> {
                         acceptedList.clear();
                         acceptedAdapter.notifyDataSetChanged();
                     });
-
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
@@ -196,9 +199,10 @@ public class FollowingFragment extends Fragment {
                             public void onFailure(Exception e) { }
                         });
                     }
-                    // After updating acceptedList, refresh available users.
+                    // Refresh available users after updating following IDs.
                     refreshAvailableUsers();
                 });
+
 
         // Listen for incoming friend requests for the current user in real time.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
@@ -306,15 +310,12 @@ public class FollowingFragment extends Fragment {
             public void onSuccess(Object result) {
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
                 ArrayList<User> updatedAvailable = new ArrayList<>();
-                ArrayList<String> acceptedIds = new ArrayList<>();
-                for (User u : acceptedList) {
-                    acceptedIds.add(u.userId);
-                }
-                // Only filter out users already accepted.
+                // Use currentFollowingIds for filtering.
                 for (Map<String, Object> userData : users) {
                     String username = (String) userData.get("username");
                     String userId = (String) userData.get("userId");
-                    if (userId != null && !userId.equals(currentUserId) && !acceptedIds.contains(userId)) {
+                    // Exclude the current user and any user whose ID is in currentFollowingIds.
+                    if (userId != null && !userId.equals(currentUserId) && !currentFollowingIds.contains(userId)) {
                         updatedAvailable.add(new User(userId, username));
                     }
                 }
@@ -329,5 +330,6 @@ public class FollowingFragment extends Fragment {
             }
         });
     }
+
 
 }
