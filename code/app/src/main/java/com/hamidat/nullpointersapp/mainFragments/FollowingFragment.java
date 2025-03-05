@@ -130,7 +130,6 @@ public class FollowingFragment extends Fragment {
                     String username = (String) userData.get("username");
                     String userId = (String) userData.get("userId");
                     if (userId != null && !userId.equals(currentUserId)) {
-                        // Only add if not already in acceptedList (i.e. already friends or pending)
                         availableList.add(new User(userId, username));
                     }
                 }
@@ -171,8 +170,12 @@ public class FollowingFragment extends Fragment {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
                     ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
                     if (followingIds == null) followingIds = new ArrayList<>();
-                    // Build a temporary list of accepted users.
-                    final ArrayList<User> updatedAccepted = new ArrayList<>();
+
+                    requireActivity().runOnUiThread(() -> {
+                        acceptedList.clear();
+                        acceptedAdapter.notifyDataSetChanged();
+                    });
+
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
@@ -182,12 +185,11 @@ public class FollowingFragment extends Fragment {
                                     Map<String, Object> data = (Map<String, Object>) result;
                                     String username = (String) data.get("username");
                                     User user = new User(followUserId, username);
-                                    updatedAccepted.add(user);
-                                    // Update acceptedList on UI thread once all users are fetched.
                                     requireActivity().runOnUiThread(() -> {
-                                        acceptedList.clear();
-                                        acceptedList.addAll(updatedAccepted);
-                                        acceptedAdapter.notifyDataSetChanged();
+                                        if (!acceptedList.contains(user)) {
+                                            acceptedList.add(user);
+                                            acceptedAdapter.notifyDataSetChanged();
+                                        }
                                     });
                                 }
                             }
@@ -195,17 +197,17 @@ public class FollowingFragment extends Fragment {
                             public void onFailure(Exception e) { }
                         });
                     }
+                    // After updating acceptedList, refresh available users.
+                    refreshAvailableUsers();
                 });
 
         // Listen for incoming friend requests for the current user in real time.
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
             @Override
             public void onSuccess(Object result) {
-                // Expect a Map with friend request details.
                 Map<String, Object> requestData = (Map<String, Object>) result;
                 pendingRequestDocId = (String) requestData.get("requestId");
                 String fromUserId = (String) requestData.get("fromUserId");
-                // Fetch sender's username.
                 firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
@@ -283,9 +285,10 @@ public class FollowingFragment extends Fragment {
             firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
                 @Override
                 public void onSuccess(Object result) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show());
-                    // Do not manually modify acceptedList here; the snapshot listener will update it.
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show();
+                        refreshAvailableUsers();
+                    });
                 }
                 @Override
                 public void onFailure(Exception e) {
@@ -294,6 +297,36 @@ public class FollowingFragment extends Fragment {
                 }
             });
             return true;
+        });
+    }
+
+    // Helper method to refresh the available users list.
+    private void refreshAvailableUsers() {
+        firestoreHelper.getAllUsers(new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
+                ArrayList<User> updatedAvailable = new ArrayList<>();
+                ArrayList<String> acceptedIds = new ArrayList<>();
+                for (User u : acceptedList) {
+                    acceptedIds.add(u.userId);
+                }
+                for (Map<String, Object> userData : users) {
+                    String username = (String) userData.get("username");
+                    String userId = (String) userData.get("userId");
+                    if (userId != null && !userId.equals(currentUserId) && !acceptedIds.contains(userId)) {
+                        updatedAvailable.add(new User(userId, username));
+                    }
+                }
+                availableList.clear();
+                availableList.addAll(updatedAvailable);
+                requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
+            }
+            @Override
+            public void onFailure(Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Error refreshing available users: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
         });
     }
 }
