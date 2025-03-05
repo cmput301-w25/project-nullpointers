@@ -150,9 +150,7 @@ public class FollowingFragment extends Fragment {
                 public void onSuccess(Object result) {
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show();
-                        // Remove the user from available list so they don't show up again.
-                        availableList.remove(selectedUser);
-                        availableAdapter.notifyDataSetChanged();
+                        // Do not remove the user from availableList so that they remain available until accepted.
                     });
                 }
                 @Override
@@ -162,6 +160,7 @@ public class FollowingFragment extends Fragment {
                 }
             });
         });
+
 
         // Listen for real-time updates to the current user's following list.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -306,37 +305,22 @@ public class FollowingFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 ArrayList<Map<String, Object>> users = (ArrayList<Map<String, Object>>) result;
-                // Get the list of pending outgoing requests.
-                firestoreHelper.getOutgoingFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        ArrayList<String> pendingOutgoing = (ArrayList<String>) result; // user IDs with pending requests
-                        ArrayList<User> updatedAvailable = new ArrayList<>();
-                        ArrayList<String> acceptedIds = new ArrayList<>();
-                        for (User u : acceptedList) {
-                            acceptedIds.add(u.userId);
-                        }
-                        for (Map<String, Object> userData : users) {
-                            String username = (String) userData.get("username");
-                            String userId = (String) userData.get("userId");
-                            // Exclude the current user, accepted users, and those with pending outgoing requests.
-                            if (userId != null
-                                    && !userId.equals(currentUserId)
-                                    && !acceptedIds.contains(userId)
-                                    && !pendingOutgoing.contains(userId)) {
-                                updatedAvailable.add(new User(userId, username));
-                            }
-                        }
-                        availableList.clear();
-                        availableList.addAll(updatedAvailable);
-                        requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
+                ArrayList<User> updatedAvailable = new ArrayList<>();
+                ArrayList<String> acceptedIds = new ArrayList<>();
+                for (User u : acceptedList) {
+                    acceptedIds.add(u.userId);
+                }
+                // Only filter out users already accepted.
+                for (Map<String, Object> userData : users) {
+                    String username = (String) userData.get("username");
+                    String userId = (String) userData.get("userId");
+                    if (userId != null && !userId.equals(currentUserId) && !acceptedIds.contains(userId)) {
+                        updatedAvailable.add(new User(userId, username));
                     }
-                    @Override
-                    public void onFailure(Exception e) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(), "Error fetching pending requests: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                    }
-                });
+                }
+                availableList.clear();
+                availableList.addAll(updatedAvailable);
+                requireActivity().runOnUiThread(() -> availableAdapter.notifyDataSetChanged());
             }
             @Override
             public void onFailure(Exception e) {
