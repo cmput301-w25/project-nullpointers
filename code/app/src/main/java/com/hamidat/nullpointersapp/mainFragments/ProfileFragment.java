@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.UserProfile;
@@ -49,6 +51,16 @@ public class ProfileFragment extends Fragment {
         final TextView usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
+        Button btnFollowing = view.findViewById(R.id.btnFollowing);
+
+
+
+        btnFollowing.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
+        });
+
+
 
         // Retrieve the shared FirestoreHelper and currentUserId from MainActivity
         if (getActivity() instanceof MainActivity) {
@@ -92,5 +104,9 @@ public class ProfileFragment extends Fragment {
         settingsButton.setOnClickListener(v ->
                 Toast.makeText(getActivity(), "Settings clicked",
                         Toast.LENGTH_SHORT).show());
+
     }
+
+
+
 }

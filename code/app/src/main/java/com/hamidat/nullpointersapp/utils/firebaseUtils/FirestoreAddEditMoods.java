@@ -43,6 +43,9 @@ public class FirestoreAddEditMoods {
         moodData.put("userId", userID);
         moodData.put("mood", mood.getMood());
         moodData.put("moodDescription", mood.getMoodDescription());
+        moodData.put("latitude", mood.getLatitude());
+        moodData.put("longitude", mood.getLongitude());
+        moodData.put("socialSituation", mood.getSocialSituation());
         moodData.put("timestamp", FieldValue.serverTimestamp());
 
         // Save to Firestore
@@ -69,6 +72,9 @@ public class FirestoreAddEditMoods {
         Map<String, Object> moodData = new HashMap<>();
         moodData.put("moodId", moodID);
         moodData.put("userId", userID);
+        moodData.put("latitude", mood.getLatitude());
+        moodData.put("longitude", mood.getLongitude());
+        moodData.put("socialSituation", mood.getSocialSituation());
         moodData.put("mood", mood.getMood());
         moodData.put("moodDescription", mood.getMoodDescription());
         moodData.put("imageBase64", mood.getImageBase64()); // Store the image
