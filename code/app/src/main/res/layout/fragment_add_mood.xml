@@ -42,64 +42,6 @@
                 android:paddingVertical="10dp"
                 android:layout_marginBottom="16dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_bin"
-                android:padding="12dp">
-
-                <TextView
-                    android:id="@+id/tvDateLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/date_picker"
-                    android:textSize="12sp"
-                    android:textColor="@color/textColor"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvDateValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/february_8_2025"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@color/accentColor" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_bin"
-                android:padding="12dp">
-
-                <TextView
-                    android:id="@+id/tvTimeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time_picker"
-                    android:textSize="12sp"
-                    android:textColor="@color/textColor"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvTimeValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/_1_00pm"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"/>
-
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
