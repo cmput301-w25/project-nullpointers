@@ -55,6 +55,7 @@ public class LoginFragment extends Fragment {
         btnSkipAuth.setOnClickListener( v -> {
             giveAuthNotification(requireContext(), "Request to login as a guest user received");
 
+            // this is only for ease of demo and testing
             // if they're not using auth, just log them in as the guest user
             final String loginUsername = "guestUser";
             final String loginPassword = "123";
