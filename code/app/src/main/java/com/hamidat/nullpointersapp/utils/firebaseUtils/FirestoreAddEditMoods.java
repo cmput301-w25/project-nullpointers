@@ -1,10 +1,12 @@
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
 import com.hamidat.nullpointersapp.models.Mood;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,19 +39,24 @@ public class FirestoreAddEditMoods {
         String moodID = UUID.randomUUID().toString();
         DocumentReference moodRef = firestore.collection(MOODS_COLLECTION).document(moodID);
 
-        // Prepare mood data
-        Map<String, Object> moodData = new HashMap<>();
-        moodData.put("moodId", moodID);
-        moodData.put("userId", userID);
-        moodData.put("mood", mood.getMood());
-        moodData.put("moodDescription", mood.getMoodDescription());
-        moodData.put("latitude", mood.getLatitude());
-        moodData.put("longitude", mood.getLongitude());
-        moodData.put("socialSituation", mood.getSocialSituation());
-        moodData.put("timestamp", FieldValue.serverTimestamp());
+//        Map<String, Object> moodData = new HashMap<>();
+//        moodData.put("moodId", moodID);
+//        moodData.put("userId", userID);
+//        moodData.put("mood", mood.getMood());
+//        moodData.put("moodDescription", mood.getMoodDescription());
+//        moodData.put("latitude", mood.getLatitude());
+//        moodData.put("longitude", mood.getLongitude());
+//        moodData.put("socialSituation", mood.getSocialSituation());
+//        moodData.put("timestamp", FieldValue.serverTimestamp());
+
+        // Edit the timeStamp will be the current time.
+        mood.setMoodId(moodID);
+        mood.setUserId(userID);
+        mood.setTimestamp(new Timestamp(new Date()));
+
 
         // Save to Firestore
-        moodRef.set(moodData)
+        moodRef.set(mood)
                 .addOnSuccessListener(aVoid -> {
                     updateUserMoodHistory(userID, moodID, callback);
                     callback.onSuccess("Your mood has been recorded successfully! Mood ID: " + moodID);
@@ -68,20 +75,13 @@ public class FirestoreAddEditMoods {
         String moodID = UUID.randomUUID().toString();
         DocumentReference moodRef = firestore.collection(MOODS_COLLECTION).document(moodID);
 
-        // Prepare mood data
-        Map<String, Object> moodData = new HashMap<>();
-        moodData.put("moodId", moodID);
-        moodData.put("userId", userID);
-        moodData.put("latitude", mood.getLatitude());
-        moodData.put("longitude", mood.getLongitude());
-        moodData.put("socialSituation", mood.getSocialSituation());
-        moodData.put("mood", mood.getMood());
-        moodData.put("moodDescription", mood.getMoodDescription());
-        moodData.put("imageBase64", mood.getImageBase64()); // Store the image
-        moodData.put("timestamp", FieldValue.serverTimestamp());
+        // Changes here as well.
+        mood.setMoodId(moodID);
+        mood.setUserId(userID);
+        mood.setTimestamp(new Timestamp(new Date()));
 
         // Save to Firestore
-        moodRef.set(moodData)
+        moodRef.set(mood)
                 .addOnSuccessListener(aVoid -> {
                     updateUserMoodHistory(userID, moodID, callback);
                 })
