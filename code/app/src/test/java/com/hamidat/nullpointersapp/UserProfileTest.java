@@ -16,36 +16,41 @@ public class UserProfileTest {
     // testing using the guestUser Account
     @Before
     public void setUp() {
-        userProfile = new UserProfile("guestUser");
+        userProfile = new UserProfile("thisNameIsValid");
     }
 
-    // test that w
+    // test that that the getter works
     @Test
     public void testConstructor_ValidUsername() {
-        assertEquals("guestUser", userProfile.getUsername());
+        assertEquals("thisNameIsValid", userProfile.getUsername());
     }
 
+    // Test that a way too long username causes an exception
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_TooLongUsername() {
         new UserProfile("ThisUsernameIsWayTooLong");
     }
 
+    // Test the setter
     @Test
     public void testSetUsername_Valid() {
         userProfile.setUsername("NewUsername");
         assertEquals("NewUsername", userProfile.getUsername());
     }
 
+    // Test setting the username to become invalid
     @Test(expected = IllegalArgumentException.class)
     public void testSetUsername_TooLong() {
         userProfile.setUsername("ThisUsernameIsWayTooLongPlsHelp");
     }
 
+    // test the isUsernameValid method I made
     @Test
     public void testIsUsernameValid_ValidUsername() {
         assertTrue(userProfile.isUsernameValid());
     }
 
+    // Test that changing the username to be too long should cause a problem
     @Test
     public void testIsUsernameValid_InvalidUsername() {
         UserProfile userProfile = new UserProfile("hamidatIsValid"); // start with a valid username (me)
