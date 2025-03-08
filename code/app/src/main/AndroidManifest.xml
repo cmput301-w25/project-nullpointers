@@ -18,6 +18,18 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAdDkGlkWBydlY59secOiSSPpSEz7cij_I"/>
 
+        <!-- Splash Screen Activity as the launcher -->
+        <activity
+            android:name=".mainFragments.SplashFragment"
+            android:exported="true"
+            android:theme="@style/Theme.NullPointersApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+
         <activity
             android:name=".AuthActivity"
             android:exported="true">
