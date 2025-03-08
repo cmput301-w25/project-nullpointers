@@ -49,6 +49,7 @@ public class LoginFragment extends Fragment {
         final EditText etLoginUsername = rootView.findViewById(R.id.etLoginUsername);
         final EditText etLoginPassword = rootView.findViewById(R.id.etLoginPassword);
         final Button btnLogin = rootView.findViewById(R.id.btnLogin);
+        final Button btnSkipAuth = rootView.findViewById(R.id.btnSkipAuthForDemo);
         final TextView tvRegisterNow = rootView.findViewById(R.id.tvRegisterNow);
 
         btnLogin.setOnClickListener(v -> {
