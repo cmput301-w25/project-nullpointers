@@ -12,17 +12,41 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NullPointersApp"
         tools:targetApi="31">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+        <!-- Add this metadata tag -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAdDkGlkWBydlY59secOiSSPpSEz7cij_I"/>
+
+        <!-- Splash Screen Activity as the launcher -->
+        <activity
+            android:name=".mainFragments.SplashFragment"
+            android:exported="true"
+            android:theme="@style/Theme.NullPointersApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".ProfileActivity" />
-    </application>
 
+        <activity
+            android:name=".AuthActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Main Activity (After successful login) -->
+        <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
+        <receiver android:name="com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestActionReceiver" />
+
+    </application>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>

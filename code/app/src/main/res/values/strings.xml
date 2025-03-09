@@ -1,9 +1,35 @@
 <resources>
     <string name="app_name">NullPointersApp</string>
+    <string name="add_new_mood">Add New Mood Event</string>
     <string name="profile_icon_desc">DEMO STRING for profile text content</string>
     <string name="userUsernameString">my_unique_username - DEMO</string>
     <string name="profileViewMoodHistoryButtonText">View My Mood History</string>
     <string name="profileSettingsButtonText">Settings</string>
     <string name="goToUserProfileButtonText">Go to My Profile</string>
     <string name="userProfileUsernameHeader">My Username:</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="moodify">Moodify</string>
+    <string name="home">Home</string>
+    <string name="add_mood">Add Mood</string>
+    <string name="profile">Profile</string>
+    <string name="map">Map</string>
+    <string name="date_picker">Date (picker)</string>
+    <string name="february_8_2025">February 8, 2025</string>
+    <string name="time_picker">Time (picker)</string>
+    <string name="_1_00pm">1:00PM</string>
+    <string name="reason_why">Reason Why (max 20 chars / 3 words):</string>
+    <string name="attach_photo"><![CDATA[Attach Photo Instead ( > 65536 bytes )]]></string>
+    <string name="social_situation">Social Situation</string>
+    <string name="alone">Alone</string>
+    <string name="one_on_one">One-On-One</string>
+    <string name="group">Group</string>
+    <string name="crowd">Crowd</string>
+    <string name="attach_location">Attach Location (Optional)</string>
+    <string name="save_entry">SAVE ENTRY</string>
+    <string name="cancel">CANCEL</string>
+    <string name="mood">What Mood are you feeling?</string>
+    <string name="happy">Happy</string>
+    <string name="sad">Sad</string>
+    <string name="angry">Angry</string>
+    <string name="chill">Chill</string>
 </resources>
