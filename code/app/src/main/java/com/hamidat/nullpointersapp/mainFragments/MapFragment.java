@@ -4,14 +4,23 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.util.Log;
+import android.widget.ImageView;
+import android.animation.ValueAnimator;
+import android.animation.AnimatorListenerAdapter;
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -416,6 +425,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             double lng = mood.getLongitude();
             LatLng originalPos = new LatLng(lat, lng);
 
+            String dateString = "Unknown Date";
+            String timeString = "Unknown Time";
+            if (mood.getTimestamp() != null) {
+                Date dateObj = mood.getTimestamp().toDate();
+                dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dateObj);
+                timeString = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(dateObj);
+            }
+
             boolean duplicate = false;
             for (LatLng pos : usedPositions) {
                 if (Math.abs(pos.latitude - originalPos.latitude) < 1e-6 &&
@@ -433,20 +450,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             LatLng position = new LatLng(lat, lng);
             usedPositions.add(position);
 
-            String dateString = "Unknown Date";
-            if (mood.getTimestamp() != null) {
-                dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        .format(mood.getTimestamp().toDate());
-            }
+//            String dateString = "Unknown Date";
+//            if (mood.getTimestamp() != null) {
+//                dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//                        .format(mood.getTimestamp().toDate());
+//            }
 
             allDummyItems.add(new MoodClusterItem(
                     position,
                     mood.getMood(),
                     dateString,
+                    timeString,
                     mood.getMoodDescription(),
                     mood.getSocialSituation(),
+                    mood.getImageBase64(), // assuming mood always has an image (it should)
                     mood.getUserId()
             ));
+
         }
         new Handler(Looper.getMainLooper()).post(() -> {
             if (clusterManager != null) {
@@ -558,16 +578,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
         mMap.setOnMapClickListener(latLng -> {
             if (isInfoWindowVisible) {
-                infoWindow.setVisibility(View.GONE);
-                isInfoWindowVisible = false;
+                slideDownInfoWindow();
             }
         });
+
         mMap.setOnCameraMoveStartedListener(reason -> {
             if (isInfoWindowVisible) {
-                infoWindow.setVisibility(View.GONE);
-                isInfoWindowVisible = false;
+                slideDownInfoWindow();
             }
         });
+
     }
 
     /**
@@ -576,102 +596,146 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @param item The MoodClusterItem to display.
      */
     private void showInfoWindow(MoodClusterItem item) {
-        if (isInfoWindowVisible) {
-            infoWindow.setVisibility(View.GONE);
-        }
-        TextView username = infoWindow.findViewById(R.id.username);
-        TextView emotion = infoWindow.findViewById(R.id.emotion);
-        TextView date = infoWindow.findViewById(R.id.date);
-        TextView location = infoWindow.findViewById(R.id.location);
-        TextView description = infoWindow.findViewById(R.id.description);
-        TextView socialSituationView = infoWindow.findViewById(R.id.tvSocialSituation);
+        // Bind views using the new IDs from your info window layout
+        // Inside showInfoWindow(MoodClusterItem item)
+        TextView tvUsername = infoWindow.findViewById(R.id.tvUsername);
+        TextView tvDate = infoWindow.findViewById(R.id.tvDate);
+        TextView tvTime = infoWindow.findViewById(R.id.tvTime);
+        TextView tvEmotion = infoWindow.findViewById(R.id.tvEmotion);
+        TextView tvSocialSituation = infoWindow.findViewById(R.id.tvSocialSituation);
+        TextView tvDescription = infoWindow.findViewById(R.id.tvDescription);
+        TextView tvLocation = infoWindow.findViewById(R.id.tvLocation);
+        ImageView ivImage = infoWindow.findViewById(R.id.ivImage);
 
-        if (username != null) {
-            username.setText("Username: Loading...");
+// Username fetching remains the same...
+        if (tvUsername != null) {
+            tvUsername.setText("Loading...");
             firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
-                /**
-                 * Called when the user's data is successfully fetched.
-                 *
-                 * @param result A map containing user data.
-                 */
                 @Override
                 public void onSuccess(Object result) {
                     if (result instanceof Map) {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String usernameStr = (String) userData.get("username");
-                        username.setText("Username: " + usernameStr);
+                        tvUsername.setText(usernameStr);
                     } else {
-                        username.setText("Username: Unknown");
+                        tvUsername.setText("Unknown");
                     }
                 }
-                /**
-                 * Called when there is an error fetching the user's data.
-                 *
-                 * @param e The exception encountered.
-                 */
                 @Override
                 public void onFailure(Exception e) {
-                    username.setText("Username: Unavailable");
+                    tvUsername.setText("Unavailable");
                 }
             });
         }
 
-        if (emotion != null) {
-            emotion.setText("Emotion: " + item.getEmotion());
+// Set date and time
+        if (tvDate != null) {
+            tvDate.setText(item.getDate());
         }
-        if (socialSituationView != null) {
-            socialSituationView.setText("Social Situation: " + item.getSocialSituation());
-        }
-        if (date != null) {
-            date.setText("Date: " + item.getDate());
-        }
-        if (description != null) {
-            description.setText("Description: " + item.getDescription());
-        }
-        if (location != null) {
-            location.setText("Location: Loading...");
+        if (tvTime != null) {
+            tvTime.setText(item.getTime());
         }
 
-        String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
-        if (geocodeCache.containsKey(cacheKey)) {
-            String cachedLocation = geocodeCache.get(cacheKey);
-            new Handler(Looper.getMainLooper()).post(() ->
-                    location.setText("Location: " + cachedLocation));
-        } else {
-            geocodeExecutor.execute(() -> {
-                try {
-                    Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-                    List<Address> addresses = geocoder.getFromLocation(
-                            item.getPosition().latitude,
-                            item.getPosition().longitude,
-                            1);
-                    if (addresses != null && !addresses.isEmpty()) {
-                        Address address = addresses.get(0);
-                        String street = address.getThoroughfare();
-                        final String result = (street != null ? street : "Nearby area");
-                        geocodeCache.put(cacheKey, result);
+// Set emotion and social situation with new labels
+        if (tvEmotion != null) {
+            tvEmotion.setText("is feeling: " + item.getEmotion());
+        }
+        if (tvSocialSituation != null) {
+            tvSocialSituation.setText("Social Situation: " + item.getSocialSituation());
+        }
+
+// Set description
+        if (tvDescription != null) {
+            tvDescription.setText(item.getDescription());
+        }
+
+// Set location via geocoding (same as before)
+        if (tvLocation != null) {
+            tvLocation.setText("Loading...");
+            String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
+            if (geocodeCache.containsKey(cacheKey)) {
+                tvLocation.setText(geocodeCache.get(cacheKey));
+            } else {
+                geocodeExecutor.execute(() -> {
+                    try {
+                        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                        List<Address> addresses = geocoder.getFromLocation(
+                                item.getPosition().latitude,
+                                item.getPosition().longitude,
+                                1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            Address address = addresses.get(0);
+                            String street = address.getThoroughfare();
+                            final String result = (street != null ? street : "Nearby area");
+                            geocodeCache.put(cacheKey, result);
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    tvLocation.setText(result));
+                        } else {
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    tvLocation.setText("Unknown"));
+                        }
+                    } catch (Exception e) {
                         new Handler(Looper.getMainLooper()).post(() ->
-                                location.setText("Location: " + result));
-                    } else {
-                        new Handler(Looper.getMainLooper()).post(() ->
-                                location.setText("Location: Unknown"));
+                                tvLocation.setText("Unavailable"));
                     }
-                } catch (IOException | IllegalStateException e) {
-                    new Handler(Looper.getMainLooper()).post(() ->
-                            location.setText("Location: Unavailable"));
-                } catch (Exception e) {
-                    new Handler(Looper.getMainLooper()).post(() ->
-                            location.setText("Location: Error"));
-                }
-            });
+                });
+            }
         }
 
-        Point screenPosition = mMap.getProjection().toScreenLocation(item.getPosition());
-        infoWindow.setX(screenPosition.x - infoWindow.getWidth() / 2);
-        infoWindow.setY(screenPosition.y - infoWindow.getHeight() - 100);
+// Decode and set the image
+        if (ivImage != null) {
+            if (item.getImageBase64() != null) {
+                try {
+                    byte[] decodedBytes = Base64.decode(item.getImageBase64(), Base64.DEFAULT);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    ivImage.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                   // ivImage.setImageResource(R.drawable.ic_default_image);
+                }
+            } else {
+                //ivImage.setImageResource(R.drawable.ic_default_image);
+            }
+        }
+
+// Animate the info window sliding up from the bottom (as before)
         infoWindow.setVisibility(View.VISIBLE);
+        infoWindow.post(() -> {
+            View parent = (View) infoWindow.getParent();
+            int parentHeight = parent.getHeight();
+            int infoHeight = infoWindow.getMeasuredHeight();
+            int finalY = parentHeight - infoHeight;
+            infoWindow.setTranslationY(parentHeight);
+            infoWindow.animate().translationY(finalY).setDuration(300).start();
+        });
         isInfoWindowVisible = true;
+
+    }
+
+
+
+    /**
+     * Animates the info window sliding down off the screen and then hides it.
+     */
+    private void slideDownInfoWindow() {
+        View parent = (View) infoWindow.getParent();
+        final int parentHeight = parent.getHeight();
+        // Get current translationY (should be at the bottom position)
+        final float startY = infoWindow.getTranslationY();
+        ValueAnimator animator = ValueAnimator.ofFloat(startY, parentHeight);
+        animator.setDuration(300);
+        animator.addUpdateListener(animation -> {
+            float value = (float) animation.getAnimatedValue();
+            infoWindow.setTranslationY(value);
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                infoWindow.setVisibility(View.GONE);
+                isInfoWindowVisible = false;
+            }
+        });
+        animator.start();
     }
 
     /**
