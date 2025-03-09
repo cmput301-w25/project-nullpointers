@@ -31,4 +31,4 @@
 - https://github.com/cmput301-w25/project-nullpointers/wiki
 - https://github.com/orgs/cmput301-w25/projects/49
 - UI Mockups: https://github.com/cmput301-w25/project-nullpointers/wiki/UI-Mockup-&-StoryBoard-Sequence
-- [UML]
+- UML Class Diagram: https://github.com/cmput301-w25/project-nullpointers/wiki/UML-Class-Diagram
