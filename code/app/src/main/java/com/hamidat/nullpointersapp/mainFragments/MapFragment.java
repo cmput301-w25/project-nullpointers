@@ -691,10 +691,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                     ivImage.setImageBitmap(bitmap);
                 } catch (Exception e) {
-                   // ivImage.setImageResource(R.drawable.ic_default_image);
+                   ivImage.setImageResource(R.drawable.ic_default_image);
                 }
             } else {
-                //ivImage.setImageResource(R.drawable.ic_default_image);
+                ivImage.setImageResource(R.drawable.ic_default_image);
             }
         }
 
