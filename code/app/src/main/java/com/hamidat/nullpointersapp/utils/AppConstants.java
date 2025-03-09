@@ -12,6 +12,5 @@ public class AppConstants {
     }
 
     // User-related Constants
-    public static final String DEFAULT_USERNAME = "GuestUser";
     public static final int MAX_USERNAME_LENGTH = 20;
 }
