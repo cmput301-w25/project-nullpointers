@@ -39,17 +39,7 @@ public class FirestoreAddEditMoods {
         String moodID = UUID.randomUUID().toString();
         DocumentReference moodRef = firestore.collection(MOODS_COLLECTION).document(moodID);
 
-//        Map<String, Object> moodData = new HashMap<>();
-//        moodData.put("moodId", moodID);
-//        moodData.put("userId", userID);
-//        moodData.put("mood", mood.getMood());
-//        moodData.put("moodDescription", mood.getMoodDescription());
-//        moodData.put("latitude", mood.getLatitude());
-//        moodData.put("longitude", mood.getLongitude());
-//        moodData.put("socialSituation", mood.getSocialSituation());
-//        moodData.put("timestamp", FieldValue.serverTimestamp());
-
-        // Edit the timeStamp will be the current time.
+        // Setting more features for the mood, and using the current Date.
         mood.setMoodId(moodID);
         mood.setUserId(userID);
         mood.setTimestamp(new Timestamp(new Date()));
@@ -75,7 +65,7 @@ public class FirestoreAddEditMoods {
         String moodID = UUID.randomUUID().toString();
         DocumentReference moodRef = firestore.collection(MOODS_COLLECTION).document(moodID);
 
-        // Changes here as well.
+        // Setting more features for the mood, and using the current Date.
         mood.setMoodId(moodID);
         mood.setUserId(userID);
         mood.setTimestamp(new Timestamp(new Date()));
