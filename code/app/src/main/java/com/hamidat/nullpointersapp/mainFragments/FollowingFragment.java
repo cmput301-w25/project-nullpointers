@@ -45,6 +45,8 @@ public class FollowingFragment extends Fragment {
          * @param username The username of the user.
          */
         public User(String userId, String username) {
+            if (userId == null || username == null)
+                throw new NullPointerException("userId and username cannot be null");
             this.userId = userId;
             this.username = username;
         }
@@ -88,6 +90,9 @@ public class FollowingFragment extends Fragment {
          * @param sender    The user who sent the request.
          */
         public PendingRequest(String requestId, User sender) {
+            if (requestId == null || sender == null) {
+                throw new NullPointerException("requestId or sender cannot be null");
+            }
             this.requestId = requestId;
             this.sender = sender;
         }
