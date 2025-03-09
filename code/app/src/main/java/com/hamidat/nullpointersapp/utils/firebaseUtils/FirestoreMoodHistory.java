@@ -113,7 +113,7 @@ public class FirestoreMoodHistory {
     public void firebaseQueryEmotional(String userID, String moodType, FirestoreHelper.FirestoreCallback callback) {
         CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
         Query query = moodsRef.whereEqualTo("userId", userID)
-                .whereEqualTo("moodEmotion", moodType);
+                .whereEqualTo("mood", moodType);
         attachSnapshotListener(query, userID, callback);
     }
 

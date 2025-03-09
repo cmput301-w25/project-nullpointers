@@ -2,34 +2,27 @@ package com.hamidat.nullpointersapp;
 
 import static android.content.ContentValues.TAG;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.graphics.Movie;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.hamidat.nullpointersapp.models.Mood;
 
-import androidx.navigation.Navigation;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,20 +32,18 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class FirestoreMoodTest {
-
     private static final String MOODS_COLLECTION = "moods";
     private FirebaseFirestore firestore;
     private FirestoreHelper firestoreHelper;
     private static final String FIXED_USER_ID = "testUser123";
 
-    private String userId = "testUser123";
+//    private String userId = "testUser123";
 
     /**
      * Waits up to 5 seconds for the provided CountDownLatch to reach zero.
@@ -74,24 +65,24 @@ public class FirestoreMoodTest {
      * This method creates a new user document in the "users" collection using the specified
      * username and password. It then waits for the asynchronous operation to complete using {@code latch5seconds}.
      */
-    public void seedDatabase() {
+    public String seedDatabase(String userId, String newUsername, String newPassword) {
         // Seed the database with a new user which will be used to add a mood to.
 
         CountDownLatch latch = new CountDownLatch(1);
 
         firestore = FirebaseFirestore.getInstance();
         firestoreHelper = new FirestoreHelper();
-        String newUsername = "Arden";
-        String newPassword = "Arden123";
 
         Map<String, Object> userData = new HashMap<>();
-        userData.put("username", "Arden");
-        userData.put("password", "Arden123");
+        userData.put("username", newUsername);
+        userData.put("password", newPassword);
 
         firestore.collection("users").document(userId).set(userData);
 
         // Wait up to 5 seconds for the callback to complete.
         latch5seconds(latch);
+
+        return userId;
 
     }
 
@@ -141,8 +132,12 @@ public class FirestoreMoodTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Initializing value inside of the DB.
-        seedDatabase();
+        String userId;
+        String newUsername = "Arden";
+        String newPassword = "Arden123";
+        userId = seedDatabase("UserId1", newUsername, newPassword);
 
+        // Now query on username being Arden.
         firestoreHelper.getUserByUsername("Arden", new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -151,7 +146,6 @@ public class FirestoreMoodTest {
                 Map<String, Object> userData = (Map<String, Object>) result;
                 usernameHolder[0] = (String) userData.get("username");
                 passwordHolder[0] = (String) userData.get("password");
-                userId = (String) userData.get("userId");
                 latch.countDown();
             }
 
@@ -177,7 +171,10 @@ public class FirestoreMoodTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        seedDatabase();
+        String userId;
+        String newUsername = "Hamidat";
+        String newPassword = "Hamidat123";
+        userId = seedDatabase("UserId2", newUsername, newPassword);
 
         // Creating Dummy Moods.
         Mood testMood = new Mood();
@@ -196,7 +193,40 @@ public class FirestoreMoodTest {
 
         // Wait up to 5 seconds for the callback to complete.
         latch5seconds(latch);
+    }
 
+    @Test
+    public void createMoodWithImage() {
+        // Checking if a mood can be created with data and has a dummy image set to it.
+
+        CountDownLatch latch = new CountDownLatch(1);
+        String exampleBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PQ7TeAAAAABJRU5ErkJggg==";
+
+        String userId;
+        String newUsername = "Shahab";
+        String newPassword = "Shahab123";
+        userId = seedDatabase("UserId3", newUsername, newPassword);
+
+        Mood testMood = new Mood();
+        testMood.setMood("Angry");
+        testMood.setMoodDescription("I am quite angry");
+        testMood.setSocialSituation("Group");
+
+        // Setting image
+        testMood.setImageBase64(exampleBase64);
+        firestoreHelper.addMoodWithPhoto(userId, testMood, new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                latch.countDown();
+            }
+            @Override
+            public void onFailure(Exception e) {
+                latch.countDown();
+            }
+        });
+
+        // Wait up to 5 seconds for the callback to complete and check DB.
+        latch5seconds(latch);
     }
 
     @Test
@@ -204,8 +234,10 @@ public class FirestoreMoodTest {
         // Testing to see If we can retrieve all the moods from the current user after they are added into the DB.
 
         CountDownLatch latch = new CountDownLatch(1);
-
-        seedDatabase();
+        String userId;
+        String newUsername = "Ogua";
+        String newPassword = "Ogua123";
+        userId = seedDatabase("UserId4", newUsername, newPassword);
 
         Mood testMood = new Mood();
         testMood.setMood("Angry");
@@ -263,7 +295,10 @@ public class FirestoreMoodTest {
         // Note: This test does fail, Need to refactor this query to fit our current implementation.
 
         // Initially seed the database with user values
-        seedDatabase();
+        String userId;
+        String newUsername = "Salim";
+        String newPassword = "Salim123";
+        userId = seedDatabase("UserId5", newUsername, newPassword);
 
         CountDownLatch latch = new CountDownLatch(1);
         ArrayList<Mood> moodsInit = new ArrayList<Mood>();
@@ -284,7 +319,6 @@ public class FirestoreMoodTest {
             public void onSuccess(Object result) {
                 // Expecting a moodHistory object to be returned.
                 moodHistory history = (moodHistory) result;
-                Log.d(TAG, "onSuccess: "+ history);
                 // moodsInit contains an Array of Moods.
                 moodsInit.addAll(history.getMoodArray());
             }
@@ -297,12 +331,13 @@ public class FirestoreMoodTest {
         // Wait up to 5 seconds for the callback to complete.
         latch5seconds(latch);
 
-        // Test to see if it is the sad mood with all the values
+        // Test to see if it is the happy mood with all the values.
         assertEquals(userId, moodsInit.get(0).getUserId());
         assertEquals("Happy", moodsInit.get(0).getMood());
-        assertEquals("I am quite happy", moodsInit.get(0).getMoodDescription());
-        assertEquals("One-On-On", moodsInit.get(0).getSocialSituation());
+        assertEquals("I am quite very yes happy", moodsInit.get(0).getMoodDescription());
+        assertEquals("One-On-One", moodsInit.get(0).getSocialSituation());
         assertEquals(10.53, moodsInit.get(0).getLatitude(), 0.01);
         assertEquals(20.24, moodsInit.get(0).getLongitude(), 0.01);
     }
+
 }
