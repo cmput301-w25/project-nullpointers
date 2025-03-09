@@ -11,12 +11,14 @@ public class FollowingTest {
 
     /**
      * Tests equality between two User instances with identical IDs and usernames.
+     * if two users have the same name - makes sure they're treated equally
+     * ensures reliable user comparison
      */
     @Test
     public void testUserEquality() {
-        User user1 = new User("user123", "Alice");
-        User user2 = new User("user123", "Alice");
-        User user3 = new User("user456", "Bob");
+        User user1 = new User("user123", "Hamidat");
+        User user2 = new User("user123", "Hamidat");
+        User user3 = new User("user456", "Salim");
 
         assertTrue(user1.equals(user2));
         assertFalse(user1.equals(user3));
@@ -24,11 +26,12 @@ public class FollowingTest {
 
     /**
      * Tests equality between two PendingRequest instances with identical request IDs and senders.
+     * this is important as it ensures correct identification and handling of duplicate friend requests.
      */
     @Test
     public void testPendingRequestEquality() {
-        User sender1 = new User("user123", "Alice");
-        User sender2 = new User("user456", "Bob");
+        User sender1 = new User("user123", "Hamidat");
+        User sender2 = new User("user456", "Salim");
 
         PendingRequest request1 = new PendingRequest("req123", sender1);
         PendingRequest request2 = new PendingRequest("req123", sender1);
@@ -40,11 +43,12 @@ public class FollowingTest {
 
     /**
      * Tests the toString method of the User class to ensure it returns the correct username.
+     * VV Important for correctly displaying usernames in UI elements.
      */
     @Test
     public void testUserToString() {
-        User user = new User("user789", "Charlie");
-        assertEquals("Charlie", user.toString());
+        User user = new User("user789", "Shahab");
+        assertEquals("Shahab", user.toString());
     }
 
     /**
@@ -52,16 +56,17 @@ public class FollowingTest {
      */
     @Test
     public void testPendingRequestToString() {
-        User sender = new User("user789", "Charlie");
+        User sender = new User("user789", "Shahab");
         PendingRequest request = new PendingRequest("req789", sender);
-        assertEquals("Charlie", request.toString());
+        assertEquals("Shahab", request.toString());
     }
     /**
      * Tests the equals method of User class against a different object type.
+     * Prevents unexpected errors from invalid comparisons.
      */
     @Test
     public void testUserEqualsWithDifferentObject() {
-        User user = new User("user123", "Alice");
+        User user = new User("user123", "Hamidat");
         Object notAUser = "I'm not a user";
 
         assertFalse(user.equals(notAUser));
@@ -72,7 +77,7 @@ public class FollowingTest {
      */
     @Test
     public void testPendingRequestEqualsWithDifferentObject() {
-        PendingRequest request = new PendingRequest("req123", new User("user123", "Alice"));
+        PendingRequest request = new PendingRequest("req123", new User("user123", "Hamidat"));
         Object notARequest = 123;
 
         assertFalse(request.equals(notARequest));
@@ -80,6 +85,7 @@ public class FollowingTest {
 
     /**
      * Tests that the User constructor throws NullPointerException when passed null arguments.
+     * prevents creation of invalid users that could cause system instability.
      */
     @Test
     public void testUserConstructorWithNull() {
@@ -108,7 +114,8 @@ public class FollowingTest {
     }
 
     /**
-     * Simulates receiving a friend request and ensures it's correctly represented.
+     * Simulates sending a friend request and confirms
+     * that the request object correctly holds the sender's username and request ID.
      */
     @Test
     public void testReceiveFriendRequest() {
@@ -131,6 +138,7 @@ public class FollowingTest {
 
     /**
      * Simulates denying a friend request and ensures the request is properly removed.
+     * Ensures denied requests are properly removed or ignored, preventing unwanted user connections.
      */
     @Test
     public void testDenyFriendRequest() {
