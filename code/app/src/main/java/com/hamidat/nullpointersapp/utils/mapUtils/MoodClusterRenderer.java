@@ -3,86 +3,130 @@ package com.hamidat.nullpointersapp.utils.mapUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.hamidat.nullpointersapp.R;
 
+/**
+ * Custom renderer for mood event markers.
+ * For individual markers, it uses XML vector drawables based on the mood,
+ * while cluster markers are rendered as circles.
+ */
 public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem> {
-    private static final int MARKER_SIZE = 100;
-    private static final int TEXT_SIZE = 30;
+
     private final Context context;
+
     /**
      * Initializes the cluster renderer.
      *
-     * @param context         Application context
-     * @param map            GoogleMap instance
-     * @param clusterManager Cluster manager instance
+     * @param context         Application context.
+     * @param map             GoogleMap instance.
+     * @param clusterManager  Cluster manager instance.
      */
     public MoodClusterRenderer(Context context, GoogleMap map, ClusterManager<MoodClusterItem> clusterManager) {
         super(context, map, clusterManager);
         this.context = context;
     }
+
     /**
-     * Configures marker appearance before rendering.
+     * Configures marker appearance for individual (non-cluster) items.
+     * It converts a vector drawable resource into a BitmapDescriptor and uses that as the icon.
      *
-     * @param item           MoodClusterItem to render
-     * @param markerOptions  Marker configuration object
+     * @param item           MoodClusterItem to render.
+     * @param markerOptions  Marker configuration object.
      */
     @Override
     protected void onBeforeClusterItemRendered(@NonNull MoodClusterItem item, @NonNull MarkerOptions markerOptions) {
-        BitmapDescriptor icon = createCircleBitmap(item.getEmotion());
-        markerOptions.icon(icon);
-        super.onBeforeClusterItemRendered(item, markerOptions);
-    }
-    /**
-     * Creates a circular bitmap marker with emotion-specific coloring.
-     *
-     * @param emotion Emotion string to determine color and label
-     * @return BitmapDescriptor for marker icon
-     */
-    private BitmapDescriptor createCircleBitmap(String emotion) {
-        Bitmap bitmap = Bitmap.createBitmap(MARKER_SIZE, MARKER_SIZE, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        Paint paint = new Paint();
-        int circleColor;
-        switch (emotion) {
+        int drawableId;
+        switch (item.getEmotion()) {
             case "Happy":
-                circleColor = Color.YELLOW;
+                drawableId = R.drawable.ic_pin_happy;
                 break;
             case "Sad":
-                circleColor = Color.BLUE;
+                drawableId = R.drawable.ic_pin_sad;
                 break;
             case "Angry":
-                circleColor = Color.RED;
+                drawableId = R.drawable.ic_pin_angry;
                 break;
             case "Chill":
-                circleColor = Color.GREEN;
+                drawableId = R.drawable.ic_pin_chill;
                 break;
             default:
-                circleColor = Color.GRAY;
+                drawableId = R.drawable.ic_pin_default;
+                break;
         }
-        paint.setColor(circleColor);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(true);
-        canvas.drawCircle(MARKER_SIZE/2f, MARKER_SIZE/2f, MARKER_SIZE/2f, paint);
+        BitmapDescriptor icon = getBitmapDescriptorFromVector(context, drawableId);
+        markerOptions.icon(icon);
+        // Anchor the icon so that the bottom-center aligns with the marker's location.
+        markerOptions.anchor(0.5f, 1.0f);
+    }
 
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(TEXT_SIZE);
-        paint.setTextAlign(Paint.Align.CENTER);
+    /**
+     * Converts a vector drawable resource into a BitmapDescriptor.
+     * This method first creates a Bitmap from the vector drawable, then crops out the transparent
+     * padding so that the clickable area more closely fits the visible icon.
+     *
+     * @param context     Application context.
+     * @param vectorResId Resource ID of the vector drawable.
+     * @return BitmapDescriptor created from the cropped bitmap.
+     */
+    private BitmapDescriptor getBitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        if (vectorDrawable == null) {
+            return BitmapDescriptorFactory.defaultMarker();
+        }
+        // Set the bounds for the drawable
+        int width = vectorDrawable.getIntrinsicWidth();
+        int height = vectorDrawable.getIntrinsicHeight();
+        vectorDrawable.setBounds(0, 0, width, height);
 
-        Rect bounds = new Rect();
-        paint.getTextBounds(emotion, 0, emotion.length(), bounds);
-        float y = MARKER_SIZE/2f - (bounds.top + bounds.bottom)/2f;
-        canvas.drawText(emotion.substring(0, 1), MARKER_SIZE/2f, y, paint);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
 
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+        // Crop out transparent areas to shrink the clickable region.
+        Bitmap croppedBitmap = cropTransparent(bitmap);
+        return BitmapDescriptorFactory.fromBitmap(croppedBitmap);
+    }
+
+    /**
+     * Crops out the transparent pixels from a bitmap.
+     *
+     * @param bitmap The original bitmap.
+     * @return A new bitmap cropped to the non-transparent bounds.
+     */
+    private Bitmap cropTransparent(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int top = height, left = width, right = 0, bottom = 0;
+
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixel = pixels[y * width + x];
+                // Check if pixel is not transparent (alpha > 0)
+                if ((pixel >>> 24) != 0) {
+                    if (x < left) left = x;
+                    if (x > right) right = x;
+                    if (y < top) top = y;
+                    if (y > bottom) bottom = y;
+                }
+            }
+        }
+        // If no non-transparent pixel is found, return the original bitmap.
+        if (left > right || top > bottom) {
+            return bitmap;
+        }
+        return Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1);
     }
 }

@@ -3,18 +3,18 @@ package com.hamidat.nullpointersapp.mainFragments;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 
-import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.util.Log;
+import android.location.Location;
 import android.widget.ImageView;
 import android.animation.ValueAnimator;
-import android.animation.AnimatorListenerAdapter;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -62,7 +62,6 @@ import com.hamidat.nullpointersapp.utils.networkUtils.NetworkMonitor;
 
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +72,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -115,9 +113,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final Handler filterHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingFilterRunnable;
     private NetworkMonitor networkMonitor;
-    private FirestoreHelper firestoreHelper;
-    private String currentUserId;
+    public FirestoreHelper firestoreHelper;
+    public String currentUserId;
     private boolean isFirstLoad = true;
+
 
     /**
      * Called when the fragment resumes.
@@ -336,9 +335,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
     /**
      * Retrieves the device's last known location.
      */
+//    private void getLastLocation() {
+//        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+//        if (checkLocationPermission()) {
+//            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+//                if (location != null) {
+//                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+//                    fetchMoodData();
+//                    setupMap();
+//                }
+//            });
+//        }
+//    }
+
     private void getLastLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         if (checkLocationPermission()) {
@@ -347,10 +369,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     fetchMoodData();
                     setupMap();
+                } else {
+                    // Request a fresh location update if last location is null
+                    LocationRequest locationRequest = LocationRequest.create();
+                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    locationRequest.setInterval(1000);
+                    locationRequest.setFastestInterval(500);
+                    locationRequest.setNumUpdates(1);
+
+                    fusedLocationClient.requestLocationUpdates(locationRequest, new LocationCallback() {
+                        @Override
+                        public void onLocationResult(LocationResult locationResult) {
+                            if (locationResult != null && !locationResult.getLocations().isEmpty()) {
+                                Location freshLocation = locationResult.getLastLocation();
+                                currentLocation = new LatLng(freshLocation.getLatitude(), freshLocation.getLongitude());
+                                fetchMoodData();
+                                setupMap();
+                            }
+                        }
+                    }, Looper.getMainLooper());
                 }
             });
         }
     }
+
+
 
     /**
      * Fetches mood data for the current user and their following list.
@@ -505,7 +548,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 for (MoodClusterItem item : allDummyItems) {
                     double distance = SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition());
                     boolean proximityMatch = !showNearby || distance <= 5000;
-                    boolean emotionMatch = allSwitch.isChecked() || selectedMoods.contains(item.getEmotion());
+                    boolean emotionMatch = selectedMoods.isEmpty() || allSwitch.isChecked() || selectedMoods.contains(item.getEmotion());
                     boolean dateMatch = true;
                     try {
                         Date itemDate = dateFormat.parse(item.getDate());
@@ -552,7 +595,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         if (currentLocation != null) {
             setupMap();
+
         }
+
     }
 
     /**
