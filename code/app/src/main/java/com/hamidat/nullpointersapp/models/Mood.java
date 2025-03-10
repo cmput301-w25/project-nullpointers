@@ -18,6 +18,8 @@ public class Mood {
     private com.google.firebase.Timestamp timestamp;
     private String userId;  // new field
 
+    private String moodId; //new field for moodId
+
     /**
      * No-argument constructor for Firestore.
      */
@@ -30,6 +32,15 @@ public class Mood {
      */
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    /**
+     * Sets the mood ID.
+     *
+     * @param moodId The unique identifier for the user.
+     */
+    public void setMoodId(String moodId) {
+        this.moodId = moodId;
     }
 
     /**
