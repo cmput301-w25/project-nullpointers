@@ -16,10 +16,7 @@
         <!-- Add this metadata tag -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-
             android:value="AIzaSyB20UWD5augVjyvAs2Q9olGBFvEpVunkX0"/>
-<!--            MINE-->
-<!--            android:value="AIzaSyAdDkGlkWBydlY59secOiSSPpSEz7cij_I"-->
 
         <!-- Splash Screen Activity as the launcher -->
         <activity
