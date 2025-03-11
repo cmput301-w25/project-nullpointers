@@ -32,4 +32,6 @@
     <string name="sad">Sad</string>
     <string name="angry">Angry</string>
     <string name="chill">Chill</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
 </resources>

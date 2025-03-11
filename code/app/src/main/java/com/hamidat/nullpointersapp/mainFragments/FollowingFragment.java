@@ -123,7 +123,7 @@ public class FollowingFragment extends Fragment {
     }
 
     private TextView tvCurrentUser;
-    private ListView lvAccepted, lvAvailable, lvPending;
+    private ListView lvAccepted, lvPending;
 
     private ArrayAdapter<User> acceptedAdapter;
     private ArrayAdapter<User> availableAdapter;
@@ -169,7 +169,6 @@ public class FollowingFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         tvCurrentUser = view.findViewById(R.id.tvCurrentUser);
         lvAccepted = view.findViewById(R.id.lvAccepted);
-        lvAvailable = view.findViewById(R.id.lvAvailable);
         lvPending = view.findViewById(R.id.lvPending);
 
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
@@ -211,7 +210,6 @@ public class FollowingFragment extends Fragment {
         pendingAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, pendingList);
 
         lvAccepted.setAdapter(acceptedAdapter);
-        lvAvailable.setAdapter(availableAdapter);
         lvPending.setAdapter(pendingAdapter);
 
         // Populate available users.
@@ -250,46 +248,7 @@ public class FollowingFragment extends Fragment {
         });
 
         // Send friend request when an available user is tapped.
-        lvAvailable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            /**
-             * Handles tap events on available users.
-             *
-             * @param parent   The AdapterView where the click happened.
-             * @param view1    The view within the AdapterView that was clicked.
-             * @param position The position of the view in the adapter.
-             * @param id       The row id of the item.
-             */
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
-                User selectedUser = availableList.get(position);
-                firestoreHelper.sendFriendRequest(currentUserId, selectedUser.userId, new FirestoreFollowing.FollowingCallback() {
-                    /**
-                     * Called when the friend request is successfully sent.
-                     *
-                     * @param result The result of the operation.
-                     */
-                    @Override
-                    public void onSuccess(Object result) {
-                        if (isAdded()) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Friend request sent to " + selectedUser.username, Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                    /**
-                     * Called when there is an error sending the friend request.
-                     *
-                     * @param e The exception encountered.
-                     */
-                    @Override
-                    public void onFailure(Exception e) {
-                        if (isAdded()) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Error sending request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                });
-            }
-        });
+
 
         // Listen for changes to the current user's following list.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -407,6 +366,20 @@ public class FollowingFragment extends Fragment {
             @Override
             public void onFailure(Exception e) { }
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // Show dialog when a pending request is tapped.
         lvPending.setOnItemClickListener(new AdapterView.OnItemClickListener() {

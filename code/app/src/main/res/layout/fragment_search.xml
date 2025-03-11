@@ -1,0 +1,35 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragmentSearchContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="0dp"> <!-- Changed from 16dp to 0dp -->
+
+    <!-- Main Search View -->
+    <LinearLayout
+        android:id="@+id/searchMainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search users..."
+            android:imeOptions="actionSearch"
+            android:inputType="text" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+    <!-- Profile View (for a selected user) -->
+    <include
+        android:id="@+id/searchProfileView"
+        layout="@layout/layout_search_profile"
+        android:visibility="gone"/>
+</FrameLayout>

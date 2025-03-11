@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivAddMood = findViewById(R.id.ivAddMood);
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
+        final ImageView ivSearch = findViewById(R.id.ivSearch);
+
 
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
@@ -112,6 +114,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.mapFragment);
         });
+        ivSearch.setOnClickListener(v -> {
+            Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.searchFragment);
+        });
+
     }
 
     @Override
