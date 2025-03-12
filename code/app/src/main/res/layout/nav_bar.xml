@@ -26,7 +26,6 @@
     <!-- Notification Icon -->
 
 
-    <!-- Navigation Bar -->
 
     <ImageView
         android:id="@+id/ivNotification"
@@ -39,7 +38,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.842"
-        app:tint="@color/textColor" />
+         />
+
+    <!-- Navigation Bar -->
 
     <LinearLayout
         android:id="@+id/navigationIcons"

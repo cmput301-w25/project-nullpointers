@@ -15,10 +15,16 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
@@ -168,26 +174,31 @@ public class FollowingFragment extends Fragment {
      * @param user The selected user.
      */
     private void showUserProfile(User user) {
+        // Get the fragment's root view.
         ViewGroup root = (ViewGroup) getView();
         if (root == null) return;
 
         // Inflate the profile view from layout_search_profile.xml.
-        View profileView = LayoutInflater.from(getContext()).inflate(R.layout.layout_search_profile, root, false);
+        View profileView = LayoutInflater.from(getContext())
+                .inflate(R.layout.layout_search_profile, root, false);
         profileView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        // Set a high elevation so it appears on top.
-        profileView.setElevation(100);
+        profileView.setElevation(100); // Ensure it appears on top
 
         // Bind profile view elements.
         TextView tvProfileUsername = profileView.findViewById(R.id.username_text);
         Button btnFollowUnfollow = profileView.findViewById(R.id.btnFollowUnfollow);
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
+        RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
 
-        // Check if the current user is already following the selected user.
+        // Initially hide mood events.
+        rvMoodEvents.setVisibility(View.GONE);
+
+        // Check follow status and show mood events only if followed.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -196,8 +207,12 @@ public class FollowingFragment extends Fragment {
                     List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
+                        // Since user is followed, show and load mood events.
+                        rvMoodEvents.setVisibility(View.VISIBLE);
+                        loadRecentMoodEvents(user, rvMoodEvents);
                     } else {
                         btnFollowUnfollow.setText("Follow");
+                        rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
             }
@@ -228,6 +243,8 @@ public class FollowingFragment extends Fragment {
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
+                        // Hide mood events when unfollowing.
+                        rvMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
                     @Override
@@ -239,12 +256,42 @@ public class FollowingFragment extends Fragment {
         });
 
         // Set the back button to remove the profile overlay.
-        ivBack.setOnClickListener(v -> {
-            root.removeView(profileView);
-        });
+        ivBack.setOnClickListener(v -> root.removeView(profileView));
 
+        // Add the profile view as an overlay.
         root.addView(profileView);
         profileView.bringToFront();
         profileView.invalidate();
     }
+
+    /**
+     * Queries Firestore for the three most recent mood events of the selected user
+     * and binds them to the given RecyclerView using MoodAdapter.
+     */
+    private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
+        List<Mood> moodList = new ArrayList<>();
+        MoodAdapter moodAdapter = new MoodAdapter(moodList);
+        rvMoodEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        rvMoodEvents.setAdapter(moodAdapter);
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("moods")
+                .whereEqualTo("userId", user.userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(3)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    moodList.clear();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Mood mood = doc.toObject(Mood.class);
+                        if (mood != null) {
+                            moodList.add(mood);
+                        }
+                    }
+                    requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error loading mood events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 }

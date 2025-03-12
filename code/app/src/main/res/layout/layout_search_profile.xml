@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:padding="0dp">  <!-- Remove padding so background fills the view -->
+    android:padding="0dp">
 
     <!-- Back Button -->
     <ImageView
@@ -55,4 +55,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
+
+    <!-- RecyclerView for 3 Most Recent Mood Events -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMoodEvents"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnFollowUnfollow" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,11 +20,14 @@ import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier
 
 import java.util.ArrayList;
 import java.util.List;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
+
 
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
     private FirestoreHelper currentUserFirestoreInstance;
     private NavController navController;
+    private FirestoreHelper firestoreHelper;
 
     // for in memory list of moods
     private final List<Mood> moodCache = new ArrayList<>();
@@ -45,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // Get the current user ID and FirestoreHelper instance.
+        currentUserId = getIntent().getStringExtra("USER_ID");
+        firestoreHelper = new FirestoreHelper();
+
+        // Set up the persistent listener for friend requests.
+        setupNotificationListener();
+
 
         // Request POST_NOTIFICATIONS permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -133,6 +146,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setupNotificationListener() {
+        firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                // When a friend request is received, update the icon to show the badge.
+                runOnUiThread(() -> updateNotificationIcon(true));
+            }
+            @Override
+            public void onFailure(Exception e) {
+                // Optionally, if there's an error (or if no friend request exists), hide the badge.
+                runOnUiThread(() -> updateNotificationIcon(false));
+            }
+        });
+    }
+
+
+    public void updateNotificationIcon(boolean hasNotifications) {
+        ImageView ivNotification = findViewById(R.id.ivNotification);
+        if (ivNotification != null) {
+            if (hasNotifications) {
+                ivNotification.setImageResource(R.drawable.ic_notification_badge);
+            } else {
+                ivNotification.setImageResource(R.drawable.ic_notification);
+            }
+        }
+    }
+
+
+
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
@@ -159,4 +203,7 @@ public class MainActivity extends AppCompatActivity {
     public String getCurrentUserId() {
         return currentUserId;
     }
+
+
+
 }
