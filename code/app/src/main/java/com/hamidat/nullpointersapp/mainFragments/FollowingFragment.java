@@ -1,6 +1,5 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,10 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Fragment for managing following and friend requests.
- * Displays pending friend requests and the list of users you are following.
- * Tapping on a user in "My Following" opens their profile using layout_search_profile.xml
- * as an overlay (instead of an AlertDialog) so that the user can unfollow (or follow) them.
+ * Fragment for managing following.
+ * Displays the current user's accepted following.
+ * Tapping on a user in "My Following" opens their profile as an overlay using layout_search_profile.xml.
  */
 public class FollowingFragment extends Fragment {
 
@@ -63,58 +61,23 @@ public class FollowingFragment extends Fragment {
         }
     }
 
-    /**
-     * Model representing a pending friend request.
-     */
-    public static class PendingRequest {
-        public String requestId;
-        public User sender;
-
-        public PendingRequest(String requestId, User sender) {
-            if (requestId == null || sender == null) {
-                throw new NullPointerException("requestId or sender cannot be null");
-            }
-            this.requestId = requestId;
-            this.sender = sender;
-        }
-
-        @Override
-        public String toString() {
-            return sender.username;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof PendingRequest) {
-                return this.requestId.equals(((PendingRequest) obj).requestId);
-            }
-            return false;
-        }
-    }
-
     private TextView tvCurrentUser;
-    private ListView lvAccepted, lvPending;
+    private ListView lvAccepted;
 
     private ArrayAdapter<User> acceptedAdapter;
-    private ArrayAdapter<PendingRequest> pendingAdapter;
-
     private ArrayList<User> acceptedList = new ArrayList<>();
-    private ArrayList<PendingRequest> pendingList = new ArrayList<>();
 
     private String currentUsername;
     private String currentUserId;
 
     private FirestoreHelper firestoreHelper;
 
-    // To track pending requests if needed.
-    private String currentPendingRequestId = null;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // Use the updated fragment_following.xml that no longer includes available users.
+        // Inflate the updated XML that does not include pending requests.
         return inflater.inflate(R.layout.fragment_following, container, false);
     }
 
@@ -123,7 +86,6 @@ public class FollowingFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         tvCurrentUser = view.findViewById(R.id.tvCurrentUser);
         lvAccepted = view.findViewById(R.id.lvAccepted);
-        lvPending = view.findViewById(R.id.lvPending);
 
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
         currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
@@ -150,10 +112,7 @@ public class FollowingFragment extends Fragment {
         });
 
         acceptedAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, acceptedList);
-        pendingAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, pendingList);
-
         lvAccepted.setAdapter(acceptedAdapter);
-        lvPending.setAdapter(pendingAdapter);
 
         // Listen for changes to the current user's following list.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -192,52 +151,7 @@ public class FollowingFragment extends Fragment {
                     }
                 });
 
-        // Listen for incoming friend requests.
-        firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                if (!isAdded()) return;
-                Map<String, Object> requestData = (Map<String, Object>) result;
-                final String requestId = (String) requestData.get("requestId");
-                final String fromUserId = (String) requestData.get("fromUserId");
-                boolean alreadyPending = false;
-                for (PendingRequest pr : pendingList) {
-                    if (pr.sender.userId.equals(fromUserId)) {
-                        alreadyPending = true;
-                        break;
-                    }
-                }
-                if (alreadyPending) return;
-                firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        if (!isAdded()) return;
-                        String senderUsername = fromUserId;
-                        if (result instanceof Map) {
-                            @SuppressWarnings("unchecked")
-                            Map<String, Object> userData = (Map<String, Object>) result;
-                            if (userData.get("username") != null) {
-                                senderUsername = (String) userData.get("username");
-                            }
-                        }
-                        PendingRequest pr = new PendingRequest(requestId, new User(fromUserId, senderUsername));
-                        pendingList.add(pr);
-                        requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
-                    }
-                    @Override
-                    public void onFailure(Exception e) {
-                        if (!isAdded()) return;
-                        PendingRequest pr = new PendingRequest(requestId, new User(fromUserId, fromUserId));
-                        pendingList.add(pr);
-                        requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
-                    }
-                });
-            }
-            @Override
-            public void onFailure(Exception e) { }
-        });
-
-        // When an accepted user is tapped, show their profile.
+        // When an accepted user is tapped, open their profile overlay.
         lvAccepted.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
@@ -245,63 +159,24 @@ public class FollowingFragment extends Fragment {
                 showUserProfile(selectedUser);
             }
         });
-
-        // When a pending request is tapped, show the friend request dialog.
-        lvPending.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
-                PendingRequest pr = pendingList.get(position);
-                showFriendRequestDialog(pr.sender.username, pr.requestId, pr.sender.userId);
-            }
-        });
-
-        // Long-click on an accepted user to unfollow.
-        lvAccepted.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view1, int position, long id) {
-                User removedUser = acceptedList.get(position);
-                firestoreHelper.removeFollowing(currentUserId, removedUser.userId, new FirestoreFollowing.FollowingCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        if (isAdded()) {
-                            requireActivity().runOnUiThread(() -> {
-                                Toast.makeText(getContext(), "Unfollowed " + removedUser.username, Toast.LENGTH_SHORT).show();
-                                acceptedList.remove(removedUser);
-                                acceptedAdapter.notifyDataSetChanged();
-                            });
-                        }
-                    }
-                    @Override
-                    public void onFailure(Exception e) {
-                        if (isAdded()) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Error unfollowing: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                });
-                return true;
-            }
-        });
     }
 
     /**
-     * Displays the selected user's profile using the layout_search_profile.xml layout.
-     * The profile view is added as an overlay to the current fragment's root view.
+     * Displays the selected user's profile as an overlay using layout_search_profile.xml.
+     * The profile view covers the entire fragment and is brought to the front.
      *
      * @param user The selected user.
      */
     private void showUserProfile(User user) {
-        // Get the fragment's root view.
         ViewGroup root = (ViewGroup) getView();
         if (root == null) return;
 
-        // Inflate the profile layout.
+        // Inflate the profile view from layout_search_profile.xml.
         View profileView = LayoutInflater.from(getContext()).inflate(R.layout.layout_search_profile, root, false);
-        // Set layout parameters to cover the entire area.
         profileView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        // Optionally set a high elevation
+        // Set a high elevation so it appears on top.
         profileView.setElevation(100);
 
         // Bind profile view elements.
@@ -368,70 +243,8 @@ public class FollowingFragment extends Fragment {
             root.removeView(profileView);
         });
 
-        // Add the profile view as an overlay and bring it to the front.
         root.addView(profileView);
         profileView.bringToFront();
         profileView.invalidate();
-    }
-
-
-    /**
-     * Displays an AlertDialog for accepting or declining a friend request.
-     *
-     * @param senderUsername The username of the request sender.
-     * @param requestId      The unique request identifier.
-     * @param fromUserId     The sender's user ID.
-     */
-    private void showFriendRequestDialog(String senderUsername, String requestId, String fromUserId) {
-        if (getActivity() == null) return;
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Friend Request")
-                .setMessage(senderUsername + " has sent you an add request!")
-                .setPositiveButton("Accept", (dialog, which) -> {
-                    firestoreHelper.acceptFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show());
-                            removePendingRequest(requestId);
-                        }
-                        @Override
-                        public void onFailure(Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Error accepting request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                        }
-                    });
-                })
-                .setNegativeButton("Decline", (dialog, which) -> {
-                    firestoreHelper.declineFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Friend request declined", Toast.LENGTH_SHORT).show());
-                            removePendingRequest(requestId);
-                        }
-                        @Override
-                        public void onFailure(Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Error declining request: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                        }
-                    });
-                })
-                .show();
-    }
-
-    /**
-     * Removes a pending friend request from the list.
-     *
-     * @param requestId The unique identifier of the friend request.
-     */
-    private void removePendingRequest(String requestId) {
-        for (int i = 0; i < pendingList.size(); i++) {
-            if (pendingList.get(i).requestId.equals(requestId)) {
-                pendingList.remove(i);
-                break;
-            }
-        }
-        requireActivity().runOnUiThread(() -> pendingAdapter.notifyDataSetChanged());
     }
 }

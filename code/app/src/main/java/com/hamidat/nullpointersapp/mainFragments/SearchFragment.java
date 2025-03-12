@@ -107,23 +107,23 @@ public class SearchFragment extends Fragment {
     }
 
     private void searchUsers(String query) {
-        if (query.isEmpty()) {
+        if(query.isEmpty()){
             userList.clear();
             adapter.notifyDataSetChanged();
             return;
         }
+        // Fetch all users (or consider using a limit if your dataset is large)
         firestore.collection("users")
-                .orderBy("username")
-                .startAt(query)
-                .endAt(query + "\uf8ff")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     userList.clear();
+                    String lowerQuery = query.toLowerCase();
                     for (QueryDocumentSnapshot doc : querySnapshot) {
-                        Map<String, Object> data = doc.getData();
-                        String username = (String) data.get("username");
-                        String userId = doc.getId();
-                        userList.add(new User(userId, username));
+                        String username = doc.getString("username");
+                        if (username != null && username.toLowerCase().contains(lowerQuery)) {
+                            String userId = doc.getId();
+                            userList.add(new User(userId, username));
+                        }
                     }
                     adapter.notifyDataSetChanged();
                 })
@@ -131,6 +131,7 @@ public class SearchFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void showUserProfile(User user) {
         // Hide the main search layout and show the profile view.

@@ -79,9 +79,13 @@ public class MainActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
 
         // If launched via notification, navigate directly to FollowingFragment.
-        if (getIntent() != null && getIntent().getBooleanExtra("open_following", false)) {
-            navController.navigate(R.id.followingFragment);
+        // After initializing navController
+        if (getIntent() != null) {
+            if (getIntent().getBooleanExtra("open_notification", false)) {
+                navController.navigate(R.id.notificationFragment);
+            }
         }
+
 
         FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
         notifier.startListeningIncomingRequests(this, currentUserId, currentUserFirestoreInstance);
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
         final ImageView ivSearch = findViewById(R.id.ivSearch);
+        final ImageView ivNotification = findViewById(R.id.ivNotification);
 
 
         ivHome.setOnClickListener(view -> {
@@ -114,10 +119,17 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.mapFragment);
         });
+
         ivSearch.setOnClickListener(v -> {
             Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.searchFragment);
         });
+
+        ivNotification.setOnClickListener(v -> {
+            Toast.makeText(this, "Notifications Clicked", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.notificationFragment);
+        });
+
 
     }
 

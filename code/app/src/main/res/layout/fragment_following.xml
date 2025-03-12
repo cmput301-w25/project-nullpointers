@@ -8,7 +8,7 @@
     android:background="@color/backgroundColor"
     android:padding="16dp">
 
-    <!-- Header Card -->
+    <!-- Header Card for Current User -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardCurrentUser"
         android:layout_width="match_parent"
@@ -39,52 +39,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Pending Requests Section -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardPendingRequests"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/cardCurrentUser"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/tvPendingLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending Requests"
-                android:textColor="@color/textColor"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ListView
-                android:id="@+id/lvPending"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/tertiaryColor"
-                android:divider="@color/accentColor"
-                android:dividerHeight="1dp"
-                android:padding="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvPendingLabel"
-                tools:listitem="@android:layout/simple_list_item_1" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
     <!-- My Following Section -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardMyFollowing"
@@ -95,7 +49,7 @@
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/cardPendingRequests"
+        app:layout_constraintTop_toBottomOf="@id/cardCurrentUser"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

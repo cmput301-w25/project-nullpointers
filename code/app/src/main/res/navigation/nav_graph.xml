@@ -47,5 +47,9 @@
         android:name="com.hamidat.nullpointersapp.mainFragments.SearchFragment"
         android:label="Search" />
 
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.NotificationFragment"
+        android:label="Notifications" />
 
 </navigation>
