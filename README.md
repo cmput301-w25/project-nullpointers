@@ -8,7 +8,7 @@
 | Shahab Ibrahim | sibrahi1 | @shahabibrahim1     |
 | Arden Monaghan | amonagha | @ardenmonaghan    |
 | Salim Soufi | soufi1 | @ssoufii     |
-| Ogua Dumi-Leslie | ogua | oguadumi     |
+| Ogua Dumi-Leslie | ogua | @oguadumi     |
 | Mohammed Al Robiay | malrobia | @moeongit     |
 
 
