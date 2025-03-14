@@ -127,7 +127,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         rvComments = view.findViewById(R.id.rvComments);
         etComment = view.findViewById(R.id.etComment);
-        btnPostComment = view.findViewById(R.id.btnPostComment);  // Defined as an ImageButton in XML
+        btnPostComment = view.findViewById(R.id.btnPostComment);
 
         rvComments.setLayoutManager(new LinearLayoutManager(getContext()));
         commentsAdapter = new CommentsAdapter(commentList);

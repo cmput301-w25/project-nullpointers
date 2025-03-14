@@ -43,13 +43,11 @@ public class MoodHistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // Inflate your provided XML layout (assumed to be fragment_mood_history.xml)
         return inflater.inflate(R.layout.fragment_mood_history, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // Bind header elements from the layout.
         tvMoodHistoryTitle = view.findViewById(R.id.tvMoodHistoryTitle);
         tvMoodSubtitle = view.findViewById(R.id.tvMoodSubtitle);
         tvMostFrequentMood = view.findViewById(R.id.tvMostFrequentMood);
@@ -60,7 +58,6 @@ public class MoodHistoryFragment extends Fragment {
         rvMoodHistory.setAdapter(moodAdapter);
 
         firestore = FirebaseFirestore.getInstance();
-        // Get currentUserId from MainActivity.
         if(getActivity() instanceof MainActivity) {
             currentUserId = ((MainActivity)getActivity()).getCurrentUserId();
         } else {
