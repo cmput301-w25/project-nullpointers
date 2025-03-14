@@ -19,7 +19,8 @@ public class Mood implements Serializable {
     private String socialSituation;
     private String imageBase64;
     private Timestamp timestamp;
-    private String userId;  // new field
+    private String userId;
+
 
     /** No-argument constructor for Firestore. */
     public Mood() { }
