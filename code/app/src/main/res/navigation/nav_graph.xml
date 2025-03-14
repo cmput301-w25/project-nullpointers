@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_profileNavGraphFragment_to_followingFragment"
             app:destination="@id/followingFragment" />
+        <action
+            android:id="@+id/action_profileNavGraphFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
     </fragment>
 
     <fragment
@@ -51,5 +54,16 @@
         android:id="@+id/notificationFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.NotificationFragment"
         android:label="Notifications" />
+
+
+
+    <fragment
+        android:id="@+id/moodHistoryFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.MoodHistoryFragment"
+        android:label="My Mood History" />
+
+
+
+
 
 </navigation>

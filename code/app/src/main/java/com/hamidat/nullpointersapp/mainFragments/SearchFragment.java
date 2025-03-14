@@ -119,17 +119,19 @@ public class SearchFragment extends Fragment {
             adapter.notifyDataSetChanged();
             return;
         }
-        // Fetch all users (or consider using a limit if your dataset is large)
         firestore.collection("users")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     userList.clear();
                     String lowerQuery = query.toLowerCase();
+                    int count = 0;
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String username = doc.getString("username");
                         if (username != null && username.toLowerCase().contains(lowerQuery)) {
                             String userId = doc.getId();
                             userList.add(new User(userId, username));
+                            count++;
+                            if (count >= 6) break;  // Limit to top 6 results
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -138,6 +140,7 @@ public class SearchFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 
 
     private void showUserProfile(User user) {
