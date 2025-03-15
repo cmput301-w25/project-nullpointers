@@ -1,9 +1,12 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +40,8 @@ public class MoodHistoryFragment extends Fragment {
     private List<Mood> moodList = new ArrayList<>();
     private FirebaseFirestore firestore;
     private String currentUserId;
+    private Button btnMoodHistoryFilter;
+
 
     @Nullable
     @Override
@@ -56,6 +61,7 @@ public class MoodHistoryFragment extends Fragment {
         rvMoodHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter(moodList);
         rvMoodHistory.setAdapter(moodAdapter);
+        btnMoodHistoryFilter = view.findViewById(R.id.btnFilterMoodHistory);  // Find the filter button
 
         firestore = FirebaseFirestore.getInstance();
         if(getActivity() instanceof MainActivity) {
@@ -66,6 +72,9 @@ public class MoodHistoryFragment extends Fragment {
         }
 
         loadMoodHistory();
+
+        // set the listener for the moodn history filter futton
+        btnMoodHistoryFilter.setOnClickListener(v -> showFilterDialog());
     }
 
     private void loadMoodHistory() {
@@ -106,6 +115,33 @@ public class MoodHistoryFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error loading mood history: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void showFilterDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_filter_mood_history, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Get references to dialog elements
+        CheckBox cbMoodHistoryHappy = dialogView.findViewById(R.id.cb_moodhistory_happy);
+        CheckBox cbMoodHistorySad = dialogView.findViewById(R.id.cb_moodhistory_sad);
+        CheckBox cbMoodHistoryAngry = dialogView.findViewById(R.id.cb_moodhistory_angry);
+        CheckBox cbMoodHistoryChill = dialogView.findViewById(R.id.cb_moodhistory_chill);
+        Button btnApply = dialogView.findViewById(R.id.btnApplyMoodHistoryFilter);
+
+        btnApply.setOnClickListener(v -> {
+            String message = "Filter Applied: ";
+            if (cbMoodHistoryHappy.isChecked()) message += "Happy ";
+            if (cbMoodHistorySad.isChecked()) message += "Sad ";
+            if (cbMoodHistoryAngry.isChecked()) message += "Angry ";
+            if (cbMoodHistoryChill.isChecked()) message += "Chill ";
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     /**
