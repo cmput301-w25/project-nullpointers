@@ -2,6 +2,7 @@ package com.hamidat.nullpointersapp.models;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
@@ -44,13 +46,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         this.moods = moods;
     }
 
-    /**
-     * Creates a new ViewHolder for a mood item.
-     *
-     * @param parent   The parent ViewGroup.
-     * @param viewType The view type of the new view.
-     * @return A new MoodViewHolder instance.
-     */
     @NonNull
     @Override
     public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -59,23 +54,26 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         return new MoodViewHolder(itemView);
     }
 
-    /**
-     * Binds a Mood object to the ViewHolder.
-     *
-     * @param holder   The MoodViewHolder.
-     * @param position The position of the item in the list.
-     */
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
+
+        // Handle "Edit" button click
+        holder.btnEdit.setOnClickListener(v -> {
+            // Navigate to EditMoodFragment with currentMood
+            // The simplest approach is a Bundle with the Mood as a Serializable
+            if (currentMood.getMoodId() != null) {
+                // Create a bundle
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("mood", currentMood);
+
+                // Assumes an action (e.g., action_homeFeedFragment_to_editMoodFragment) in nav_graph
+                Navigation.findNavController(v).navigate(R.id.action_homeFeedFragment_to_editMoodFragment, bundle);
+            }
+        });
     }
 
-    /**
-     * Returns the number of Mood items.
-     *
-     * @return The size of the moods list.
-     */
     @Override
     public int getItemCount() {
         return moods.size();
@@ -83,8 +81,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
     /**
      * Adds a new Mood at the top of the list.
-     *
-     * @param newMood The new Mood object to add.
      */
     public void addMood(Mood newMood) {
         moods.add(0, newMood);
@@ -93,8 +89,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
     /**
      * Replaces the current list of moods with a new list.
-     *
-     * @param newMoods The new list of Mood objects.
      */
     public void updateMoods(List<Mood> newMoods) {
         moods.clear();
@@ -106,34 +100,29 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
      * ViewHolder class that binds a Mood object to its corresponding views.
      */
     static class MoodViewHolder extends RecyclerView.ViewHolder {
-
         private final TextView tvMood;
         private final TextView tvMoodDescription;
         private final TextView tvTimestamp;
         private final TextView tvSocialSituation;
         private final ImageView ivMoodImage;
-        public Button btnEdit;
 
-        /**
-         * Constructs a new MoodViewHolder.
-         *
-         * @param itemView The view representing a single mood item.
-         */
+        // Added for Edit button
+        public final Button btnEdit;
+        public final Button btnComment; // (Existing or for reference)
+
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvMood            = itemView.findViewById(R.id.tvMood);
+            tvMood = itemView.findViewById(R.id.tvMood);
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
-            tvTimestamp       = itemView.findViewById(R.id.tvTimestamp);
+            tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
+
+            // Hook the newly added Edit button & the existing Comment button
             btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnComment = itemView.findViewById(R.id.btnComment);
         }
 
-        /**
-         * Binds a Mood object to the TextViews in the item view.
-         *
-         * @param mood The Mood object to display.
-         */
         void bind(Mood mood) {
             tvSocialSituation.setText(mood.getSocialSituation());
             tvMood.setText("Mood: " + mood.getMood());
@@ -148,19 +137,19 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 tvTimestamp.setText("No Timestamp");
             }
 
-            // we have to handle image loading (Show only if image exists) -> I'm not showing a default, just hiding if if thee is not
+            // Show/hide image
             if (mood.getImageBase64() != null && !mood.getImageBase64().isEmpty()) {
                 try {
                     byte[] decodedBytes = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                     ivMoodImage.setImageBitmap(bitmap);
-                    ivMoodImage.setVisibility(View.VISIBLE);  // Show ImageView
+                    ivMoodImage.setVisibility(View.VISIBLE);
                 } catch (Exception e) {
                     ivMoodImage.setImageResource(R.drawable.ic_default_image);
-                    ivMoodImage.setVisibility(View.VISIBLE);  // Show with default image
+                    ivMoodImage.setVisibility(View.VISIBLE);
                 }
             } else {
-                ivMoodImage.setVisibility(View.GONE);  // Hide ImageView if no image
+                ivMoodImage.setVisibility(View.GONE);
             }
         }
     }
