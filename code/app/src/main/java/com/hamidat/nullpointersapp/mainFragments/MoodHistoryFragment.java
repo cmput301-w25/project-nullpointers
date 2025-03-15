@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Fragment that displays the user's mood history and allows filtering.
+ */
 public class MoodHistoryFragment extends Fragment {
 
     private RecyclerView rvMoodHistory;
@@ -84,6 +87,9 @@ public class MoodHistoryFragment extends Fragment {
         btnMoodHistoryFilter.setOnClickListener(v -> showFilterDialog());
     }
 
+    /**
+     * Loads the user's mood history from Firestore and applies filters.
+     */
     private void loadMoodHistory() {
         // Compute the start of the current week.
         Calendar calendar = Calendar.getInstance();
@@ -136,6 +142,9 @@ public class MoodHistoryFragment extends Fragment {
         });
     }
 
+    /**
+     * Displays a dialog for filtering mood history.
+     */
     private void showFilterDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getLayoutInflater();
@@ -205,6 +214,9 @@ public class MoodHistoryFragment extends Fragment {
     /**
      * Calculates the most frequent mood from the list of mood events.
      * Only returns the mood if available; otherwise returns "N/A".
+     *
+     * @param moods List of mood entries.
+     * @return The most common mood or "N/A" if empty.
      */
     private String calculateMostFrequentMood(List<Mood> moods) {
         if (moods.isEmpty()) return "N/A";
