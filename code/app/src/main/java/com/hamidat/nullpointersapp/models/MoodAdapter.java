@@ -1,8 +1,12 @@
 package com.hamidat.nullpointersapp.models;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.Timestamp;
@@ -106,6 +110,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         private final TextView tvMoodDescription;
         private final TextView tvTimestamp;
         private final TextView tvSocialSituation;
+        private final ImageView ivMoodImage;
 
         /**
          * Constructs a new MoodViewHolder.
@@ -118,6 +123,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
             tvTimestamp       = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
+            ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
         }
 
         /**
@@ -137,6 +143,21 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 tvTimestamp.setText(sdf.format(date));
             } else {
                 tvTimestamp.setText("No Timestamp");
+            }
+
+            // we have to handle image loading (Show only if image exists) -> I'm not showing a default, just hiding if if thee is not
+            if (mood.getImageBase64() != null && !mood.getImageBase64().isEmpty()) {
+                try {
+                    byte[] decodedBytes = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    ivMoodImage.setImageBitmap(bitmap);
+                    ivMoodImage.setVisibility(View.VISIBLE);  // Show ImageView
+                } catch (Exception e) {
+                    ivMoodImage.setImageResource(R.drawable.ic_default_image);
+                    ivMoodImage.setVisibility(View.VISIBLE);  // Show with default image
+                }
+            } else {
+                ivMoodImage.setVisibility(View.GONE);  // Hide ImageView if no image
             }
         }
     }
