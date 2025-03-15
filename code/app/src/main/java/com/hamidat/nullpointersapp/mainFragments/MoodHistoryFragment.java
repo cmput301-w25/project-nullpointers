@@ -95,33 +95,45 @@ public class MoodHistoryFragment extends Fragment {
         calendar.set(Calendar.MILLISECOND, 0);
         Date startOfWeek = calendar.getTime();
 
-        // Query Firestore for mood events for the current user starting from the beginning of the week.
-        firestore.collection("moods")
+        // I have to separate the qeury a bit to filter moods by the selection
+        // start making the query
+        Query query = firestore.collection("moods")
                 .whereEqualTo("userId", currentUserId)
                 .whereGreaterThanOrEqualTo("timestamp", startOfWeek)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    moodList.clear();
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Mood mood = doc.toObject(Mood.class);
-                        if (mood != null) {
-                            moodList.add(mood);
-                        }
-                    }
-                    if(moodList.isEmpty()){
-                        tvNoMoodEntries.setVisibility(View.VISIBLE);
-                    } else {
-                        tvNoMoodEntries.setVisibility(View.GONE);
-                    }
-                    moodAdapter.notifyDataSetChanged();
-                    // calc (short for calculate if youre new to the stream) the most frequent mood for the week.
-                    String mostFrequent = calculateMostFrequentMood(moodList);
-                    tvMostFrequentMood.setText("Most frequent: " + mostFrequent);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error loading mood history: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+
+        // if "Show All" is NOT checked, filter moods based on selected categories
+        if (!showAllChecked) {
+            List<String> selectedMoods = new ArrayList<>();
+            if (happyChecked) selectedMoods.add("Happy");
+            if (sadChecked) selectedMoods.add("Sad");
+            if (angryChecked) selectedMoods.add("Angry");
+            if (chillChecked) selectedMoods.add("Chill");
+
+            if (!selectedMoods.isEmpty()) {
+                query = query.whereIn("mood", selectedMoods);
+            }
+        }
+
+        // Query Firestore for mood events for the current user starting from the beginning of the week.
+        query.get().addOnSuccessListener(querySnapshot -> {
+            moodList.clear();
+            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                Mood mood = doc.toObject(Mood.class);
+                if (mood != null) {
+                    moodList.add(mood);
+                }
+            }
+            if (moodList.isEmpty()) {
+                tvNoMoodEntries.setVisibility(View.VISIBLE);
+            } else {
+                tvNoMoodEntries.setVisibility(View.GONE);
+            }
+            moodAdapter.notifyDataSetChanged();
+            tvMostFrequentMood.setText("Most frequent: " + calculateMostFrequentMood(moodList));
+        }).addOnFailureListener(e -> {
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void showFilterDialog() {
@@ -183,6 +195,8 @@ public class MoodHistoryFragment extends Fragment {
 
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             dialog.dismiss();
+
+            loadMoodHistory();
         });
 
         dialog.show();
