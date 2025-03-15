@@ -6,6 +6,7 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -111,6 +112,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         private final TextView tvTimestamp;
         private final TextView tvSocialSituation;
         private final ImageView ivMoodImage;
+        public Button btnEdit;
 
         /**
          * Constructs a new MoodViewHolder.
@@ -124,6 +126,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvTimestamp       = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
+            btnEdit = itemView.findViewById(R.id.btnEdit);
         }
 
         /**
