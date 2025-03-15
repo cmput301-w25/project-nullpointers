@@ -3,6 +3,8 @@ package com.hamidat.nullpointersapp.utils.firebaseUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.models.Mood;
 
+import java.util.ArrayList;
+
 /**
  * FirestoreHelper provides a unified interface for interacting with Firestore.
  * It delegates user operations to FirestoreUsers and mood history operations to
@@ -105,6 +107,13 @@ public class FirestoreHelper {
         firestoreMoodHistory.firebaseQueryTime(userID, sevenDays, ascending, callback);
     }
 
+    public void firebaseToPublicMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
+        firestoreMoodHistory.firebaseToPublicMoodHistory(userIds, callback);
+    }
+
+    public void firebaseToPrivateMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
+        firestoreMoodHistory.firebaseToPrivateMoodHistory(userIds, callback);
+    }
     // ======= FOLLOWING FUNCTIONS =======
     public void sendFriendRequest(String fromUserId, String toUserId, FirestoreFollowing.FollowingCallback callback) {
         firestoreFollowing.sendFriendRequest(fromUserId, toUserId, callback);

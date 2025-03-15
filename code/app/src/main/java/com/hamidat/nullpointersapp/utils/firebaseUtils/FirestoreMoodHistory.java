@@ -159,4 +159,33 @@ public class FirestoreMoodHistory {
             return query.orderBy("timestamp", Query.Direction.DESCENDING);
         }
     }
+
+    /**
+     * Retrieves the mood history for multiple users from that are public.
+     *
+     * @param userIds  An ArrayList of user IDs to query.
+     * @param callback The callback to receive the mood history.
+     */
+    public void firebaseToPublicMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
+        CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
+        // Build a query for moods from these users that are public (isPrivate == false)
+        Query query = moodsRef.whereIn("userId", userIds)
+                .whereEqualTo("isPrivate", false);
+        attachSnapshotListener(query, null, callback);
+    }
+
+    /**
+     * Retrieves the mood history for multiple users from that are private.
+     *
+     * @param userIds  An ArrayList of user IDs to query.
+     * @param callback The callback to receive the mood history.
+     */
+    public void firebaseToPrivateMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
+        CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
+        // Build a query for moods from these users that are public (isPrivate == false)
+        Query query = moodsRef.whereIn("userId", userIds)
+                .whereEqualTo("isPrivate", true);
+        attachSnapshotListener(query, null, callback);
+    }
+
 }

@@ -18,6 +18,7 @@ import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreMoodHistory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class HomeFeedFragment extends Fragment {
                         followingIds.add(currentUserId);
                     }
                     // Now query mood events for all these user IDs.
-                    firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
+                    firestoreHelper.firebaseToPublicMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
                         @Override
                         public void onSuccess(Object result) {
                             // Expecting result as a moodHistory object

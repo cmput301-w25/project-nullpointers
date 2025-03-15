@@ -17,7 +17,6 @@ public class Mood {
     private String imageBase64;
     private com.google.firebase.Timestamp timestamp;
     private String userId;  // new field
-
     private String moodId; //new field for moodId
 
     // privacy
