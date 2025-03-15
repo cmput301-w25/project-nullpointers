@@ -15,27 +15,39 @@
         android:paddingBottom="8dp" />
 
     <CheckBox
+        android:id="@+id/cb_moodhistory_show_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show All"
+        android:buttonTint="@color/primaryColor"
+        android:checked="true" />
+
+    <CheckBox
         android:id="@+id/cb_moodhistory_happy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:buttonTint="@color/primaryColor"
         android:text="Happy" />
 
     <CheckBox
         android:id="@+id/cb_moodhistory_angry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:buttonTint="@color/primaryColor"
         android:text="Angry" />
 
     <CheckBox
         android:id="@+id/cb_moodhistory_sad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:buttonTint="@color/primaryColor"
         android:text="Sad" />
 
     <CheckBox
         android:id="@+id/cb_moodhistory_chill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:buttonTint="@color/primaryColor"
         android:text="Chill" />
 
 
