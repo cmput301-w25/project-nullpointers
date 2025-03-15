@@ -42,6 +42,8 @@ public class FirestoreAddEditMoods {
         // Setting more features for the mood, and using the current Date.
         mood.setMoodId(moodID);
         mood.setUserId(userID);
+        mood.setEdited(false);  // ensure new mood is not "edited"
+
         mood.setTimestamp(new Timestamp(new Date()));
 
         // Save to Firestore
@@ -69,6 +71,7 @@ public class FirestoreAddEditMoods {
         // Setting more features for the mood, and using the current Date.
         mood.setMoodId(moodID);
         mood.setUserId(userID);
+        mood.setEdited(false);  // ensure new mood is not "edited"
         mood.setTimestamp(new Timestamp(new Date()));
 
         // Save to Firestore
@@ -94,6 +97,8 @@ public class FirestoreAddEditMoods {
             return;
         }
 
+        mood.setEdited(true);
+
         // Reference the existing mood document
         DocumentReference docRef = firestore.collection(MOODS_COLLECTION).document(mood.getMoodId());
 
@@ -107,6 +112,7 @@ public class FirestoreAddEditMoods {
         updatedData.put("imageBase64", mood.getImageBase64());
         // If you wish to update the timestamp to "now," uncomment:
         // updatedData.put("timestamp", new Timestamp(new Date()));
+        updatedData.put("edited", mood.isEdited());
 
         // Perform the update
         docRef.update(updatedData)

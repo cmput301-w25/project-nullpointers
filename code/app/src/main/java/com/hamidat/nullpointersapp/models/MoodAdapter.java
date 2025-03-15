@@ -58,6 +58,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
+        // If the mood was edited, show the red "edited" label; else hide it
+        if (currentMood.isEdited()) {
+            holder.tvEdited.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvEdited.setVisibility(View.GONE);
+        }
 
         // Handle "Edit" button click
         holder.btnEdit.setOnClickListener(v -> {
@@ -101,6 +107,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
      */
     static class MoodViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvMood;
+        private final TextView tvEdited;
         private final TextView tvMoodDescription;
         private final TextView tvTimestamp;
         private final TextView tvSocialSituation;
@@ -116,6 +123,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
+
+            tvEdited = itemView.findViewById(R.id.tvEdited); // new
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
 
             // Hook the newly added Edit button & the existing Comment button
