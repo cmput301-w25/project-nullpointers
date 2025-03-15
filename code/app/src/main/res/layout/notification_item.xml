@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/tertiaryColor">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/ivNotificationIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="4dp"
+            android:src="@android:drawable/ic_dialog_info"
+            app:layout_constraintBottom_toBottomOf="@id/tvNotificationMessage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:tint="@color/accentColor" />
+
+        <TextView
+            android:id="@+id/tvNotificationMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Username has sent you a friend request"
+            android:textSize="16sp"
+            android:textColor="@color/textColor"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toEndOf="@id/ivNotificationIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDecline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decline"
+            android:textColor="@color/textColor"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/white"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/buttonColor"
+            app:strokeWidth="1dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:layout_constraintTop_toBottomOf="@id/tvNotificationMessage"
+            app:layout_constraintEnd_toStartOf="@id/btnAccept"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAccept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accept"
+            android:textColor="@color/white"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/accentColor"
+            app:cornerRadius="8dp"
+            style="@style/Widget.MaterialComponents.Button"
+            app:layout_constraintTop_toBottomOf="@id/tvNotificationMessage"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2 hours ago"
+            android:textSize="12sp"
+            android:textColor="@color/textColor"
+            android:alpha="0.7"
+            app:layout_constraintStart_toStartOf="@id/tvNotificationMessage"
+            app:layout_constraintTop_toBottomOf="@id/tvNotificationMessage"
+            app:layout_constraintBottom_toBottomOf="@id/btnDecline"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

@@ -136,8 +136,8 @@
                     android:layout_marginBottom="16dp"
                     android:hint="Please type your thoughts here..."
                     android:inputType="textMultiLine"
-                    android:maxLength="20"
-                    android:maxLines="3"
+                    android:maxLength="200"
+                    android:maxLines="10"
                     android:padding="12dp" />
 
                 <Button

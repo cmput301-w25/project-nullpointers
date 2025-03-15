@@ -78,7 +78,9 @@ public class moodHistory {
         this.moodArray.add(mood);
     }
 
-
+    public void setMoodArray(ArrayList<Mood> moodArray) {
+        this.moodArray = moodArray;
+    }
     /**
      * Filters the mood history to return only those mood entries whose description contains
      * the specified text.

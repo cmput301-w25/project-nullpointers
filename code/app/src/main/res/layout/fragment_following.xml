@@ -2,101 +2,90 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     android:padding="16dp">
 
-    <!-- Current User Info at the Top Left -->
-    <TextView
-        android:id="@+id/tvCurrentUser"
-        android:layout_width="wrap_content"
+    <!-- Header Card for Current User -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardCurrentUser"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Current User: [username]"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/primaryColor"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Pending Requests Label -->
-    <TextView
-        android:id="@+id/tvPendingLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pending Requests:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentUser"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Pending Requests ListView -->
-    <ListView
-        android:id="@+id/lvPending"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        app:layout_constraintTop_toBottomOf="@id/tvPendingLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:dividerHeight="1dp"
-        android:layout_marginTop="4dp"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
-    <!-- Divider -->
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/lvPending"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/tvCurrentUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current User: [username]"
+                android:textColor="@color/textColor"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Left Panel: Accepted (Followed) Users -->
-    <TextView
-        android:id="@+id/tvAcceptedLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="My Following:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintStart_toStartOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
-    <ListView
-        android:id="@+id/lvAccepted"
-        android:layout_width="0dp"
+    <!-- My Following Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardMyFollowing"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvAcceptedLabel"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/cardCurrentUser"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical"
-        android:dividerHeight="1dp"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Vertical Guideline to split the screen -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintGuide_percent="0.5"
-        android:orientation="vertical" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
 
-    <!-- Right Panel: Available Users -->
-    <TextView
-        android:id="@+id/tvAvailableLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Available Users:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintStart_toEndOf="@id/guideline_vertical"/>
+            <TextView
+                android:id="@+id/tvAcceptedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Following"
+                android:textColor="@color/textColor"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/lvAvailable"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvAvailableLabel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline_vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:dividerHeight="1dp"/>
+            <ListView
+                android:id="@+id/lvAccepted"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/tertiaryColor"
+                android:divider="@color/accentColor"
+                android:dividerHeight="1dp"
+                android:padding="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAcceptedLabel"
+                tools:listitem="@android:layout/simple_list_item_1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

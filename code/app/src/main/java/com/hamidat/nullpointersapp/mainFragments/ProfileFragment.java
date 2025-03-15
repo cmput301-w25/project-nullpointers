@@ -10,29 +10,29 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.models.UserProfile;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Displays the user's profile information.
- */
 public class ProfileFragment extends Fragment {
-    /**
-     * Inflates the fragment layout.
-     *
-     * @param inflater           LayoutInflater to inflate the view.
-     * @param container          The parent view.
-     * @param savedInstanceState Saved state data.
-     * @return The inflated view.
-     */
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -53,22 +53,18 @@ public class ProfileFragment extends Fragment {
         Button settingsButton = view.findViewById(R.id.settings_button);
         Button btnFollowing = view.findViewById(R.id.btnFollowing);
 
-
-
         btnFollowing.setOnClickListener(v -> {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
         });
 
-
-
-        // Retrieve the shared FirestoreHelper and currentUserId from MainActivity
+        // Retrieve FirestoreHelper and currentUserId from MainActivity.
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             FirestoreHelper firestoreHelper = mainActivity.getFirestoreHelper();
             String currentUserId = mainActivity.getCurrentUserId();
 
-            // Fetch the user data from Firestore using the current user ID
+            // Fetch the user data from Firestore using the current user ID.
             firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
                 @Override
                 public void onSuccess(Object result) {
@@ -76,37 +72,29 @@ public class ProfileFragment extends Fragment {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
-                        // Update the UI with the fetched username
                         usernameText.setText(String.format("My Username: %s", username));
                     }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(getActivity(), "Failed to fetch user data: "
-                            + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Failed to fetch user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            Toast.makeText(getActivity(), "Error retrieving Firestore instance",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Error retrieving Firestore instance", Toast.LENGTH_SHORT).show();
         }
 
-        // if we want to test without auth, initialize a default UserProfile if needed)
-        // UserProfile userProfile = new UserProfile(DEFAULT_USERNAME);
-        // usernameText.setText(String.format("My Username: %s", userProfile.getUsername()));
+        // When "View My Mood History" is clicked, query and display all mood events in reverse chronological order.
+        viewMoodHistoryButton.setOnClickListener(v -> {
+            // Navigate to the MoodHistoryFragment.
+            // Make sure your nav_graph.xml has a proper action with id action_profileFragment_to_moodHistoryFragment.
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profileNavGraphFragment_to_moodHistoryFragment);
+        });
 
-        // Set button listeners with Toast feedback
-        viewMoodHistoryButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "View Mood History clicked",
-                        Toast.LENGTH_SHORT).show());
 
         settingsButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Settings clicked",
-                        Toast.LENGTH_SHORT).show());
-
+                Toast.makeText(getActivity(), "Settings clicked", Toast.LENGTH_SHORT).show());
     }
-
-
-
 }
