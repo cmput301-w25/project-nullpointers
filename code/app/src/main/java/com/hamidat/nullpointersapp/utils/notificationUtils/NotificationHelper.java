@@ -39,9 +39,9 @@ public class NotificationHelper {
             }
         }
 
-        // Intent for tapping the notification (opens MainActivity, which will navigate to FollowingFragment)
+        // Intent for tapping the notification: now it redirects to NotificationFragment.
         Intent tapIntent = new Intent(context, MainActivity.class);
-        tapIntent.putExtra("open_following", true);
+        tapIntent.putExtra("open_notification", true);
         tapIntent.putExtra("USER_ID", currentUserId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
@@ -51,7 +51,7 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // Create action intents for Accept and Decline
+        // Create action intents for Accept and Decline (if used)
         Intent acceptIntent = new Intent(context, FriendRequestActionReceiver.class);
         acceptIntent.setAction(ACTION_ACCEPT);
         acceptIntent.putExtra("request_id", requestId);
@@ -81,7 +81,7 @@ public class NotificationHelper {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(tapPendingIntent);
-        // Actions for Accept and Decline are commented out.
+
 
         if (notificationManager != null) {
             notificationManager.notify(1001, builder.build());
@@ -106,9 +106,9 @@ public class NotificationHelper {
             }
         }
 
-        // Create an intent that opens MainActivity and navigates to FollowingFragment.
+        // Create an intent that opens MainActivity and navigates to NotificationFragment.
         Intent tapIntent = new Intent(context, MainActivity.class);
-        tapIntent.putExtra("open_following", true);
+        tapIntent.putExtra("open_notification", true);
         tapIntent.putExtra("USER_ID", senderUserId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
@@ -119,11 +119,10 @@ public class NotificationHelper {
         );
 
         String contentTitle = accepterUsername + " has accepted your request!";
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(contentTitle)
-                .setContentText("Tap to view your following list.")
+                .setContentText("Tap to view notifications.")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(tapPendingIntent);

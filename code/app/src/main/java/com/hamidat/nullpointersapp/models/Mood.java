@@ -8,16 +8,19 @@ import java.util.Date;
  * Model representing a mood event.
  * Contains details such as mood state, description, location, social situation, image, timestamp, and user ID.
  */
-public class Mood {
+public class Mood implements Serializable {
+    // Add a moodId field to capture the document ID from Firestore, if desired.
+    private String moodId;
+
     private String mood;
     private String moodDescription;
     private double latitude;
     private double longitude;
     private String socialSituation;
     private String imageBase64;
-    private com.google.firebase.Timestamp timestamp;
-    private String userId;  // new field
-    private String moodId; //new field for moodId
+    private Timestamp timestamp;
+    private String userId;
+
 
     // privacy
     private boolean isPrivate;
@@ -192,20 +195,9 @@ public class Mood {
      * @return The image in Base64.
      */
     public String getImageBase64() { return imageBase64; }
-
-    /**
-     * Returns the timestamp.
-     *
-     * @return The Firebase Timestamp.
-     */
-    public com.google.firebase.Timestamp getTimestamp() { return timestamp; }
-
-    /**
-     * Returns the user ID.
-     *
-     * @return The user ID.
-     */
+    public Timestamp getTimestamp() { return timestamp; }
     public String getUserId() { return userId; }
+    public String getMoodId() {return moodId; }
 
     /**
      * Returns the user ID.

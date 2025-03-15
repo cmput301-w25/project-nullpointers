@@ -17,14 +17,14 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="0dp"
         app:cardBackgroundColor="@color/fadedGreen"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
-            android:layout_width="436dp"
+            android:layout_width="match_parent"
             android:layout_height="670dp"
             android:orientation="vertical"
             android:padding="12dp">
@@ -35,14 +35,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/accentColor"
-                app:cardCornerRadius="30dp">
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="15dp">
 
                     <TextView
                         android:id="@+id/tvMoodEvents"
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="16dp" />
+                android:paddingHorizontal="0dp" />
 
         </LinearLayout>
 

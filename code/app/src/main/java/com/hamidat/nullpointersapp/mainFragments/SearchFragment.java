@@ -1,16 +1,17 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
-import android.widget.TextView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,161 +19,130 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
-
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.hamidat.nullpointersapp.models.Mood;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 /**
- * Fragment for managing following.
- * Displays the current user's accepted following.
- * Tapping on a user in "My Following" opens their profile as an overlay using layout_search_profile.xml.
+ * Fragment for searching users in real time.
+ * As the user types, matching users are shown.
+ * When a username is tapped, a profile view is displayed with a Back button and a Follow/Unfollow button.
  */
-public class FollowingFragment extends Fragment {
+public class SearchFragment extends Fragment {
+    private FirestoreHelper firestoreHelper;
+    private EditText etSearch;
+    private RecyclerView rvResults;
+    private SearchAdapter adapter;
+    private FirebaseFirestore firestore;
+    private List<User> userList = new ArrayList<>();
+
+    // Layouts for search main view and profile view
+    private View searchMainLayout;
+    private View searchProfileView;
+    private TextView tvProfileUsername;
+    private Button btnFollowUnfollow;
+    private ImageView ivBack;
+
+    // The current user ID; passed from MainActivity's intent.
+    private String currentUserId;
 
     /**
-     * Model representing a user.
+     * Simple model for a user.
      */
     public static class User {
         public String userId;
         public String username;
-
         public User(String userId, String username) {
-            if (userId == null || username == null)
-                throw new NullPointerException("userId and username cannot be null");
             this.userId = userId;
             this.username = username;
         }
-
-        @Override
-        public String toString() {
-            return username;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof User) {
-                return this.userId.equals(((User) obj).userId);
-            }
-            return false;
-        }
     }
-
-    private TextView tvCurrentUser;
-    private ListView lvAccepted;
-
-    private ArrayAdapter<User> acceptedAdapter;
-    private ArrayList<User> acceptedList = new ArrayList<>();
-
-    private String currentUsername;
-    private String currentUserId;
-
-    private FirestoreHelper firestoreHelper;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // Inflate the updated XML that does not include pending requests.
-        return inflater.inflate(R.layout.fragment_following, container, false);
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view,
-                              @Nullable Bundle savedInstanceState) {
-        tvCurrentUser = view.findViewById(R.id.tvCurrentUser);
-        lvAccepted = view.findViewById(R.id.lvAccepted);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        etSearch = view.findViewById(R.id.etSearch);
+        rvResults = view.findViewById(R.id.rvResults);
+        searchMainLayout = view.findViewById(R.id.searchMainLayout);
+        searchProfileView = view.findViewById(R.id.searchProfileView);
+        tvProfileUsername = searchProfileView.findViewById(R.id.username_text);
+        btnFollowUnfollow = searchProfileView.findViewById(R.id.btnFollowUnfollow);
+        ivBack = searchProfileView.findViewById(R.id.ivBack);
 
+        rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new SearchAdapter(userList);
+        rvResults.setAdapter(adapter);
+        firestore = FirebaseFirestore.getInstance();
+
+        // Get currentUserId from the Activity's intent.
+        currentUserId = getActivity().getIntent().getStringExtra("USER_ID");
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
-        currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
 
-        // Fetch current user's username.
-        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                if (isAdded() && result instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> userData = (Map<String, Object>) result;
-                    currentUsername = (String) userData.get("username");
-                    requireActivity().runOnUiThread(() ->
-                            tvCurrentUser.setText("Current User: " + currentUsername));
-                }
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchUsers(s.toString());
             }
-            @Override
-            public void onFailure(Exception e) {
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() ->
-                            tvCurrentUser.setText("Current User: Unknown"));
-                }
-            }
+            @Override public void afterTextChanged(Editable s) { }
         });
 
-        acceptedAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, acceptedList);
-        lvAccepted.setAdapter(acceptedAdapter);
+        adapter.setOnItemClickListener(user -> showUserProfile(user));
 
-        // Listen for changes to the current user's following list.
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(currentUserId)
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null || snapshot == null || !snapshot.exists()) return;
-                    ArrayList<String> followingIds = (ArrayList<String>) snapshot.get("following");
-                    if (followingIds == null) {
-                        followingIds = new ArrayList<>();
-                    }
-                    requireActivity().runOnUiThread(() -> {
-                        acceptedList.clear();
-                        acceptedAdapter.notifyDataSetChanged();
-                    });
-                    for (String followUserId : followingIds) {
-                        firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
-                            @Override
-                            public void onSuccess(Object result) {
-                                if (!isAdded()) return;
-                                if (result instanceof Map) {
-                                    @SuppressWarnings("unchecked")
-                                    Map<String, Object> data = (Map<String, Object>) result;
-                                    String username = (String) data.get("username");
-                                    User user = new User(followUserId, username);
-                                    requireActivity().runOnUiThread(() -> {
-                                        if (!acceptedList.contains(user)) {
-                                            acceptedList.add(user);
-                                            acceptedAdapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
-                            }
-                            @Override
-                            public void onFailure(Exception e) { }
-                        });
-                    }
-                });
-
-        // When an accepted user is tapped, open their profile overlay.
-        lvAccepted.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view1, int position, long id) {
-                User selectedUser = acceptedList.get(position);
-                showUserProfile(selectedUser);
-            }
+        // Back button in profile view returns to search list.
+        ivBack.setOnClickListener(v -> {
+            searchProfileView.setVisibility(View.GONE);
+            searchMainLayout.setVisibility(View.VISIBLE);
         });
     }
 
-    /**
-     * Displays the selected user's profile as an overlay using layout_search_profile.xml.
-     * The profile view covers the entire fragment and is brought to the front.
-     *
-     * @param user The selected user.
-     */
+    private void searchUsers(String query) {
+        if(query.isEmpty()){
+            userList.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+        firestore.collection("users")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    userList.clear();
+                    String lowerQuery = query.toLowerCase();
+                    int count = 0;
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        String username = doc.getString("username");
+                        if (username != null && username.toLowerCase().contains(lowerQuery)) {
+                            String userId = doc.getId();
+                            userList.add(new User(userId, username));
+                            count++;
+                            if (count >= 6) break;  // Limit to top 6 results
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+
     private void showUserProfile(User user) {
         // Get the fragment's root view.
         ViewGroup root = (ViewGroup) getView();
@@ -294,4 +264,48 @@ public class FollowingFragment extends Fragment {
                 });
     }
 
+
+
+    // Adapter for search results.
+    private static class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
+        private final List<User> users;
+        private OnItemClickListener listener;
+        interface OnItemClickListener {
+            void onItemClick(User user);
+        }
+        public void setOnItemClickListener(OnItemClickListener listener) {
+            this.listener = listener;
+        }
+        SearchAdapter(List<User> users) {
+            this.users = users;
+        }
+        @NonNull
+        @Override
+        public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+            return new SearchViewHolder(view);
+        }
+        @Override
+        public void onBindViewHolder(@NonNull SearchViewHolder holder, int position) {
+            User user = users.get(position);
+            holder.textView.setText(user.username);
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(user);
+                }
+            });
+        }
+        @Override
+        public int getItemCount() {
+            return users.size();
+        }
+        static class SearchViewHolder extends RecyclerView.ViewHolder {
+            private final TextView textView;
+            SearchViewHolder(View itemView) {
+                super(itemView);
+                textView = itemView.findViewById(android.R.id.text1);
+            }
+        }
+    }
 }

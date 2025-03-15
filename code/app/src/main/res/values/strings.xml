@@ -17,7 +17,7 @@
     <string name="february_8_2025">February 8, 2025</string>
     <string name="time_picker">Time (picker)</string>
     <string name="_1_00pm">1:00PM</string>
-    <string name="reason_why">Reason Why (max 20 chars / 3 words):</string>
+    <string name="reason_why">Reason Why (max 200 chars):</string>
     <string name="attach_photo"><![CDATA[Attach Photo Instead ( > 65536 bytes )]]></string>
     <string name="social_situation">Social Situation</string>
     <string name="alone">Alone</string>
@@ -32,4 +32,6 @@
     <string name="sad">Sad</string>
     <string name="angry">Angry</string>
     <string name="chill">Chill</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
 </resources>
