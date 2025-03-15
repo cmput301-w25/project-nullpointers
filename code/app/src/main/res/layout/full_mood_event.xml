@@ -17,7 +17,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="0dp"
         app:cardBackgroundColor="@color/fadedGreen"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="16dp" />
+                android:paddingHorizontal="0dp" />
 
         </LinearLayout>
 
