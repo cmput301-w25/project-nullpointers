@@ -232,6 +232,7 @@ public class EditMoodFragment extends Fragment {
 
         // If user picked a new image, base64Image is set; else keep old. So:
         moodToEdit.setImageBase64(base64Image);
+        moodToEdit.setEdited(true);
 
         // Firestore update
         firestoreHelper.updateMood(moodToEdit, new FirestoreHelper.FirestoreCallback() {

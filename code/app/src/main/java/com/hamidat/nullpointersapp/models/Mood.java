@@ -11,6 +11,7 @@ import java.util.Date;
 public class Mood implements Serializable {
     // Add a moodId field to capture the document ID from Firestore, if desired.
     private String moodId;
+    private boolean edited;
 
     private String mood;
     private String moodDescription;
@@ -26,6 +27,13 @@ public class Mood implements Serializable {
     public Mood() { }
 
     // Getters and setters for moodId
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
     public String getMoodId() {
         return moodId;
     }
