@@ -124,19 +124,37 @@ public class MoodHistoryFragment extends Fragment {
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 
-        // Get references to dialog elements
+        // get references to dialog elements
+        CheckBox cbShowAll = dialogView.findViewById(R.id.cb_moodhistory_show_all);
         CheckBox cbMoodHistoryHappy = dialogView.findViewById(R.id.cb_moodhistory_happy);
         CheckBox cbMoodHistorySad = dialogView.findViewById(R.id.cb_moodhistory_sad);
         CheckBox cbMoodHistoryAngry = dialogView.findViewById(R.id.cb_moodhistory_angry);
         CheckBox cbMoodHistoryChill = dialogView.findViewById(R.id.cb_moodhistory_chill);
         Button btnApply = dialogView.findViewById(R.id.btnApplyMoodHistoryFilter);
 
+        // using an arr of all mood checkboxes for easy enabling/disabling
+        CheckBox[] moodCheckboxes = {cbMoodHistoryHappy, cbMoodHistorySad, cbMoodHistoryAngry, cbMoodHistoryChill};
+
+        // handling the "Show All" logic -> lmk if you guys do want to remove this though
+        cbShowAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            for (CheckBox cb : moodCheckboxes) {
+                cb.setChecked(false);
+                cb.setEnabled(!isChecked); // Disable moods when "Show All" is checked
+            }
+        });
+
         btnApply.setOnClickListener(v -> {
-            String message = "Filter Applied: ";
-            if (cbMoodHistoryHappy.isChecked()) message += "Happy ";
-            if (cbMoodHistorySad.isChecked()) message += "Sad ";
-            if (cbMoodHistoryAngry.isChecked()) message += "Angry ";
-            if (cbMoodHistoryChill.isChecked()) message += "Chill ";
+            String message;
+            if (cbShowAll.isChecked()) {
+                message = "Showing all moods";
+            } else {
+                message = "Filter Applied: ";
+                if (cbMoodHistoryHappy.isChecked()) message += "Happy ";
+                if (cbMoodHistorySad.isChecked()) message += "Sad ";
+                if (cbMoodHistoryAngry.isChecked()) message += "Angry ";
+                if (cbMoodHistoryChill.isChecked()) message += "Chill ";
+            }
+
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
