@@ -20,6 +20,9 @@ public class Mood {
 
     private String moodId; //new field for moodId
 
+    // privacy
+    private boolean isPrivate;
+
     /**
      * No-argument constructor for Firestore.
      */
@@ -107,6 +110,13 @@ public class Mood {
     }
 
     /**
+     * Sets private/public status
+     *
+     * @param isPrivate The private status.
+     */
+    public void setPrivate(boolean isPrivate) {this.isPrivate = isPrivate;}
+
+    /**
      * Constructs a new Mood without an image.
      *
      * @param mood            The mood state.
@@ -116,13 +126,14 @@ public class Mood {
      * @param socialSituation The social situation.
      * @param userId          The user ID.
      */
-    public Mood(String mood, String moodDescription, double latitude, double longitude, String socialSituation, String userId) {
+    public Mood(String mood, String moodDescription, double latitude, double longitude, String socialSituation, String userId, boolean isPrivate) {
         this.mood = mood;
         this.moodDescription = moodDescription;
         this.latitude = latitude;
         this.longitude = longitude;
         this.socialSituation = socialSituation;
         this.userId = userId;
+        this.isPrivate = isPrivate;
     }
 
     /**
@@ -136,8 +147,8 @@ public class Mood {
      * @param socialSituation The social situation.
      * @param userId          The user ID.
      */
-    public Mood(String mood, String moodDescription, String imageBase64, double latitude, double longitude, String socialSituation, String userId) {
-        this(mood, moodDescription, latitude, longitude, socialSituation, userId);
+    public Mood(String mood, String moodDescription, String imageBase64, double latitude, double longitude, String socialSituation, String userId, boolean isPrivate) {
+        this(mood, moodDescription, latitude, longitude, socialSituation, userId, isPrivate);
         this.imageBase64 = imageBase64;
     }
 
@@ -196,4 +207,12 @@ public class Mood {
      * @return The user ID.
      */
     public String getUserId() { return userId; }
+
+    /**
+     * Returns the user ID.
+     *
+     * @return The user ID.
+     */
+    public boolean isPrivate() {return isPrivate;}
+
 }
