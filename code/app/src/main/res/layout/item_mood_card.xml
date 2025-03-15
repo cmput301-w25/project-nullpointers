@@ -94,16 +94,13 @@
                 android:id="@+id/btnEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:backgroundTint="@android:color/transparent"
                 android:text="Edit"
                 android:textColor="@color/buttonColor"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ivMoodCardImgIfExists"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintMarginEnd="8dp"
-                app:layout_constraintMarginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/btnComment" />
+                android:backgroundTint="@android:color/transparent"
+                app:layout_constraintTop_toTopOf="@+id/btnComment"
+                app:layout_constraintBottom_toBottomOf="@+id/btnComment"
+                app:layout_constraintStart_toEndOf="@+id/btnComment"
+                />
 
             <ImageView
                 android:id="@+id/ivMoodCardImgIfExists"
