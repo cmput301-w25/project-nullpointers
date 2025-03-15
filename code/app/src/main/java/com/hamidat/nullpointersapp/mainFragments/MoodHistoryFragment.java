@@ -42,6 +42,13 @@ public class MoodHistoryFragment extends Fragment {
     private String currentUserId;
     private Button btnMoodHistoryFilter;
 
+    // these are just for remembering the users current filter
+    private boolean showAllChecked = true;
+    private boolean happyChecked = false;
+    private boolean sadChecked = false;
+    private boolean angryChecked = false;
+    private boolean chillChecked = false;
+
 
     @Nullable
     @Override
@@ -135,15 +142,34 @@ public class MoodHistoryFragment extends Fragment {
         // using an arr of all mood checkboxes for easy enabling/disabling
         CheckBox[] moodCheckboxes = {cbMoodHistoryHappy, cbMoodHistorySad, cbMoodHistoryAngry, cbMoodHistoryChill};
 
+        // Restore the last selection
+        cbShowAll.setChecked(showAllChecked);
+        cbMoodHistoryHappy.setChecked(happyChecked);
+        cbMoodHistorySad.setChecked(sadChecked);
+        cbMoodHistoryAngry.setChecked(angryChecked);
+        cbMoodHistoryChill.setChecked(chillChecked);
+
+        // disable individual mood checkboxes if "Show All" is checked
+        for (CheckBox cb : moodCheckboxes) {
+            cb.setEnabled(!showAllChecked);
+        }
+
         // handling the "Show All" logic -> lmk if you guys do want to remove this though
         cbShowAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
             for (CheckBox cb : moodCheckboxes) {
-                cb.setChecked(false);
+                cb.setChecked(false); // Uncheck all moods if "Show All" is checked
                 cb.setEnabled(!isChecked); // Disable moods when "Show All" is checked
             }
         });
 
         btnApply.setOnClickListener(v -> {
+            // store the current filter settings
+            showAllChecked = cbShowAll.isChecked();
+            happyChecked = cbMoodHistoryHappy.isChecked();
+            sadChecked = cbMoodHistorySad.isChecked();
+            angryChecked = cbMoodHistoryAngry.isChecked();
+            chillChecked = cbMoodHistoryChill.isChecked();
+
             String message;
             if (cbShowAll.isChecked()) {
                 message = "Showing all moods";
