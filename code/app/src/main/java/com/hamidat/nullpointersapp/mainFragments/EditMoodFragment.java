@@ -73,7 +73,7 @@ public class EditMoodFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1) Get the Mood to edit from arguments
+        // Gets the Mood to edit from arguments
         if (getArguments() != null && getArguments().containsKey("mood")) {
             moodToEdit = (Mood) getArguments().getSerializable("mood");
         }
@@ -95,14 +95,14 @@ public class EditMoodFragment extends Fragment {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // 2) Populate fields with existing data
+        // Populate fields with existing data
         etReason.setText(moodToEdit.getMoodDescription());
         latitude = moodToEdit.getLatitude();
         longitude = moodToEdit.getLongitude();
         base64Image = moodToEdit.getImageBase64();
 
         // Pre-select the mood radio
-        // Example: if mood is "Happy", check that radio button. Adjust logic as needed:
+        // Example -- if mood is Happy, check that radio button. Adjust logic if needed
         String moodStr = moodToEdit.getMood();
         if (moodStr != null) {
             if (moodStr.equalsIgnoreCase("Happy")) {
@@ -116,7 +116,7 @@ public class EditMoodFragment extends Fragment {
             }
         }
 
-        // Pre-select the social situation
+        // Pre-selecting the social situation
         String socialStr = moodToEdit.getSocialSituation();
         if (socialStr != null) {
             if (socialStr.equalsIgnoreCase("Alone")) {
@@ -144,7 +144,7 @@ public class EditMoodFragment extends Fragment {
             ivPhotoPreview.setVisibility(View.GONE);
         }
 
-        // 3) Firestore helper from MainActivity
+        // Firestore helper from MainActivity
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             this.firestoreHelper = mainActivity.getFirestoreHelper();
@@ -156,7 +156,7 @@ public class EditMoodFragment extends Fragment {
             }
         }
 
-        // 4) Request location permissions if not granted
+        //  Request location permissions if not granted
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -165,7 +165,7 @@ public class EditMoodFragment extends Fragment {
             getLastKnownLocation();
         }
 
-        // 5) Button handlers
+        //  Button handlers
         btnAttachPhoto.setOnClickListener(v -> openImagePicker());
         btnAttachLocation.setOnClickListener(v -> {
             attachLocation = !attachLocation;
