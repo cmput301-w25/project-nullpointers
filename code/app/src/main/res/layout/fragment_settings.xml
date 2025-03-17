@@ -21,15 +21,27 @@
         android:layout_marginTop="32dp"
         android:layout_marginStart="16dp"/>
 
-    <!-- Change Theme Button -->
+    <!-- Edit Profile Picture Button (functionality not implemented yet) -->
+    <Button
+        android:id="@+id/btn_edit_profile_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Edit Profile Picture"
+        android:layout_marginTop="20dp"
+        style="@style/UserProfileButtonStyle"
+        app:layout_constraintTop_toBottomOf="@id/tv_settings_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Change Theme Button (optional) -->
     <Button
         android:id="@+id/btn_change_theme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Change Theme"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         style="@style/UserProfileButtonStyle"
-        app:layout_constraintTop_toBottomOf="@id/tv_settings_title"
+        app:layout_constraintTop_toBottomOf="@id/btn_edit_profile_picture"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -45,7 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Logout Button -->
+    <!-- Logout Button (implements logout functionality) -->
     <Button
         android:id="@+id/btn_logout"
         android:layout_width="match_parent"

@@ -106,4 +106,13 @@ public class FirestoreUsers {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    public void updateUserProfilePicture(String userId, String base64Image, FirestoreHelper.FirestoreCallback callback) {
+        firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .update("profilePicture", base64Image)
+                .addOnSuccessListener(aVoid -> callback.onSuccess("Profile picture updated"))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+
 }

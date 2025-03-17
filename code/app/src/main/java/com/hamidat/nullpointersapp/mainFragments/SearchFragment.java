@@ -164,7 +164,7 @@ public class SearchFragment extends Fragment {
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
         // Get a reference to the divider.
-        View dividerMoodEvents = profileView.findViewById(R.id.dividerMoodEvents);
+        //View dividerMoodEvents = profileView.findViewById(R.id.dividerMoodEvents);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -183,12 +183,12 @@ public class SearchFragment extends Fragment {
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
                         // Since user is followed, show and load mood events.
-                        dividerMoodEvents.setVisibility(View.VISIBLE);  // Show divider
+                        //dividerMoodEvents.setVisibility(View.VISIBLE);  // Show divider
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
                     } else {
                         btnFollowUnfollow.setText("Follow");
-                        dividerMoodEvents.setVisibility(View.GONE);  // Hide divider
+                        //dividerMoodEvents.setVisibility(View.GONE);  // Hide divider
                         rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
@@ -222,7 +222,7 @@ public class SearchFragment extends Fragment {
                         btnFollowUnfollow.setText("Follow");
                         // Hide mood events and divider when unfollowin
                         rvMoodEvents.setVisibility(View.GONE);
-                        dividerMoodEvents.setVisibility(View.GONE);
+                        //dividerMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
                     @Override
