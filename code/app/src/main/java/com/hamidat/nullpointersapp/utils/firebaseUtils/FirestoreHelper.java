@@ -87,6 +87,28 @@ public class FirestoreHelper {
         });
     }
 
+    /**
+     * Updates an existing Mood in Firestore based on mood.getMoodId().
+     * Make sure your FirestoreAddEditMoods class has a matching updateMood(...) method.
+     *
+     * @param mood     The Mood object to update (must have moodId set).
+     * @param callback Callback for success/failure.
+     */
+    public void updateMood(Mood mood, FirestoreCallback callback) {
+        firestoreAddEditMoods.updateMood(mood, new FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                // You can customize the success message as desired:
+                callback.onSuccess("Mood updated successfully! " + result);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(new Exception("Something went wrong while updating your mood. Try again!"));
+            }
+        });
+    }
+
     // ======= MOOD HISTORY FUNCTIONS =======
     public void firebaseToMoodHistory(String userID, FirestoreCallback callback) {
         firestoreMoodHistory.firebaseToMoodHistory(userID, callback);

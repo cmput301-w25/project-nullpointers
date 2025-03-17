@@ -16,6 +16,7 @@
         <action
             android:id="@+id/action_profileNavGraphFragment_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
+
     </fragment>
 
     <fragment
@@ -36,7 +37,19 @@
         android:id="@+id/homeFeedFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment"
         android:label="Home"
-        tools:layout="@layout/full_mood_event" />
+        tools:layout="@layout/full_mood_event">
+
+        <action
+            android:id="@+id/action_homeFeedFragment_to_editMoodFragment"
+            app:destination="@id/editMoodFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMoodFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.EditMoodFragment"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood" />
+
 
     <!-- New FollowingFragment entry -->
     <fragment

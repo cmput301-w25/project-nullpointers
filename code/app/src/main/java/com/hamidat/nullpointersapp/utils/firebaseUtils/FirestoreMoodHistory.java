@@ -52,7 +52,7 @@ public class FirestoreMoodHistory {
                 for (QueryDocumentSnapshot doc : value) {
                     try {
                         Mood mood = doc.toObject(Mood.class);
-
+                        mood.setMoodId(doc.getId()); //NO NULLs
                         // Manually set coordinates from document
                         Double lat = doc.getDouble("latitude");
                         Double lng = doc.getDouble("longitude");
