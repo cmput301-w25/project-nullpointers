@@ -50,8 +50,20 @@ public class HomeFeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.full_mood_event, container, false);
         rvMoodList = view.findViewById(R.id.rvMoodList);
         rvMoodList.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodAdapter = new MoodAdapter(allMoods);
-        rvMoodList.setAdapter(moodAdapter);
+        if(getActivity() instanceof MainActivity){
+            MainActivity mainActivity = (MainActivity)getActivity();
+            firestoreHelper = mainActivity.getFirestoreHelper();
+            currentUserId = mainActivity.getCurrentUserId();
+        }
+
+        if (currentUserId != null) {
+            moodAdapter = new MoodAdapter(allMoods, currentUserId);
+            rvMoodList.setAdapter(moodAdapter);
+        } else {
+            Toast.makeText(getContext(), "Error: User ID is null. Restart app.", Toast.LENGTH_SHORT).show();
+        }
+
+
         return view;
     }
 

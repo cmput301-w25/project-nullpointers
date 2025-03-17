@@ -69,23 +69,26 @@ public class MoodHistoryFragment extends Fragment {
         tvNoMoodEntries = view.findViewById(R.id.tvNoMoodEntries);
         rvMoodHistory = view.findViewById(R.id.rvMoodHistory);
         rvMoodHistory.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodAdapter = new MoodAdapter(moodList);
-        rvMoodHistory.setAdapter(moodAdapter);
-        btnMoodHistoryFilter = view.findViewById(R.id.btnFilterMoodHistory);  // Find the filter button
 
-        firestore = FirebaseFirestore.getInstance();
-        if(getActivity() instanceof MainActivity) {
-            currentUserId = ((MainActivity)getActivity()).getCurrentUserId();
+        if (getActivity() instanceof MainActivity) {
+            currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
         } else {
             Toast.makeText(getContext(), "Error: current user not found", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Fix: Pass currentUserId to MoodAdapter constructor
+        moodAdapter = new MoodAdapter(moodList, currentUserId);
+        rvMoodHistory.setAdapter(moodAdapter);
+
+        btnMoodHistoryFilter = view.findViewById(R.id.btnFilterMoodHistory);
+
+        firestore = FirebaseFirestore.getInstance();
         loadMoodHistory();
 
-        // set the listener for the moodn history filter futton
         btnMoodHistoryFilter.setOnClickListener(v -> showFilterDialog());
     }
+
 
     /**
      * Loads the user's mood history from Firestore and applies filters.
