@@ -240,7 +240,8 @@ public class SearchFragment extends Fragment {
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
-        MoodAdapter moodAdapter = new MoodAdapter(moodList);
+        MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId);
+
         rvMoodEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         rvMoodEvents.setAdapter(moodAdapter);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();

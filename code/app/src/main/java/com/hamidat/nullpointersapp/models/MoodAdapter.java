@@ -10,10 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
@@ -26,31 +29,44 @@ import java.util.Locale;
 
 /**
  * RecyclerView adapter for displaying a list of Mood objects.
- * Each item displays the mood state, description, timestamp, and social situation.
+ * If the mood belongs to the current user, the item layout (item_mood_card.xml)
+ * displays Edit and Delete buttons; otherwise, a public layout (item_mood_card_public.xml)
+ * is used, which shows only the Comment button.
  *
  * @author
- *  (Salim Soufi)
+ * (Salim Soufi)
  * @version 1.0
  * @since 2025-03-03
  */
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
     private final List<Mood> moods;
+    private final String currentUserId;
 
     /**
      * Constructs a new MoodAdapter.
      *
-     * @param moods List of Mood objects to display.
+     * @param moods         List of Mood objects to display.
+     * @param currentUserId The ID of the currently signed-in user.
      */
-    public MoodAdapter(List<Mood> moods) {
+    public MoodAdapter(List<Mood> moods, String currentUserId) {
         this.moods = moods;
+        this.currentUserId = currentUserId;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Mood mood = moods.get(position);
+        return (mood.getUserId() != null && mood.getUserId().equals(currentUserId)) ?
+                R.layout.item_mood_card :
+                R.layout.item_mood_card_public;
     }
 
     @NonNull
     @Override
     public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View itemView = inflater.inflate(R.layout.item_mood_card, parent, false);
+        View itemView = inflater.inflate(viewType, parent, false);
         return new MoodViewHolder(itemView);
     }
 
@@ -58,27 +74,60 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
-        // If the mood was edited, show the red "edited" label; else hide it
-        if (currentMood.isEdited()) {
-            holder.tvEdited.setVisibility(View.VISIBLE);
-        } else {
-            holder.tvEdited.setVisibility(View.GONE);
-        }
 
-        // Handle "Edit" button click
-        holder.btnEdit.setOnClickListener(v -> {
-            // Navigate to EditMoodFragment with currentMood
-            // The simplest approach is a Bundle with the Mood as a Serializable
-            if (currentMood.getMoodId() != null) {
-                // Create a bundle
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("mood", currentMood);
+        // Show/hide the "edited" label.
+        holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
 
-                // Assumes an action (e.g., action_homeFeedFragment_to_editMoodFragment) in nav_graph
-                Navigation.findNavController(v).navigate(R.id.action_homeFeedFragment_to_editMoodFragment, bundle);
+        // Check if this is the owner's mood
+        boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
+
+        System.out.println("Mood ID: " + currentMood.getMoodId() + " | isOwnMood: " + isOwnMood);
+
+        if (isOwnMood) {
+            if (holder.btnEdit != null) {
+                holder.btnEdit.setOnClickListener(v -> {
+                    if (currentMood.getMoodId() != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("mood", currentMood);
+                        Navigation.findNavController(v)
+                                .navigate(R.id.action_homeFeedFragment_to_editMoodFragment, bundle);
+                    }
+                });
             }
-        });
+
+            if (holder.btnDelete != null) {
+                holder.btnDelete.setOnClickListener(v -> {
+                    int adapterPosition = holder.getAdapterPosition();
+                    if (adapterPosition == RecyclerView.NO_POSITION) return;
+
+                    Mood moodToDelete = moods.get(adapterPosition);
+                    FirestoreDeleteMood deleteUtil =
+                            new FirestoreDeleteMood(FirebaseFirestore.getInstance());
+
+                    deleteUtil.deleteMood(moodToDelete.getUserId(), moodToDelete, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
+                            moods.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(v.getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                });
+            }
+        } else {
+            if (holder.btnComment != null) {
+                holder.btnComment.setOnClickListener(v -> {
+                    Toast.makeText(v.getContext(), "Comment button clicked.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
     }
+
 
     @Override
     public int getItemCount() {
@@ -112,23 +161,25 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         private final TextView tvTimestamp;
         private final TextView tvSocialSituation;
         private final ImageView ivMoodImage;
+        private final Button btnEdit;
+        private final Button btnComment;
+        private final Button btnDelete;
 
-        // Added for Edit button
-        public final Button btnEdit;
-        public final Button btnComment; // (Existing or for reference)
-
+        /**
+         * Constructs a new MoodViewHolder.
+         *
+         * @param itemView The item view.
+         */
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMood = itemView.findViewById(R.id.tvMood);
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
-
-            tvEdited = itemView.findViewById(R.id.tvEdited); // new
+            tvEdited = itemView.findViewById(R.id.tvEdited);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
-
-            // Hook the newly added Edit button & the existing Comment button
             btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
             btnComment = itemView.findViewById(R.id.btnComment);
         }
 
@@ -146,7 +197,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 tvTimestamp.setText("No Timestamp");
             }
 
-            // Show/hide image
+            // Display mood image if available
             if (mood.getImageBase64() != null && !mood.getImageBase64().isEmpty()) {
                 try {
                     byte[] decodedBytes = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
