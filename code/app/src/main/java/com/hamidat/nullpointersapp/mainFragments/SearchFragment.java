@@ -114,7 +114,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void searchUsers(String query) {
-        if(query.isEmpty()){
+        if (query.isEmpty()) {
             userList.clear();
             adapter.notifyDataSetChanged();
             return;
@@ -127,8 +127,10 @@ public class SearchFragment extends Fragment {
                     int count = 0;
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String username = doc.getString("username");
-                        if (username != null && username.toLowerCase().contains(lowerQuery)) {
-                            String userId = doc.getId();
+                        String userId = doc.getId();
+                        // Only add user if the username matches AND it's not the current user.
+                        if (username != null && username.toLowerCase().contains(lowerQuery)
+                                && !userId.equals(currentUserId)) {
                             userList.add(new User(userId, username));
                             count++;
                             if (count >= 6) break;  // Limit to top 6 results
@@ -161,6 +163,8 @@ public class SearchFragment extends Fragment {
         Button btnFollowUnfollow = profileView.findViewById(R.id.btnFollowUnfollow);
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
+        // Get a reference to the divider.
+        View dividerMoodEvents = profileView.findViewById(R.id.dividerMoodEvents);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -173,15 +177,18 @@ public class SearchFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
                         // Since user is followed, show and load mood events.
+                        dividerMoodEvents.setVisibility(View.VISIBLE);  // Show divider
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
                     } else {
                         btnFollowUnfollow.setText("Follow");
+                        dividerMoodEvents.setVisibility(View.GONE);  // Hide divider
                         rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
@@ -213,8 +220,9 @@ public class SearchFragment extends Fragment {
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
-                        // Hide mood events when unfollowing.
+                        // Hide mood events and divider when unfollowin
                         rvMoodEvents.setVisibility(View.GONE);
+                        dividerMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
                     @Override
@@ -233,6 +241,7 @@ public class SearchFragment extends Fragment {
         profileView.bringToFront();
         profileView.invalidate();
     }
+
 
     /**
      * Queries Firestore for the three most recent mood events of the selected user

@@ -5,8 +5,7 @@
     android:id="@+id/searchProfileRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    android:padding="0dp">
+    android:background="@color/backgroundColor">
 
     <!-- Back Button -->
     <ImageView
@@ -27,8 +26,8 @@
         android:contentDescription="@string/profile_icon_desc"
         android:src="@drawable/default_user_icon"
         app:layout_constraintTop_toBottomOf="@id/ivBack"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
     <!-- Username -->
@@ -45,7 +44,7 @@
         android:layout_marginTop="8dp"/>
 
     <!-- Follow/Unfollow Button -->
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnFollowUnfollow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,14 +55,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
-    <!-- RecyclerView for 3 Most Recent Mood Events -->
+    <!-- Divider between Follow Button and Mood Events -->
+    <View
+        android:id="@+id/dividerMoodEvents"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/buttonColor"
+        app:layout_constraintTop_toBottomOf="@id/btnFollowUnfollow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- RecyclerView for Mood Events -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMoodEvents"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/dividerMoodEvents"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnFollowUnfollow" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
