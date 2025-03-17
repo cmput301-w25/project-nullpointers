@@ -101,15 +101,26 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                     if (adapterPosition == RecyclerView.NO_POSITION) return;
 
                     Mood moodToDelete = moods.get(adapterPosition);
-                    FirestoreDeleteMood deleteUtil =
-                            new FirestoreDeleteMood(FirebaseFirestore.getInstance());
+                    FirestoreDeleteMood deleteUtil = new FirestoreDeleteMood(FirebaseFirestore.getInstance());
 
                     deleteUtil.deleteMood(moodToDelete.getUserId(), moodToDelete, new FirestoreHelper.FirestoreCallback() {
                         @Override
                         public void onSuccess(Object result) {
                             Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
-                            moods.remove(adapterPosition);
-                            notifyItemRemoved(adapterPosition);
+
+                            int indexToRemove = -1;
+                            for (int i = 0; i < moods.size(); i++) {
+                                if (moods.get(i).getMoodId().equals(moodToDelete.getMoodId())) {
+                                    indexToRemove = i;
+                                    break;
+                                }
+                            }
+
+                            if (indexToRemove != -1) {
+                                moods.remove(indexToRemove);
+                                notifyItemRemoved(indexToRemove);
+                                notifyItemRangeChanged(indexToRemove, moods.size());
+                            }
                         }
 
                         @Override
@@ -119,6 +130,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                     });
                 });
             }
+
+
         } else {
             if (holder.btnComment != null) {
                 holder.btnComment.setOnClickListener(v -> {
