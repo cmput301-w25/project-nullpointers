@@ -50,7 +50,7 @@ public class ProfileFragment extends Fragment {
         ImageView profileIcon = view.findViewById(R.id.profile_icon);
         final TextView usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
-        Button settingsButton = view.findViewById(R.id.settings_button);
+        Button lougoutButton = view.findViewById(R.id.btn_logout_user);
         Button btnFollowing = view.findViewById(R.id.btnFollowing);
 
         btnFollowing.setOnClickListener(v -> {
@@ -94,7 +94,7 @@ public class ProfileFragment extends Fragment {
         });
 
 
-        settingsButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Settings clicked", Toast.LENGTH_SHORT).show());
+        lougoutButton.setOnClickListener(v ->
+                Toast.makeText(getActivity(), "Logout Button clicked", Toast.LENGTH_SHORT).show());
     }
 }
