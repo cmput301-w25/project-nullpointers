@@ -21,7 +21,6 @@ public class Mood implements Serializable {
     private Timestamp timestamp;
     private String userId;
 
-
     // privacy
     private boolean isPrivate;
 

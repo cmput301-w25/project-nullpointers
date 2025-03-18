@@ -107,13 +107,7 @@ public class FirestoreHelper {
         firestoreMoodHistory.firebaseQueryTime(userID, sevenDays, ascending, callback);
     }
 
-    public void firebaseToPublicMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
-        firestoreMoodHistory.firebaseToPublicMoodHistory(userIds, callback);
-    }
 
-    public void firebaseToPrivateMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
-        firestoreMoodHistory.firebaseToPrivateMoodHistory(userIds, callback);
-    }
     // ======= FOLLOWING FUNCTIONS =======
     public void sendFriendRequest(String fromUserId, String toUserId, FirestoreFollowing.FollowingCallback callback) {
         firestoreFollowing.sendFriendRequest(fromUserId, toUserId, callback);
