@@ -56,6 +56,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
+    <!-- Divider Between Button and RecyclerView -->
+    <View
+        android:id="@+id/dividerMoodEvents"
+        android:layout_width="100dp"
+        android:visibility="gone"
+        android:layout_height="1dp"
+        android:background="@color/primaryColor"
+        app:layout_constraintTop_toBottomOf="@id/btnFollowUnfollow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
     <!-- RecyclerView for 3 Most Recent Mood Events -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMoodEvents"
