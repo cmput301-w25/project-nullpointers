@@ -2,6 +2,7 @@ package com.hamidat.nullpointersapp.mainFragments;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.*;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
@@ -94,7 +96,16 @@ public class ProfileFragment extends Fragment {
         });
 
 
-        lougoutButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Logout Button clicked", Toast.LENGTH_SHORT).show());
+        lougoutButton.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                // tell the user I'm logging them out
+                Toast.makeText(getActivity(), "Logging out...", Toast.LENGTH_SHORT).show();
+
+                // Redirect to AuthActivity
+                Intent intent = new Intent(getActivity(), AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // clring activity stack
+                startActivity(intent);
+            }
+        });
     }
 }
