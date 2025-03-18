@@ -769,6 +769,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
 
+        // Get the profile picture ImageView from the info window
+        ImageView ivProfilePic = infoWindow.findViewById(R.id.ivProfile);
+        if (ivProfilePic != null) {
+            firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        String profilePicBase64 = (String) userData.get("profilePicture");
+                        if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            ivProfilePic.post(() -> ivProfilePic.setImageBitmap(bitmap));
+                        } else {
+                            ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                        }
+                    } else {
+                        ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                    }
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                }
+            });
+        }
+
+
+
         // Animate the info window sliding up from the bottom
         infoWindow.setVisibility(View.VISIBLE);
         infoWindow.post(() -> {
