@@ -2,8 +2,10 @@ package com.hamidat.nullpointersapp.mainFragments;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.*;
 
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,24 +18,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.hamidat.nullpointersapp.AuthActivity;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class ProfileFragment extends Fragment {
+
+    private ImageView profileIcon;
+    private TextView usernameText;
 
     @Nullable
     @Override
@@ -49,10 +48,10 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Bind UI elements
-        ImageView profileIcon = view.findViewById(R.id.profile_icon);
-        final TextView usernameText = view.findViewById(R.id.username_text);
+        profileIcon = view.findViewById(R.id.profile_icon);
+        usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
-        Button lougoutButton = view.findViewById(R.id.btn_logout_user);
+        Button settingsButton = view.findViewById(R.id.settings_button);
         Button btnFollowing = view.findViewById(R.id.btnFollowing);
 
         btnFollowing.setOnClickListener(v -> {
@@ -66,7 +65,7 @@ public class ProfileFragment extends Fragment {
             FirestoreHelper firestoreHelper = mainActivity.getFirestoreHelper();
             String currentUserId = mainActivity.getCurrentUserId();
 
-            // Fetch the user data from Firestore using the current user ID.
+            // Fetch user data from Firestore
             firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
                 @Override
                 public void onSuccess(Object result) {
@@ -75,6 +74,17 @@ public class ProfileFragment extends Fragment {
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
                         usernameText.setText(String.format("My Username: %s", username));
+
+                        // Update the profile image if available
+                        String base64ProfilePic = (String) userData.get("profilePicture");
+                        if (base64ProfilePic != null && !base64ProfilePic.isEmpty()) {
+                            byte[] decodedBytes = Base64.decode(base64ProfilePic, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            profileIcon.setImageBitmap(bitmap);
+                        } else {
+                            // Optionally, set a default profile image.
+                            profileIcon.setImageResource(R.drawable.default_user_icon);
+                        }
                     }
                 }
 
@@ -87,25 +97,16 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getActivity(), "Error retrieving Firestore instance", Toast.LENGTH_SHORT).show();
         }
 
-        // When "View My Mood History" is clicked, query and display all mood events in reverse chronological order.
+        // Navigate to MoodHistoryFragment when "View My Mood History" is clicked.
         viewMoodHistoryButton.setOnClickListener(v -> {
-            // Navigate to the MoodHistoryFragment.
-            // Make sure your nav_graph.xml has a proper action with id action_profileFragment_to_moodHistoryFragment.
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profileNavGraphFragment_to_moodHistoryFragment);
         });
 
-
-        lougoutButton.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                // tell the user I'm logging them out
-                Toast.makeText(getActivity(), "Logging out...", Toast.LENGTH_SHORT).show();
-
-                // Redirect to AuthActivity
-                Intent intent = new Intent(getActivity(), AuthActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // clring activity stack
-                startActivity(intent);
-            }
+        // Navigate to the SettingsFragment when the settings button is clicked.
+        settingsButton.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profileNavGraphFragment_to_settingsFragment);
         });
     }
 }

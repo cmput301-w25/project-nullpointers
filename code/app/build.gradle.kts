@@ -30,7 +30,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+
+
 }
+
+
+
+
+
 
 dependencies {
     implementation ("org.greenrobot:eventbus:3.3.1")
@@ -40,6 +48,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation ("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("com.google.firebase:firebase-auth:23.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.fragment:fragment-testing:1.4.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -60,6 +69,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("com.github.yalantis:ucrop:2.2.6")
 
     // Test dependencies
     testImplementation("junit:junit:4.13.2")

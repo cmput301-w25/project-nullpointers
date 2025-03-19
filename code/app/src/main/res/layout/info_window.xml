@@ -9,12 +9,24 @@
     android:background="@drawable/info_window_bg"
     android:padding="16dp">
 
+    <!-- Header row: Profile Picture + Username, and then time/date info -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical">
 
+        <!-- Profile Picture -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivProfile"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/default_user_icon"
+            app:shapeAppearanceOverlay="@style/CircularImageView"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Username -->
         <TextView
             android:id="@+id/tvUsername"
             android:layout_width="0dp"
@@ -25,6 +37,7 @@
             android:textStyle="bold"
             android:textColor="@color/textColor" />
 
+        <!-- Time and Date info -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,6 +50,7 @@
                 android:text="12:00 PM"
                 android:textSize="14sp"
                 android:textColor="@color/buttonColor" />
+
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
@@ -45,10 +59,10 @@
                 android:textSize="14sp"
                 android:textColor="@color/buttonColor"
                 android:layout_marginStart="8dp"/>
-
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Mood Details Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

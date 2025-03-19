@@ -9,14 +9,15 @@
         android:id="@+id/profileNavGraphFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.ProfileFragment"
         android:label="Profile">
-        <!-- Add an action to navigate to FollowingFragment -->
         <action
             android:id="@+id/action_profileNavGraphFragment_to_followingFragment"
             app:destination="@id/followingFragment" />
         <action
             android:id="@+id/action_profileNavGraphFragment_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
-
+        <action
+            android:id="@+id/action_profileNavGraphFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
 
     <fragment
@@ -38,7 +39,6 @@
         android:name="com.hamidat.nullpointersapp.mainFragments.HomeFeedFragment"
         android:label="Home"
         tools:layout="@layout/full_mood_event">
-
         <action
             android:id="@+id/action_homeFeedFragment_to_editMoodFragment"
             app:destination="@id/editMoodFragment" />
@@ -50,8 +50,6 @@
         android:label="Edit Mood"
         tools:layout="@layout/fragment_edit_mood" />
 
-
-    <!-- New FollowingFragment entry -->
     <fragment
         android:id="@+id/followingFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.FollowingFragment"
@@ -68,15 +66,17 @@
         android:name="com.hamidat.nullpointersapp.mainFragments.NotificationFragment"
         android:label="Notifications" />
 
-
-
     <fragment
         android:id="@+id/moodHistoryFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.MoodHistoryFragment"
         android:label="My Mood History" />
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.SettingsFragment"
+        android:label="Settings">
 
-
+    </fragment>
 
 
 </navigation>

@@ -22,12 +22,13 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <ImageView
+            <!-- Updated User Avatar using ShapeableImageView -->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivUserAvatar"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_myplaces"
-                app:tint="@color/textColor"
+                android:src="@drawable/default_user_icon"
+                app:shapeAppearanceOverlay="@style/CircularImageView"
                 android:layout_marginEnd="8dp"/>
 
             <TextView
@@ -38,7 +39,6 @@
                 android:textStyle="bold"
                 android:textColor="@color/textColor"
                 android:textSize="14sp"/>
-
         </LinearLayout>
 
         <TextView
@@ -49,7 +49,5 @@
             android:textColor="@color/textColor"
             android:textSize="14sp"
             android:layout_marginTop="8dp"/>
-
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

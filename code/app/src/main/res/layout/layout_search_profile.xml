@@ -17,10 +17,10 @@
         android:contentDescription="@string/back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="16dp"/>
+        android:layout_margin="16dp" />
 
-    <!-- Profile Icon -->
-    <ImageView
+    <!-- Profile Icon as a circular image -->
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profile_icon"
         android:layout_width="120dp"
         android:layout_height="120dp"
@@ -29,7 +29,8 @@
         app:layout_constraintTop_toBottomOf="@id/ivBack"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        app:shapeAppearanceOverlay="@style/CircularImageView" />
 
     <!-- Username -->
     <TextView
@@ -42,7 +43,7 @@
         app:layout_constraintTop_toBottomOf="@id/profile_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
 
     <!-- Follow/Unfollow Button -->
     <Button
@@ -54,7 +55,7 @@
         app:layout_constraintTop_toBottomOf="@id/username_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp" />
 
     <!-- Divider Between Button and RecyclerView -->
     <View
@@ -74,11 +75,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="60dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnFollowUnfollow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.054"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

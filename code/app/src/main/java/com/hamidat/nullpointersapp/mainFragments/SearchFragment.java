@@ -1,14 +1,16 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,25 +23,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.hamidat.nullpointersapp.models.Mood;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
-/**
- * Fragment for searching users in real time.
- * As the user types, matching users are shown.
- * When a username is tapped, a profile view is displayed with a Back button and a Follow/Unfollow button.
- */
 public class SearchFragment extends Fragment {
     private FirestoreHelper firestoreHelper;
     private EditText etSearch;
@@ -114,7 +110,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void searchUsers(String query) {
-        if (query.isEmpty()) {
+        if(query.isEmpty()){
             userList.clear();
             adapter.notifyDataSetChanged();
             return;
@@ -128,9 +124,11 @@ public class SearchFragment extends Fragment {
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String username = doc.getString("username");
                         String userId = doc.getId();
-                        // Only add user if the username matches AND it's not the current user.
-                        if (username != null && username.toLowerCase().contains(lowerQuery)
-                                && !userId.equals(currentUserId)) {
+                        // Exclude the current user from the search results.
+                        if (userId.equals(currentUserId)) {
+                            continue;
+                        }
+                        if (username != null && username.toLowerCase().contains(lowerQuery)) {
                             userList.add(new User(userId, username));
                             count++;
                             if (count >= 6) break;  // Limit to top 6 results
@@ -143,15 +141,15 @@ public class SearchFragment extends Fragment {
                 });
     }
 
-
-
+    /**
+     * Displays the selected user's profile as an overlay using layout_search_profile.xml.
+     */
     private void showUserProfile(User user) {
-        // Get the fragment's root view.
+        // Hide the main search layout and inflate the profile view.
         ViewGroup root = (ViewGroup) getView();
         if (root == null) return;
 
-        // Inflate the profile view from layout_search_profile.xml.
-        View profileView = LayoutInflater.from(getContext())
+        final View profileView = LayoutInflater.from(getContext())
                 .inflate(R.layout.layout_search_profile, root, false);
         profileView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -162,9 +160,8 @@ public class SearchFragment extends Fragment {
         TextView tvProfileUsername = profileView.findViewById(R.id.username_text);
         Button btnFollowUnfollow = profileView.findViewById(R.id.btnFollowUnfollow);
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
+        ImageView ivProfilePicture = profileView.findViewById(R.id.profile_icon);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
-        // Get a reference to the divider.
-        View dividerMoodEvents = profileView.findViewById(R.id.dividerMoodEvents);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -172,7 +169,34 @@ public class SearchFragment extends Fragment {
         // Initially hide mood events.
         rvMoodEvents.setVisibility(View.GONE);
 
-        // Check follow status and show mood events only if followed.
+        // Load the selected user's profile picture.
+        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    String profilePicBase64 = (String) userData.get("profilePicture");
+                    if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                        try {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageBitmap(bitmap));
+                        } catch (Exception e) {
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                        }
+                    } else {
+                        ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Exception e) {
+                ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+            }
+        });
+
+        // Check follow status and show mood events only if the selected user is followed.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -182,13 +206,10 @@ public class SearchFragment extends Fragment {
                     List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
-                        // Since user is followed, show and load mood events.
-                        dividerMoodEvents.setVisibility(View.VISIBLE);  // Show divider
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
                     } else {
                         btnFollowUnfollow.setText("Follow");
-                        dividerMoodEvents.setVisibility(View.GONE);  // Hide divider
                         rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
@@ -220,9 +241,7 @@ public class SearchFragment extends Fragment {
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
-                        // Hide mood events and divider when unfollowin
                         rvMoodEvents.setVisibility(View.GONE);
-                        dividerMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
                     @Override
@@ -242,15 +261,16 @@ public class SearchFragment extends Fragment {
         profileView.invalidate();
     }
 
-
     /**
      * Queries Firestore for the three most recent mood events of the selected user
      * and binds them to the given RecyclerView using MoodAdapter.
+     *
+     * @param user The selected user.
+     * @param rvMoodEvents The RecyclerView to bind the mood events to.
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
         MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId);
-
         rvMoodEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         rvMoodEvents.setAdapter(moodAdapter);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -273,8 +293,6 @@ public class SearchFragment extends Fragment {
                     Toast.makeText(getContext(), "Error loading mood events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
-
 
     // Adapter for search results.
     private static class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {

@@ -154,4 +154,10 @@ public class FirestoreHelper {
     public void getAllUsers(FirestoreCallback callback) {
         firestoreUsers.getAllUsers(callback);
     }
+
+    public void updateUserProfilePicture(String userId, String base64Image, FirestoreCallback callback) {
+        firestoreUsers.updateUserProfilePicture(userId, base64Image, callback);
+    }
+
+
 }

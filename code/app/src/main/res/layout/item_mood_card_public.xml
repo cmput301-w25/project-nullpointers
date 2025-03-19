@@ -22,14 +22,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageView
+            <!-- Updated Profile Image using ShapeableImageView -->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivProfile"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginTop="10dp"
                 android:padding="8dp"
-                android:src="@drawable/ic_profile"
-                app:tint="@color/textColor" />
+                android:src="@drawable/default_user_icon"
+                app:shapeAppearanceOverlay="@style/CircularImageView"
+                 />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,7 +128,5 @@
                 android:text="Comments"
                 android:textColor="@color/buttonColor" />
         </LinearLayout>
-
-        <!-- Optionally include mood image container if needed -->
     </LinearLayout>
 </androidx.cardview.widget.CardView>

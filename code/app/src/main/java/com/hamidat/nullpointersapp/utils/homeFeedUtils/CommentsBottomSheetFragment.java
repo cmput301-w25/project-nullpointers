@@ -1,10 +1,12 @@
 package com.hamidat.nullpointersapp.utils.homeFeedUtils;
 
-
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +14,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,7 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
-
+import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +43,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
     private CommentsAdapter commentsAdapter;
     private FirebaseFirestore firestore;
 
-    // Simple Comment model
+    // Simple Comment model.
     public static class Comment {
         private String userId;
         private String username;
@@ -69,12 +69,14 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
         public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
     }
 
-    // Adapter for comments
+    // Adapter for comments.
     public static class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
         private List<Comment> comments;
+        private FirestoreHelper firestoreHelper;
 
         public CommentsAdapter(List<Comment> comments) {
             this.comments = comments;
+            firestoreHelper = new FirestoreHelper();
         }
 
         @NonNull
@@ -89,6 +91,43 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
             Comment comment = comments.get(position);
             holder.tvCommentUsername.setText(comment.getUsername());
             holder.tvCommentText.setText(comment.getCommentText());
+            // Load the commenter's profile picture.
+            firestoreHelper.getUser(comment.getUserId(), new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        String profilePicBase64 = (String) userData.get("profilePicture");
+                        if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            holder.ivUserAvatar.post(() -> {
+                                holder.ivUserAvatar.setImageBitmap(bitmap);
+                                holder.ivUserAvatar.clearColorFilter();
+                            });
+                        } else {
+                            holder.ivUserAvatar.post(() -> {
+                                holder.ivUserAvatar.setImageResource(R.drawable.default_user_icon);
+                                holder.ivUserAvatar.clearColorFilter();
+                            });
+                        }
+                    } else {
+                        holder.ivUserAvatar.post(() -> {
+                            holder.ivUserAvatar.setImageResource(R.drawable.default_user_icon);
+                            holder.ivUserAvatar.clearColorFilter();
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    holder.ivUserAvatar.post(() -> {
+                        holder.ivUserAvatar.setImageResource(R.drawable.default_user_icon);
+                        holder.ivUserAvatar.clearColorFilter();
+                    });
+                }
+            });
         }
 
         @Override
@@ -98,11 +137,13 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
 
         public static class CommentViewHolder extends RecyclerView.ViewHolder {
             TextView tvCommentUsername, tvCommentText;
+            ShapeableImageView ivUserAvatar;
 
             public CommentViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvCommentUsername = itemView.findViewById(R.id.tvCommentUsername);
                 tvCommentText = itemView.findViewById(R.id.tvCommentText);
+                ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
             }
         }
     }
@@ -158,23 +199,18 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
 
         loadComments();
 
-        // Add TextWatcher so that the send (post) button only shows when there's valid text.
+        // Show the send button only when there is valid (non-whitespace) text.
         etComment.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // If trimmed text is empty, hide send button.
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.toString().trim().isEmpty()) {
                     btnPostComment.setVisibility(View.GONE);
                 } else {
                     btnPostComment.setVisibility(View.VISIBLE);
                 }
             }
-            @Override
-            public void afterTextChanged(Editable s) { }
+            @Override public void afterTextChanged(Editable s) { }
         });
-        // Ensure the send button is hidden initially.
         btnPostComment.setVisibility(View.GONE);
 
         btnPostComment.setOnClickListener(v -> {
