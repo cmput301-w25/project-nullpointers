@@ -38,6 +38,8 @@ import java.util.Map;
 public class HomeFeedFragment extends Fragment {
 
     private RecyclerView rvMoodList;
+
+    private Button buttonFollowing;
     private MoodAdapter moodAdapter;
     private ArrayList<Mood> allMoods = new ArrayList<>();
     private FirestoreHelper firestoreHelper;
@@ -52,6 +54,10 @@ public class HomeFeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.full_mood_event, container, false);
         rvMoodList = view.findViewById(R.id.rvMoodList);
         rvMoodList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        buttonFollowing = view.findViewById(R.id.tvFollowing);
+
+
         if(getActivity() instanceof MainActivity){
             MainActivity mainActivity = (MainActivity)getActivity();
             firestoreHelper = mainActivity.getFirestoreHelper();
@@ -98,6 +104,12 @@ public class HomeFeedFragment extends Fragment {
             }
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) { }
+        });
+
+        // buttonFollowing is for filtering the moods
+        buttonFollowing.setOnClickListener(v -> {
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper);
+            filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");
         });
     }
 
