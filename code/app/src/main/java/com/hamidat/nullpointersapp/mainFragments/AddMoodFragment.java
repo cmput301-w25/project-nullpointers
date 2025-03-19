@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +50,8 @@ public class AddMoodFragment extends Fragment {
     private double latitude;
     private double longitude;
     private boolean attachLocation = true;
+    private Switch switchPrivacy;
+
 
 
     @Nullable
@@ -71,6 +74,7 @@ public class AddMoodFragment extends Fragment {
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
         Button btnCancel = view.findViewById(R.id.btnCancel);
+        switchPrivacy = view.findViewById(R.id.switchPrivacy);
 
         // New: Bind the Attach Location button
         Button btnAttachLocation = view.findViewById(R.id.btnAttachLocation);
@@ -142,6 +146,10 @@ public class AddMoodFragment extends Fragment {
                 double finalLat = attachLocation ? latitude : 0.0;
                 double finalLng = attachLocation ? longitude : 0.0;
 
+                // Read the privacy setting from the switch.
+                boolean isPrivate = switchPrivacy.isChecked();
+
+
                 // Create Mood object based on whether a photo was attached
                 Mood newlyCreatedMood;
                 if (base64Image != null) {
@@ -152,7 +160,8 @@ public class AddMoodFragment extends Fragment {
                             latitude,
                             longitude,
                             socialSituation,
-                            currentUserId  // Pass current user's ID
+                            currentUserId,  // Pass current user's ID
+                            isPrivate
                     );
                 } else {
                     newlyCreatedMood = new Mood(
@@ -161,7 +170,8 @@ public class AddMoodFragment extends Fragment {
                             latitude,
                             longitude,
                             socialSituation,
-                            currentUserId  // Pass current user's ID
+                            currentUserId,  // Pass current user's ID
+                            isPrivate
                     );
                 }
 

@@ -8,7 +8,9 @@
 | Shahab Ibrahim | sibrahi1 | @shahabibrahim1     |
 | Arden Monaghan | amonagha | @ardenmonaghan    |
 | Salim Soufi | soufi1 | @ssoufii     |
-| Ogua Dumi-Leslie | ogua | oguadumi     |
+| Ogua Dumi-Leslie | ogua | @oguadumi     |
+| Mohammed Al Robiay | malrobia | @moeongit     |
+
 
 ## Project Description
 
@@ -31,4 +33,4 @@
 - https://github.com/cmput301-w25/project-nullpointers/wiki
 - https://github.com/orgs/cmput301-w25/projects/49
 - UI Mockups: https://github.com/cmput301-w25/project-nullpointers/wiki/UI-Mockup-&-StoryBoard-Sequence
-- [UML]
+- UML Class Diagram: https://github.com/cmput301-w25/project-nullpointers/wiki/UML-Class-Diagram

@@ -159,4 +159,6 @@ public class FirestoreMoodHistory {
             return query.orderBy("timestamp", Query.Direction.DESCENDING);
         }
     }
+
+
 }
