@@ -45,10 +45,10 @@ public class SettingsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        btnEditProfilePicture = view.findViewById(R.id.btn_edit_profile_picture);
-        btnChangeTheme = view.findViewById(R.id.btn_change_theme);
-        btnNotifications = view.findViewById(R.id.btn_notifications);
-        btnLogout = view.findViewById(R.id.btn_logout);
+        View layoutEditProfile = view.findViewById(R.id.layout_edit_profile);
+        View layoutChangeTheme = view.findViewById(R.id.layout_change_theme);
+        View layoutNotifications = view.findViewById(R.id.layout_notifications);
+        View layoutLogout = view.findViewById(R.id.layout_logout);
 
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
         currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
@@ -78,20 +78,20 @@ public class SettingsFragment extends Fragment {
                 }
         );
 
-        btnEditProfilePicture.setOnClickListener(v -> {
+        layoutEditProfile.setOnClickListener(v -> {
             // Open the gallery to select an image.
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.setType("image/*");
             galleryLauncher.launch(intent);
         });
 
-        btnChangeTheme.setOnClickListener(v ->
+        layoutChangeTheme.setOnClickListener(v ->
                 Toast.makeText(getActivity(), "Change Theme clicked", Toast.LENGTH_SHORT).show());
 
-        btnNotifications.setOnClickListener(v ->
+        layoutNotifications.setOnClickListener(v ->
                 Toast.makeText(getActivity(), "Notifications clicked", Toast.LENGTH_SHORT).show());
 
-        btnLogout.setOnClickListener(v -> {
+        layoutLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(getActivity(), "Logged out", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getActivity(), AuthActivity.class);
