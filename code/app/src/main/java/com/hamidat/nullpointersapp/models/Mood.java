@@ -77,17 +77,22 @@ public class Mood implements Serializable {
         this.mood = mood;
     }
 
-    public Mood(String mood, String moodDescription, double latitude, double longitude, String socialSituation, String userId) {
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+    public Mood(String mood, String moodDescription, double latitude, double longitude, String socialSituation, String userId, boolean isPrivate) {
         this.mood = mood;
         this.moodDescription = moodDescription;
         this.latitude = latitude;
         this.longitude = longitude;
         this.socialSituation = socialSituation;
         this.userId = userId;
+        this.isPrivate = isPrivate;
     }
 
-    public Mood(String mood, String moodDescription, String imageBase64, double latitude, double longitude, String socialSituation, String userId) {
-        this(mood, moodDescription, latitude, longitude, socialSituation, userId);
+    public Mood(String mood, String moodDescription, String imageBase64, double latitude, double longitude, String socialSituation, String userId, boolean isPrivate) {
+        this(mood, moodDescription, latitude, longitude, socialSituation, userId, isPrivate);
         this.imageBase64 = imageBase64;
     }
 
@@ -99,12 +104,6 @@ public class Mood implements Serializable {
     public String getImageBase64() { return imageBase64; }
     public Timestamp getTimestamp() { return timestamp; }
     public String getUserId() { return userId; }
-
-    /**
-     * Returns the user ID.
-     *
-     * @return The user ID.
-     */
     public boolean isPrivate() {return isPrivate;}
 
 }
