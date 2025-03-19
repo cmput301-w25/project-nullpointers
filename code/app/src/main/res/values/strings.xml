@@ -3,7 +3,7 @@
     <string name="add_new_mood">Add New Mood Event</string>
     <string name="profile_icon_desc">DEMO STRING for profile text content</string>
     <string name="userUsernameString">my_unique_username - DEMO</string>
-    <string name="profileViewMoodHistoryButtonText">View My Mood History</string>
+    <string name="profileViewMoodHistoryButtonText">My Mood History</string>
     <string name="profileSettingsButtonText">Settings</string>
     <string name="goToUserProfileButtonText">Go to My Profile</string>
     <string name="userProfileUsernameHeader">My Username:</string>
@@ -34,4 +34,7 @@
     <string name="chill">Chill</string>
     <string name="search">Search</string>
     <string name="back">Back</string>
+    <string name="edit_mood">Edit Mood</string>
+    <string name="user_logout_btn_text">Logout</string>
+
 </resources>
