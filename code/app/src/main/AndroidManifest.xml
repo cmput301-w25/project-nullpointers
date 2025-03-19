@@ -41,6 +41,10 @@
         <!-- Main Activity (After successful login) -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
         <receiver android:name="com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestActionReceiver" />
+        <!-- test container for FragmentScenario -->
+        <activity
+            android:name="androidx.fragment.app.testing.EmptyFragmentActivity"
+            android:exported="true"/>
 
     </application>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

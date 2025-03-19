@@ -28,6 +28,7 @@ import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
+import com.hamidat.nullpointersapp.models.moodHistory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +48,7 @@ public class HomeFeedFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        // Inflate your home feed layout
         View view = inflater.inflate(R.layout.full_mood_event, container, false);
         rvMoodList = view.findViewById(R.id.rvMoodList);
         rvMoodList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -69,11 +71,14 @@ public class HomeFeedFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        // Get Firestore helper and current user ID from MainActivity.
         if(getActivity() instanceof MainActivity){
             MainActivity mainActivity = (MainActivity)getActivity();
             firestoreHelper = mainActivity.getFirestoreHelper();
             currentUserId = mainActivity.getCurrentUserId();
         }
+
+        // Query mood events from current user and their followed users.
         fetchMoodData();
 
         // Attach listener to each child view to handle Comments button clicks.
@@ -98,7 +103,7 @@ public class HomeFeedFragment extends Fragment {
 
     private void fetchMoodData() {
         if (currentUserId == null || firestoreHelper == null) return;
-        // Fetch the current user's document to get "following" array.
+
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -109,6 +114,7 @@ public class HomeFeedFragment extends Fragment {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
+                    // Include current user to see their own moods
                     if (!followingIds.contains(currentUserId)) {
                         followingIds.add(currentUserId);
                     }
@@ -118,12 +124,22 @@ public class HomeFeedFragment extends Fragment {
                         public void onSuccess(Object result) {
                             moodHistory history = (moodHistory) result;
                             allMoods.clear();
-                            allMoods.addAll(history.getMoodArray());
-                            // Sort in reverse chronological order (newest first)
+
+                            // Filter moods: show public moods and user's own private moods
+                            for (Mood mood : history.getMoodArray()) {
+                                if (!mood.isPrivate() || mood.getUserId().equals(currentUserId)) {
+                                    allMoods.add(mood);
+                                }
+                            }
+
+                            // Sort moods by newest first
                             java.util.Collections.sort(allMoods, (m1, m2) -> {
-                                if(m1.getTimestamp() == null || m2.getTimestamp() == null) return 0;
+                                if (m1.getTimestamp() == null || m2.getTimestamp() == null) {
+                                    return 0;
+                                }
                                 return m2.getTimestamp().compareTo(m1.getTimestamp());
                             });
+
                             requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
                         }
                         @Override
