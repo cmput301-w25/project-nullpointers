@@ -50,7 +50,7 @@ public class MoodDeletionInstrumentedTest {
      */
     private void addTestMood() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        Mood testMood = new Mood("Happy", "Test Mood", 0.0, 0.0, "Alone", TEST_USER_ID);
+        Mood testMood = new Mood("Happy", "Test Mood", 0.0, 0.0, "Alone", TEST_USER_ID, false);
         testMood.setTimestamp(new Timestamp(new Date()));
 
         firestore.collection("moods")
@@ -73,7 +73,7 @@ public class MoodDeletionInstrumentedTest {
      */
     private void addOtherUserMood() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        Mood otherUserMood = new Mood("Sad", "Other User's Mood", 0.0, 0.0, "Group", OTHER_USER_ID);
+        Mood otherUserMood = new Mood("Sad", "Other User's Mood", 0.0, 0.0, "Group", OTHER_USER_ID, false);
         otherUserMood.setTimestamp(new Timestamp(new Date()));
 
         firestore.collection("moods")
