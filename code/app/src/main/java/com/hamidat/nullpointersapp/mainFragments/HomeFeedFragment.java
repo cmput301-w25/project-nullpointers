@@ -170,6 +170,10 @@ public class HomeFeedFragment extends Fragment {
         });
     }
 
+    public void onMoodFilterApplied() {
+        // Function for applying
+    }
+
     /**
      * Opens a dialog for viewing and adding comments for the given mood event.
      */
