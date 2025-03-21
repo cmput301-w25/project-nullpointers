@@ -11,6 +11,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Description;
@@ -42,12 +43,6 @@ import java.util.Objects;
 @LargeTest
 public class AddMoodFragmentTest {
 
-    // Connect to the Firestore emulator (adjust port if needed)
-    @BeforeClass
-    public static void setupFirestoreEmulator() {
-        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-    }
-
     // default grant all permissions so the popups don't stop expresso from running
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
@@ -61,7 +56,7 @@ public class AddMoodFragmentTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                    .putExtra("USER_ID", "testUser"));
+                    .putExtra("USER_ID", "EHxg6TEtQFWHaqbnkt5H")); // the user id for testUser
 
     @Test
     public void addMoodShouldAddValidMoodEntry() {
@@ -94,51 +89,39 @@ public class AddMoodFragmentTest {
 
         // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
-        // Small delay to let the navigation complete
     }
 
-//    @Test
-//    public void addMoodShouldShowErrorForEmptyReason() {
-//        // Open AddMoodFragment
-//        onView(withId(R.id.ivAddMood)).perform(click());
-//
-//        // Ensure the Add Mood UI is visible
-//        onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
-//
-//        // Do not enter any text into the Reason field.
-//        // Select mood and social situation so that only the reason is missing.
-//        onView(withId(R.id.rbSad)).perform(click());
-//        onView(withId(R.id.rbGroup)).perform(click());
-//
-//        // Toggle off location to bypass the location validation.
-//        onView(withId(R.id.btnAttachLocation)).perform(click());
-//
-//        // Attempt to save the mood entry.
-//        onView(withId(R.id.btnSaveEntry)).perform(click());
-//
-//    }
 
-//    @After
-//    public void tearDown() {
-//        String projectId = "moodify301";
-//        URL url = null;
-//        try {
-//            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
-//        } catch (MalformedURLException exception) {
-//            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
-//        }
-//        HttpURLConnection urlConnection = null;
-//        try {
-//            urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestMethod("DELETE");
-//            int response = urlConnection.getResponseCode();
-//            Log.i("Response Code", "Response Code: " + response);
-//        } catch (IOException exception) {
-//            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
-//        } finally {
-//            if (urlConnection != null) {
-//                urlConnection.disconnect();
-//            }
-//        }
-//    }
+    @After
+    public void tearDown() {
+        // Run after each test method:
+        // Delete the test mood from both the global moods collection and the user's moodHistory subcollection.
+        deleteTestMoodIfExists("EHxg6TEtQFWHaqbnkt5H", "Feeling great!");
+    }
+
+    private void deleteTestMoodIfExists(String userId, String moodDescription) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Query the global "moods" collection for the test mood using moodDescription and userId
+        db.collection("moods")
+                .whereEqualTo("moodDescription", moodDescription)
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (var doc : queryDocumentSnapshots.getDocuments()) {
+                        String moodId = doc.getId();
+                        // Delete the mood document from the global "moods" collection
+                        db.collection("moods").document(moodId).delete()
+                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted test mood from moods collection: " + moodId))
+                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete test mood from moods collection: " + e.getMessage()));
+
+                        // Now delete the mood reference from the user's "moodHistory" subcollection
+                        db.collection("users").document(userId)
+                                .update("moodHistory", FieldValue.arrayRemove(moodId))
+                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted mood reference from user's moodHistory: " + moodId))
+                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete mood reference: " + e.getMessage()));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Teardown", "Failed to query test mood: " + e.getMessage()));
+    }
+
 }
