@@ -6,12 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +50,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private Timestamp fromTimestamp, toTimestamp;
     private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbAll;
     private EditText filterDescription;
-
     private List<String> checkedEmotions;
     private String filterDescriptionText;
 
@@ -122,14 +117,12 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             updateDateText(tvFromDate, fromTimestamp);
         } else {
             updateDateText(tvFromDate, initTimestamp);
-            Log.d("FirestoreFail", "This is fromTimestamp Null so set to current time:");
         }
 
         if (toTimestamp != null) {
             updateDateText(tvToDate, toTimestamp);
         } else {
             updateDateText(tvToDate, initTimestamp);
-            Log.d("FirestoreFail", "This is toTimestamp Null so set to current time:");
         }
 
         // Set click listeners on the CardViews for picking the dates.
@@ -139,24 +132,35 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         // set the filter current EditText to be the text.
         filterDescription.setText(filterDescriptionText);
 
-        // Apply filters
         applyFilterButton.setOnClickListener(v -> {
             // Button clicked use the callback.
             retrieveUser(currentUserId, callback);
             dismiss();
         });
 
-        // Reset button
         resetFilterButton.setOnClickListener(v -> {
+            // Resets all the fields and then calls retrieveUser and re-queries again.
             resetAll();
+            retrieveUser(currentUserId, callback);
+            dismiss();
         });
-
         return filterView;
     }
 
+    /**
+     * Function connected to the resetButton to reset all of the fields.
+     */
     public void resetAll() {
-        EditText filterDescription = filterView.findViewById(R.id.reasonDescription);
+        // resetting all the fields, and then recalling
+
         filterDescription.setText("");
+        toTimestamp = null;
+        fromTimestamp = null;
+        cbHappy.setChecked(false);
+        cbSad.setChecked(false);
+        cbAngry.setChecked(false);
+        cbChill.setChecked(false);
+        cbAll.setChecked(true);
     }
 
     /**
@@ -252,7 +256,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
                     // Call the filtering reason for the description.
                     filteredMoods = filterReason(filteredMoods, searchDescription);
-
                 }
             }
             if (callback != null) {
@@ -274,6 +277,13 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         textView.setText(sdf.format(timestamp.toDate()));
     }
 
+    /**
+     * Takes in a textView and timestamp, converts timestamp to sdf format and into textView for displaying inside of fragment.
+     *
+     * @param textView the textview (which should hold the time)
+     * @param isFromDate a boolean value which indicates if it is we are picking the too value or the from value.
+     *
+     */
     private void openDatePicker(TextView textView, boolean isFromDate) {
         Calendar calendar = Calendar.getInstance();
 
@@ -314,6 +324,13 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         datePickerDialog.show();
     }
 
+    /**
+     * filterReason is a function that takes in An arraylist of moods and then the keyword we want to filter for,
+     *
+     * @param moods an array of mood objects that need to be filtered by description.
+     * @param keyword the value that we need to filter by.
+     * @return the filtered moods array.
+     */
     private ArrayList<Mood> filterReason(ArrayList<Mood> moods, String keyword) {
         // Filtering the reason, need to work directly with the current filteredMoods and return moods that match the query.
 
@@ -330,7 +347,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         }
         return filteredList;
     }
-
 
 }
 

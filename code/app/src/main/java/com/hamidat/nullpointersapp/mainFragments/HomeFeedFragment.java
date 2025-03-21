@@ -28,7 +28,6 @@ import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
-import com.hamidat.nullpointersapp.models.moodHistory;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -148,7 +147,6 @@ public class HomeFeedFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
-                    @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
                     if (followingIds == null) {
