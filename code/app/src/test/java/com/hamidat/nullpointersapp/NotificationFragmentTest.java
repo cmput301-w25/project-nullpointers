@@ -1,7 +1,6 @@
 package com.hamidat.nullpointersapp;
 
 import static org.junit.Assert.*;
-import com.hamidat.nullpointersapp.utils.testUtils.TestHelper;
 
 import org.junit.Test;
 

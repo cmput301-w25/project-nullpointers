@@ -1,6 +1,6 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
-import com.hamidat.nullpointersapp.utils.testUtils.TestHelper;
+import com.hamidat.nullpointersapp.TestHelper;
 
 import org.junit.Before;
 import org.junit.Test;

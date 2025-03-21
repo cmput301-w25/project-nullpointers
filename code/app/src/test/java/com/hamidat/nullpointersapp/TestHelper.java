@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp.utils.testUtils;
+package com.hamidat.nullpointersapp;
 
 import android.util.Base64;
 

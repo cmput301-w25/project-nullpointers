@@ -1,7 +1,6 @@
 package com.hamidat.nullpointersapp;
 
 import static org.junit.Assert.*;
-import static com.hamidat.nullpointersapp.utils.testUtils.TestHelper.*;
 
 import com.hamidat.nullpointersapp.mainFragments.EditMoodFragment;
 import com.hamidat.nullpointersapp.models.Mood;
@@ -42,8 +41,9 @@ public class EditMoodFragmentTest {
         double newLongitude = 40.0;
         String newImageBase64 = "dummyImageData";
 
-        updateMoodObject(testMood, newDescription, newMoodType, newSocialSituation,
+        TestHelper.updateMoodObject(testMood, newDescription, newMoodType, newSocialSituation,
                 newLatitude, newLongitude, newImageBase64);
+
 
         // Verify updates
         assertEquals("Updated Description", testMood.getMoodDescription());

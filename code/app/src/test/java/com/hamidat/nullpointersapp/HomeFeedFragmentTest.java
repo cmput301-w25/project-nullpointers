@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import com.google.firebase.Timestamp;
 import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.testUtils.TestHelper;
 
 import org.junit.Before;
 import org.junit.Test;

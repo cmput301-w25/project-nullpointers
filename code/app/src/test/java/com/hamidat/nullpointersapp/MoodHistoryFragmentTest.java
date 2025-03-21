@@ -3,7 +3,6 @@ package com.hamidat.nullpointersapp;
 import static org.junit.Assert.*;
 
 import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.testUtils.TestHelper;
 
 import org.junit.Test;
 import java.util.ArrayList;
