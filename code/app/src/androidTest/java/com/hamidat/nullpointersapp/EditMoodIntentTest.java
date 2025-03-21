@@ -25,7 +25,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +32,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class EditMoodUITest {
+public class EditMoodIntentTest {
 
     // Automatically grant runtime permissions so that system dialogs don't interrupt Espresso.
     @Rule
@@ -55,13 +54,13 @@ public class EditMoodUITest {
 
     @Test
     public void editMoodShouldUpdateMoodEntry() {
-        // Add a mood first so I can actually edit it
-        // 1. Add a mood
+        // Add a mood first
+
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());
         // Verify the Add Mood UI is displayed (checking the title)
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
-        // Enter a reason for the mood
+        // Fill out the params for
         onView(withId(R.id.Reason))
                 .perform(typeText("I'm feeling pretty good!"), closeSoftKeyboard());
         // Select sad as the original mood
@@ -73,17 +72,12 @@ public class EditMoodUITest {
         onView(withId(R.id.btnSaveEntry)).perform(click());
         Log.d("EditMoodTest", "ADD MOOD TEST: Clicked save, waiting for mood list...");
 
-
+        // Please do not remove the the sleeps here, they are imperative
         // after this the UI goes back to the homefeed fragment
-        // need to click the edit button on the specifc mood card
-        SystemClock.sleep(3000);
-
-
-        // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
+        SystemClock.sleep(2000);
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
         // Small delay to let the navigation complete
         SystemClock.sleep(2000);
-
 
         // Click the Edit button on the first item in the RecyclerView (newest mood)
         Log.d("EditMoodTest", "The rvMoodList is now displayed");
@@ -98,46 +92,32 @@ public class EditMoodUITest {
         // Edit the reason text
         onView(withId(R.id.Reason))
                 .perform(replaceText("Actually, I'm feeling awesome today!"), closeSoftKeyboard());
-
-        // Change the mood from Sad to Happy
-        onView(withId(R.id.rbHappy)).perform(click());
-
-        // Change the social situation from Alone to Group
-        onView(withId(R.id.rbGroup)).perform(click());
-
-        // Detach location just to test toggle
-        onView(withId(R.id.btnAttachLocation)).perform(click());
+        onView(withId(R.id.rbHappy)).perform(click()); // change the mood to happy
+        onView(withId(R.id.rbGroup)).perform(click()); // Change the social situation from Alone to Group
+        onView(withId(R.id.btnAttachLocation)).perform(click()); // detach the location
 
         // Save edited mood
         onView(withId(R.id.btnSaveEntry)).perform(click());
-
         Log.d("EditMoodTest", "Clicked save on edited mood");
 
         // Wait for HomeFeedFragment to load
-        SystemClock.sleep(4000);
-
+        SystemClock.sleep(3000);
         // Ensure the home feed is visible again
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
 
-        // Click the most recent mood entry to view details
+        // Click the most recent mood entry to view details (the one that was just edited)
         onView(withId(R.id.rvMoodList))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0,
                         ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
 
         // Small wait to let EditMoodFragment load
-        SystemClock.sleep(2000);
+        SystemClock.sleep(1000);
 
-        // Verify that the reason field has the updated text
+        // Verify that the edited changes persisted,so the edits rem
         onView(withId(R.id.Reason))
                 .check(matches(withText("Actually, I'm feeling awesome today!")));
-
-        // Verify the correct mood radio button is selected (Happy)
         onView(withId(R.id.rbHappy)).check(matches(ViewMatchers.isChecked()));
-
-        // Verify the correct social situation is selected (Group)
         onView(withId(R.id.rbGroup)).check(matches(ViewMatchers.isChecked()));
-        // Save the not edited mood (just to double check)
-        onView(withId(R.id.btnSaveEntry)).perform(click());
 
         Log.d("EditMoodTest", "Verified that the edited data is correctly populated in the EditMoodFragment");
     }
