@@ -11,6 +11,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -30,11 +31,6 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 @RunWith(AndroidJUnit4.class)
 public class EditMoodUITest {
 
-    @BeforeClass
-    public static void setupFirestoreEmulator() {
-        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-    }
-
     // Automatically grant runtime permissions so that system dialogs don't interrupt Espresso.
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
@@ -48,7 +44,10 @@ public class EditMoodUITest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                    .putExtra("USER_ID", "testUser"));
+                    .setAction(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_LAUNCHER)
+                    .putExtra("USER_ID", "EHxg6TEtQFWHaqbnkt5H"));
+
 
     @Test
     public void editMoodShouldUpdateMoodEntry() {
@@ -68,19 +67,30 @@ public class EditMoodUITest {
         onView(withId(R.id.btnAttachLocation)).perform(click());
         // Click on the Save button
         onView(withId(R.id.btnSaveEntry)).perform(click());
+        Log.d("EditMoodTest", "ADD MOOD TEST: Clicked save, waiting for mood list...");
+
 
         // after this the UI goes back to the homefeed fragment
         // need to click the edit button on the specifc mood card
+        SystemClock.sleep(3000);
+
 
         // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
+        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
+        // Small delay to let the navigation complete
         SystemClock.sleep(2000);
 
 
         // Click the Edit button on the first item in the RecyclerView (newest mood)
+        Log.d("EditMoodTest", "The rvMoodList is now displayed");
+        SystemClock.sleep(4000);
 
         onView(withId(R.id.rvMoodList))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0,
                         ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
+        Log.d("EditMoodTest", "Clicked the edit button on the new mood we just added");
+
+        // Now, actuall
     }
 
 }

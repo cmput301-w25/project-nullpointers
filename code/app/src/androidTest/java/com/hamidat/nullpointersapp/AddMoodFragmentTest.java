@@ -2,6 +2,7 @@ package com.hamidat.nullpointersapp;
 
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -86,6 +87,14 @@ public class AddMoodFragmentTest {
         // Click on the Save button
         onView(withId(R.id.btnSaveEntry)).perform(click());
 
+
+        // after this the UI goes back to the homefeed fragment
+        // need to click the edit button on the specifc mood card
+        SystemClock.sleep(3000);
+
+        // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
+        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
+        // Small delay to let the navigation complete
     }
 
 //    @Test
