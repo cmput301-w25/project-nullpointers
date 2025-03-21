@@ -39,9 +39,9 @@ dependencies {
     // App dependencies
     implementation("org.greenrobot:eventbus:3.3.1")
     implementation("com.google.android.material:material:1.9.0")
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-maps:19.1.0")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("com.google.firebase:firebase-auth:23.2.0")
@@ -56,7 +56,6 @@ dependencies {
     implementation("com.github.yalantis:ucrop:2.2.6")
 
     // Test dependencies
-    testImplementation("junit:junit:4.13.2")
     testImplementation(libs.junit.jupiter)
     testImplementation("org.mockito:mockito-core:4.11.0")
     testImplementation("org.mockito:mockito-inline:4.11.0")
@@ -74,21 +73,8 @@ dependencies {
     androidTestImplementation("org.mockito:mockito-android:4.11.0")
 
     // Debug dependencies
-    debugImplementation("androidx.fragment:fragment-testing:1.5.5")
-    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation("com.google.firebase:firebase-firestore:25.1.2")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    debugImplementation("androidx.fragment:fragment-testing:1.8.6")
+    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("androidx.test:core:1.5.0")
-        force("androidx.test:runner:1.5.2")
-        force("androidx.test:rules:1.5.0")
-        force("androidx.test:monitor:1.6.0")
-        force("androidx.test.ext:junit:1.1.5")
-        force("androidx.test.espresso:espresso-core:3.5.1")
-        force("androidx.test.espresso:espresso-intents:3.5.1")
-    }
-}
+
