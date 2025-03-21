@@ -37,7 +37,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
-@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AddMoodFragmentTest {
 
