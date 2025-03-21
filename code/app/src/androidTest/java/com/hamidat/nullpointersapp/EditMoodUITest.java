@@ -1,7 +1,6 @@
 package com.hamidat.nullpointersapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
@@ -11,7 +10,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
-import android.os.Bundle;
+import android.os.SystemClock;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -20,16 +19,12 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.hamidat.nullpointersapp.mainFragments.EditMoodFragment;
-import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -65,106 +60,27 @@ public class EditMoodUITest {
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
         // Enter a reason for the mood
         onView(withId(R.id.Reason))
-                .perform(typeText("Feeling great!"), closeSoftKeyboard());
-        // Select a mood (e.g., Happy)
-        onView(withId(R.id.rbHappy)).perform(click());
-        // Select a social situation (e.g., One-on-One)
-        onView(withId(R.id.rbOneOnOne)).perform(click());
-        // Toggle off location to avoid validation issues (default is attached)
+                .perform(typeText("I'm feeling pretty good!"), closeSoftKeyboard());
+        // Select sad as the original mood
+        onView(withId(R.id.rbSad)).perform(click());
+        // Select a social situation (alone)
+        onView(withId(R.id.rbAlone)).perform(click());
         onView(withId(R.id.btnAttachLocation)).perform(click());
         // Click on the Save button
         onView(withId(R.id.btnSaveEntry)).perform(click());
 
-        // Launch the EditMoodFragment with a dummy mood object.
-        activityRule.getScenario().onActivity(activity -> {
-            // Create a dummy mood object.
-            Mood dummyMood = new Mood();
-            dummyMood.setMoodId("dummy_id");
-            dummyMood.setMoodDescription("Original reason");
-            dummyMood.setMood("Sad");
-            dummyMood.setSocialSituation("Alone");
-            dummyMood.setLatitude(12.34);
-            dummyMood.setLongitude(56.78);
-            dummyMood.setImageBase64(""); // no image
+        // after this the UI goes back to the homefeed fragment
+        // need to click the edit button on the specifc mood card
 
-            // Prepare arguments.
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("mood", dummyMood);
+        // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
+        SystemClock.sleep(2000);
 
-            // Create the EditMoodFragment and set its arguments.
-            EditMoodFragment fragment = new EditMoodFragment();
-            fragment.setArguments(bundle);
 
-            // Replace the fragment container (using the nav_host_fragment from MainActivity)
-            activity.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment, fragment, "EditMoodFragment")
-                    .commitNow();
-        });
+        // Click the Edit button on the first item in the RecyclerView (newest mood)
 
-        // Verify that the original reason text is present.
-        onView(withId(R.id.Reason)).check(matches(withText("Original reason")));
-
-        // Change the text in the reason field.
-        onView(withId(R.id.Reason))
-                .perform(clearText(), typeText("Updated reason"), closeSoftKeyboard());
-
-        // Change mood selection from "Sad" to "Happy"
-        // (Assuming the radio button for Happy has id rbHappy)
-        onView(withId(R.id.rbHappy)).perform(click());
-
-        // Change social situation from "Alone" to "One on One"
-        // (Assuming the radio button for One on One has id rbOneOnOne)
-        onView(withId(R.id.rbOneOnOne)).perform(click());
-
-        // Toggle off location attachment (if required).
-        onView(withId(R.id.btnAttachLocation)).perform(click());
-
-        // Click on the Save button.
-        onView(withId(R.id.btnSaveEntry)).perform(click());
+        onView(withId(R.id.rvMoodList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0,
+                        ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
     }
 
-    /**
-     * A fake FirestoreHelper that simulates a successful update immediately.
-     */
-    public static class FakeFirestoreHelper extends FirestoreHelper {
-        @Override
-        public void updateMood(Mood mood, FirestoreHelper.FirestoreCallback callback) {
-            // Immediately simulate a successful update.
-            callback.onSuccess(null);
-        }
-    }
-
-    /**
-     * A TestMainActivity that extends your MainActivity.
-     * It overrides getFirestoreHelper() to return our fake helper.
-     */
-    public static class TestMainActivity extends MainActivity {
-        @Override
-        public FirestoreHelper getFirestoreHelper() {
-            return new FakeFirestoreHelper();
-        }
-    }
-
-    /**
-     * A custom matcher to verify Toast messages.
-     */
-    public static class ToastMatcher extends TypeSafeMatcher<android.view.View> {
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("is toast");
-        }
-
-        @Override
-        public boolean matchesSafely(android.view.View view) {
-            if (view.getWindowToken() == null) {
-                return false;
-            }
-            int type = view.getLayoutParams().getClass().getSimpleName().equals("WindowManager$LayoutParams")
-                    ? ((android.view.WindowManager.LayoutParams) view.getLayoutParams()).type : -1;
-            // Check if the window type is TOAST
-            return type == android.view.WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG
-                    || type == android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
-        }
-    }
 }
