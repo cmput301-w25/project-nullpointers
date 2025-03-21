@@ -281,7 +281,7 @@
                     android:id="@+id/textView11"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reason Contains:"
+                    android:text="Filter reason: (max 200 chars)"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -290,6 +290,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="Please enter your text input here..."
+                    android:maxLength="200"
                     android:minHeight="48dp"
                     android:background="@null" />
 

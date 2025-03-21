@@ -30,6 +30,7 @@ import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 import com.hamidat.nullpointersapp.models.moodHistory;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,13 @@ public class HomeFeedFragment extends Fragment {
     private ArrayList<Mood> allMoods = new ArrayList<>();
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
+
+    // Adding all the storage for HomeFilterHistoryFragment for data persistence
+    private Timestamp savedFromTimestamp = null;
+    private Timestamp savedToTimestamp = null;
+    private String savedDescription = "";
+    private List<String> savedCheckedEmotions = new ArrayList<>();
+
 
     @Nullable
     @Override
@@ -108,9 +116,9 @@ public class HomeFeedFragment extends Fragment {
 
         // buttonFollowing is the button which displays the HomeFilterHistoryFragment for filtering moods in HomeFeed.
         buttonFollowing.setOnClickListener(v -> {
-            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, new HomeFilterHistoryFragment.MoodFilterCallback() {
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, savedToTimestamp, savedFromTimestamp, savedDescription, savedCheckedEmotions, new HomeFilterHistoryFragment.MoodFilterCallback() {
                 @Override
-                public void onMoodFilterApplied(List<Mood> filteredMoods) {
+                public void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions) {
                     allMoods.clear();
                     allMoods.addAll(filteredMoods);
 
@@ -121,6 +129,11 @@ public class HomeFeedFragment extends Fragment {
                     });
                     // Notifying moodAdapter of data change.
                     moodAdapter.notifyDataSetChanged();
+
+                    savedToTimestamp = savingTo;
+                    savedFromTimestamp = savingFrom;
+                    savedDescription = savingDescription;
+                    savedCheckedEmotions = savingEmotions;
                 }
             });
             filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");

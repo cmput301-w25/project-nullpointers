@@ -55,15 +55,25 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbAll;
     private EditText filterDescription;
 
+    private List<String> checkedEmotions;
+    private String filterDescriptionText;
 
-    public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, MoodFilterCallback moodCallback) {
+
+    public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp, String savedFilterDescription, List<String> savedCheckedEmotions, MoodFilterCallback moodCallback) {
         currentUserId = UserID;
         firestoreHelper = firestoreHelperInstance;
+
+        // Retrieving all the saved filer values.
+        toTimestamp = savedToTimestamp;
+        fromTimestamp = savedFromTimestamp;
+        filterDescriptionText = savedFilterDescription;
+        checkedEmotions = savedCheckedEmotions;
+
         callback = moodCallback;
     }
 
     public interface MoodFilterCallback {
-        void onMoodFilterApplied(List<Mood> filteredMoods);
+        void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions);
     }
 
     @Override
@@ -74,7 +84,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         firestore = FirebaseFirestore.getInstance();
 
         cbAll = filterView.findViewById(R.id.checkboxAll);
-        cbAll.setChecked(true);
         cbHappy = filterView.findViewById(R.id.checkboxHappy);
         cbSad = filterView.findViewById(R.id.checkboxSad);
         cbAngry = filterView.findViewById(R.id.checkboxAngry);
@@ -94,19 +103,41 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         MaterialButton applyFilterButton = filterView.findViewById(R.id.buttonApplyFilter);
         MaterialButton resetFilterButton = filterView.findViewById(R.id.buttonResetFilter);
 
+        // Setting the checked emotions from the saved
+        if (checkedEmotions != null) {
+            cbHappy.setChecked(checkedEmotions.contains("Happy"));
+            cbSad.setChecked(checkedEmotions.contains("Sad"));
+            cbAngry.setChecked(checkedEmotions.contains("Angry"));
+            cbChill.setChecked(checkedEmotions.contains("Chill"));
+        } else {
+            // If null then none are selected.
+            cbAll.setChecked(true);
+        }
+
+        // displaying to the text views in simple date format. initialize to current date if fromTimestamp or toTimestamp is null.
         Calendar calendar = Calendar.getInstance();
+        Timestamp initTimestamp = new Timestamp(calendar.getTime());
 
-        // initialize the timestamp to be current.
-        fromTimestamp = new Timestamp(calendar.getTime());
-        toTimestamp = new Timestamp(calendar.getTime());
+        if (fromTimestamp != null) {
+            updateDateText(tvFromDate, fromTimestamp);
+        } else {
+            updateDateText(tvFromDate, initTimestamp);
+            Log.d("FirestoreFail", "This is fromTimestamp Null so set to current time:");
+        }
 
-        // displaying to the text views in simple date format.
-        updateDateText(tvFromDate, fromTimestamp);
-        updateDateText(tvToDate, toTimestamp);
+        if (toTimestamp != null) {
+            updateDateText(tvToDate, toTimestamp);
+        } else {
+            updateDateText(tvToDate, initTimestamp);
+            Log.d("FirestoreFail", "This is toTimestamp Null so set to current time:");
+        }
 
         // Set click listeners on the CardViews for picking the dates.
         cardFromDate.setOnClickListener(v -> openDatePicker(tvFromDate, true));
         cardToDate.setOnClickListener(v -> openDatePicker(tvToDate, false));
+
+        // set the filter current EditText to be the text.
+        filterDescription.setText(filterDescriptionText);
 
         // Apply filters
         applyFilterButton.setOnClickListener(v -> {
@@ -204,8 +235,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             filterQuery = filterQuery
                     .whereGreaterThanOrEqualTo("timestamp", fromTimestamp)
                     .whereLessThanOrEqualTo("timestamp", toTimestamp);
-            Log.d("TimestampDebug", "From: " + fromTimestamp.toDate().toString());
-            Log.d("TimestampDebug", "To: " + toTimestamp.toDate().toString());
         }
 
         // Get all the checked emotions.if cbAll is checked is true then we don't need to run this query here.
@@ -221,14 +250,18 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                     Mood mood = doc.toObject(Mood.class);
                     filteredMoods.add(mood);
 
+                    // Call the filtering reason for the description.
+                    filteredMoods = filterReason(filteredMoods, searchDescription);
+
                 }
             }
             if (callback != null) {
-                callback.onMoodFilterApplied(filteredMoods);
+                callback.onMoodFilterApplied(filteredMoods, toTimestamp, fromTimestamp, searchDescription, selectedEmotions);
             }
         });
 
     }
+
     /**
      * Takes in a textView and timestamp, converts timestamp to sdf format and into textView for displaying inside of fragment.
      *
@@ -280,6 +313,24 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
         datePickerDialog.show();
     }
+
+    private ArrayList<Mood> filterReason(ArrayList<Mood> moods, String keyword) {
+        // Filtering the reason, need to work directly with the current filteredMoods and return moods that match the query.
+
+        if (keyword == null || keyword.trim().isEmpty()) return moods;
+
+        ArrayList<Mood> filteredList = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+
+        for (Mood mood : moods) {
+            String description = mood.getMoodDescription() != null ? mood.getMoodDescription().toLowerCase() : "";
+            if (description.contains(lowerKeyword)) {
+                filteredList.add(mood);
+            }
+        }
+        return filteredList;
+    }
+
 
 }
 
