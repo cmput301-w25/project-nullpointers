@@ -76,7 +76,12 @@
         android:name="com.hamidat.nullpointersapp.mainFragments.SettingsFragment"
         android:label="Settings">
 
+
+
     </fragment>
+    <action
+        android:id="@+id/action_global_editMoodFragment"
+        app:destination="@id/editMoodFragment" />
 
 
 </navigation>
