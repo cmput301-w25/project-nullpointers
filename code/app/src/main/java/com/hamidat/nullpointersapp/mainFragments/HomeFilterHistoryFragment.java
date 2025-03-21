@@ -1,6 +1,7 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +55,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private List<String> checkedEmotions;
     private String filterDescriptionText;
 
+    private Switch toggleSevenDays;
 
     public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp, String savedFilterDescription, List<String> savedCheckedEmotions, MoodFilterCallback moodCallback) {
         currentUserId = UserID;
@@ -93,6 +96,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
         // description for filtering text.
         filterDescription = filterView.findViewById(R.id.reasonDescription);
+        toggleSevenDays = filterView.findViewById(R.id.switchRecent7Days);
 
         // Buttons for applying/resetting
         MaterialButton applyFilterButton = filterView.findViewById(R.id.buttonApplyFilter);
@@ -125,6 +129,36 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             updateDateText(tvToDate, initTimestamp);
         }
 
+        // Toggle seven says selector automatically sets the date to days before and allow the queries.
+        toggleSevenDays.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Disable Date Pickers
+                cardFromDate.setEnabled(false);
+                cardToDate.setEnabled(false);
+                tvFromDate.setTextColor(Color.GRAY);
+                tvToDate.setTextColor(Color.GRAY);
+
+                // Automatically set "From" date to 7 days ago
+                Calendar sevenDays = Calendar.getInstance();
+                sevenDays.add(Calendar.DAY_OF_YEAR, -7);
+                fromTimestamp = new Timestamp(sevenDays.getTime());
+
+                Calendar today = Calendar.getInstance();
+                toTimestamp = new Timestamp(today.getTime());
+
+                // Update UI
+                updateDateText(tvFromDate, fromTimestamp);
+                updateDateText(tvToDate, toTimestamp);
+
+            } else {
+                // Re-enable Date Pickers
+                cardFromDate.setEnabled(true);
+                cardToDate.setEnabled(true);
+                tvFromDate.setTextColor(Color.BLACK);
+                tvToDate.setTextColor(Color.BLACK);
+            }
+        });
+
         // Set click listeners on the CardViews for picking the dates.
         cardFromDate.setOnClickListener(v -> openDatePicker(tvFromDate, true));
         cardToDate.setOnClickListener(v -> openDatePicker(tvToDate, false));
@@ -152,7 +186,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
      */
     public void resetAll() {
         // resetting all the fields, and then recalling
-
         filterDescription.setText("");
         toTimestamp = null;
         fromTimestamp = null;
@@ -300,6 +333,9 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                     Timestamp todayTimestamp = new Timestamp(today.getTime());
 
                     if (isFromDate) {
+                        if (selectedTimestamp.compareTo(todayTimestamp) > 0) {
+                            Toast.makeText(getContext(), "End date cannot be in the future!", Toast.LENGTH_SHORT).show();
+                        }
                         fromTimestamp = selectedTimestamp;
                     } else {
                         // For toTimestamp ensure that it goes to end of the day.
