@@ -1,28 +1,19 @@
 package com.hamidat.nullpointersapp;
 
 import android.content.Intent;
-import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import androidx.test.espresso.Root;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -34,14 +25,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import androidx.test.rule.GrantPermissionRule;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
-
 @LargeTest
-public class AddMoodFragmentTest {
+public class AddMoodIntentTest {
 
     // default grant all permissions so the popups don't stop expresso from running
     @Rule
