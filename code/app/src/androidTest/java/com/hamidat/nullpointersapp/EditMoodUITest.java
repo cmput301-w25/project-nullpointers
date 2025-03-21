@@ -3,6 +3,7 @@ package com.hamidat.nullpointersapp;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -14,13 +15,16 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -90,7 +94,83 @@ public class EditMoodUITest {
                         ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
         Log.d("EditMoodTest", "Clicked the edit button on the new mood we just added");
 
-        // Now, actuall
+        // Now, actually edit the mood
+        // Edit the reason text
+        onView(withId(R.id.Reason))
+                .perform(replaceText("Actually, I'm feeling awesome today!"), closeSoftKeyboard());
+
+        // Change the mood from Sad to Happy
+        onView(withId(R.id.rbHappy)).perform(click());
+
+        // Change the social situation from Alone to Group
+        onView(withId(R.id.rbGroup)).perform(click());
+
+        // Detach location just to test toggle
+        onView(withId(R.id.btnAttachLocation)).perform(click());
+
+        // Save edited mood
+        onView(withId(R.id.btnSaveEntry)).perform(click());
+
+        Log.d("EditMoodTest", "Clicked save on edited mood");
+
+        // Wait for HomeFeedFragment to load
+        SystemClock.sleep(4000);
+
+        // Ensure the home feed is visible again
+        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
+
+        // Click the most recent mood entry to view details
+        onView(withId(R.id.rvMoodList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0,
+                        ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
+
+        // Small wait to let EditMoodFragment load
+        SystemClock.sleep(2000);
+
+        // Verify that the reason field has the updated text
+        onView(withId(R.id.Reason))
+                .check(matches(withText("Actually, I'm feeling awesome today!")));
+
+        // Verify the correct mood radio button is selected (Happy)
+        onView(withId(R.id.rbHappy)).check(matches(ViewMatchers.isChecked()));
+
+        // Verify the correct social situation is selected (Group)
+        onView(withId(R.id.rbGroup)).check(matches(ViewMatchers.isChecked()));
+        // Save the not edited mood (just to double check)
+        onView(withId(R.id.btnSaveEntry)).perform(click());
+
+        Log.d("EditMoodTest", "Verified that the edited data is correctly populated in the EditMoodFragment");
     }
 
+    @After
+    public void tearDown() {
+        // Run after each test method:
+        // Delete the test mood from both the global moods collection and the user's moodHistory subcollection.
+        deleteTestMoodIfExists("EHxg6TEtQFWHaqbnkt5H", "Actually, I'm feeling awesome today!");
+    }
+
+    private void deleteTestMoodIfExists(String userId, String moodDescription) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Query the global "moods" collection for the test mood using moodDescription and userId
+        db.collection("moods")
+                .whereEqualTo("moodDescription", moodDescription)
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (var doc : queryDocumentSnapshots.getDocuments()) {
+                        String moodId = doc.getId();
+                        // Delete the mood document from the global "moods" collection
+                        db.collection("moods").document(moodId).delete()
+                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted test mood from moods collection: " + moodId))
+                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete test mood from moods collection: " + e.getMessage()));
+
+                        // Now delete the mood reference from the user's "moodHistory" subcollection
+                        db.collection("users").document(userId)
+                                .update("moodHistory", FieldValue.arrayRemove(moodId))
+                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted mood reference from user's moodHistory: " + moodId))
+                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete mood reference: " + e.getMessage()));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Teardown", "Failed to query test mood: " + e.getMessage()));
+    }
 }
