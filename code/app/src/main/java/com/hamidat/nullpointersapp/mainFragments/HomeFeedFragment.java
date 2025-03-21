@@ -106,11 +106,26 @@ public class HomeFeedFragment extends Fragment {
             public void onChildViewDetachedFromWindow(@NonNull View view) { }
         });
 
-        // buttonFollowing is for filtering the moods
+        // buttonFollowing is the button which displays the HomeFilterHistoryFragment for filtering moods in HomeFeed.
         buttonFollowing.setOnClickListener(v -> {
-            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper);
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, new HomeFilterHistoryFragment.MoodFilterCallback() {
+                @Override
+                public void onMoodFilterApplied(List<Mood> filteredMoods) {
+                    allMoods.clear();
+                    allMoods.addAll(filteredMoods);
+
+                    // Sorting
+                    java.util.Collections.sort(allMoods, (m1, m2) -> {
+                        if (m1.getTimestamp() == null || m2.getTimestamp() == null) return 0;
+                        return m2.getTimestamp().compareTo(m1.getTimestamp());
+                    });
+                    // Notifying moodAdapter of data change.
+                    moodAdapter.notifyDataSetChanged();
+                }
+            });
             filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");
         });
+
     }
 
     private void fetchMoodData() {
@@ -170,9 +185,6 @@ public class HomeFeedFragment extends Fragment {
         });
     }
 
-    public void onMoodFilterApplied() {
-        // Function for applying
-    }
 
     /**
      * Opens a dialog for viewing and adding comments for the given mood event.
