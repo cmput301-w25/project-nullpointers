@@ -30,6 +30,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import androidx.test.rule.GrantPermissionRule;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -45,6 +46,15 @@ public class AddMoodFragmentTest {
     public static void setupFirestoreEmulator() {
         FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
     }
+
+    // default grant all permissions so the popups don't stop expresso from running
+    @Rule
+    public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
+            android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+    );
 
     // Launch MainActivity with a dummy user id so that AddMoodFragment can get a FirestoreHelper instance.
     @Rule
