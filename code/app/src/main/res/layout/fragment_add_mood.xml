@@ -2,20 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
-
-    <include
-        android:id="@+id/nav_bar"
-        layout="@layout/nav_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
 
     <ScrollView
         android:id="@+id/scrollContainer"
@@ -26,10 +17,10 @@
         android:paddingRight="8dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        app:layout_constraintTop_toBottomOf="@id/nav_bar"
         app:layout_constraintBottom_toTopOf="@+id/bottomButtons"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/ReasonWhy"
@@ -39,27 +30,29 @@
             android:background="@drawable/rounded_box"
             android:padding="16dp">
 
-            <LinearLayout
-                android:id="@+id/layoutTitleBar"
+            <TextView
+                android:id="@+id/tvAddNewMoodEvent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:text="@string/add_new_mood"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:background="@drawable/rounded_title"
                 android:gravity="center"
-                android:layout_marginBottom="10dp"
                 android:paddingVertical="10dp"
-                android:paddingHorizontal="16dp"
-                android:background="@drawable/rounded_title">
+                android:layout_marginBottom="16dp"/>
 
-                <TextView
-                    android:id="@+id/tvAddNewMoodEvent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_mood"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+            <Switch
+                android:id="@+id/switchPrivacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColor"
+                android:text="Private Mood"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,102 +60,66 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/rounded_bin"
-                android:paddingTop="12dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingBottom="2dp"
-                >
+                android:padding="12dp">
 
                 <TextView
-                    android:id="@+id/tvDateLabel"
+                    android:id="@+id/tvMoodLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date (picker)"
-                    android:textSize="12sp"
+                    android:text="@string/mood"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     android:textColor="@color/textColor"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="8dp" />
 
-                <TextView
-                    android:id="@+id/tvDateValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="February 8, 2025"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
-
-                <View
+                <RadioGroup
+                    android:id="@+id/rgMood"
                     android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:layout_marginTop="4dp"
-                    android:background="#86A658" />
-            </LinearLayout>
-
-
-
-<!--            &lt;!&ndash; Date Picker &ndash;&gt;-->
-<!--            <TextView-->
-<!--                android:id="@+id/tvDateLabel"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Date (picker)"-->
-<!--                android:textColor="#455234"-->
-<!--                android:textStyle="bold" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnPickDate"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="February 8, 2025"-->
-<!--                android:layout_marginTop="4dp"-->
-<!--                android:layout_marginBottom="16dp"-->
-<!--                android:backgroundTint="#dfead0"-->
-<!--                android:textColor="#455234" />-->
-
-
-<!--            &lt;!&ndash; Time Picker &ndash;&gt;-->
-<!--            <TextView-->
-<!--                android:id="@+id/tvTimeLabel"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Time (picker)"-->
-<!--                android:textColor="#455234"-->
-<!--                android:textStyle="bold" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnPickTime"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="1:00PM"-->
-<!--                android:layout_marginTop="4dp"-->
-<!--                android:layout_marginBottom="16dp"-->
-<!--                android:backgroundTint="#dfead0"-->
-<!--                android:textColor="#455234" />-->
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_bin"
-                android:padding="12dp"
-                >
-
-                <TextView
-                    android:id="@+id/tvTimeLabel"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time (picker)"
-                    android:textSize="12sp"
-                    android:textColor="@color/textColor"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp"
+                    android:weightSum="4">
 
-                <TextView
-                    android:id="@+id/tvTimeValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1:00PM"
-                    android:textSize="16sp"
-                    android:textColor="#455234"/>
+                    <RadioButton
+                        android:id="@+id/rbHappy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/happy"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbSad"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/sad"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbAngry"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/angry"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+
+                    <RadioButton
+                        android:id="@+id/rbChill"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/chill"
+                        android:textSize="10sp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center" />
+                </RadioGroup>
 
             </LinearLayout>
 
@@ -178,7 +135,7 @@
                     android:id="@+id/ReasonLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reason Why (max 20 chars / 3 words):"
+                    android:text="@string/reason_why"
                     android:textColor="@color/textColor"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -189,12 +146,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
-                    android:background="#ffffff"
                     android:hint="Please type your thoughts here..."
                     android:inputType="textMultiLine"
-                    android:backgroundTint="#d5e0cb"
-                    android:maxLength="20"
-                    android:maxLines="3"
+                    android:maxLength="200"
+                    android:maxLines="10"
                     android:padding="12dp" />
 
                 <Button
@@ -202,10 +157,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:backgroundTint="#AFBC9E"
+                    android:backgroundTint="@color/buttonColor"
                     android:padding="8dp"
-                    android:text="Attach Photo Instead ( &lt; 65536 bytes )"
+                    android:text="@string/attach_photo"
                     android:textColor="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/ivPhotoPreview"
+                    android:layout_width="300dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:layout_marginTop="10dp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -219,7 +184,7 @@
                     android:id="@+id/tvSocialSituation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Social Situation"
+                    android:text="@string/social_situation"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColor"
@@ -238,7 +203,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Alone"
+                        android:text="@string/alone"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -248,7 +213,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.1"
-                        android:text="One-On-One"
+                        android:text="@string/one_on_one"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -258,7 +223,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Group"
+                        android:text="@string/group"
                         android:textSize="10sp"
                         android:textColor="@color/textColor"
                         android:gravity="center" />
@@ -268,7 +233,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Crowd"
+                        android:text="@string/crowd"
                         android:textColor="@color/textColor"
                         android:textSize="10sp"
                         android:gravity="center" />
@@ -283,8 +248,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="10"
-                        android:text="Attach Location (Optional)"
-                        android:backgroundTint="#dfead0"
+                        android:text="@string/attach_location"
+                        android:backgroundTint="@color/buttonColor"
                         android:textColor="@color/textColor" />
 
                     <ImageView
@@ -294,22 +259,18 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:src="@drawable/ic_map"
-                        app:tint="#64a9e5" />
+                        app:tint="#64a9e5"/>
                 </LinearLayout>
 
             </LinearLayout>
 
-
-
         </LinearLayout>
     </ScrollView>
-
 
     <LinearLayout
         android:id="@+id/bottomButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center"
@@ -323,7 +284,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:text="SAVE ENTRY"
+            android:text="@string/save_entry"
             android:textAllCaps="true"
             android:textColor="@color/textColor"
             android:backgroundTint="@null"
@@ -337,7 +298,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:text="CANCEL"
+            android:text="@string/cancel"
             android:textAllCaps="true"
             android:textColor="@color/textColor"
             android:backgroundTint="@null"

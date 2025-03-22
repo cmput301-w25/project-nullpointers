@@ -1,92 +1,217 @@
 package com.hamidat.nullpointersapp;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.hamidat.nullpointersapp.mainFragments.MapFragment;
-import com.hamidat.nullpointersapp.mainFragments.ProfileFragment;
-import com.hamidat.nullpointersapp.mainFragments.SettingsFragment;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.firestoreMoodHistory;
 import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
 
-/**
- * The main activity that manages the primary navigation.
- */
+import java.util.ArrayList;
+import java.util.List;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
+
+
 public class MainActivity extends AppCompatActivity {
+    private String currentUserId;
+    private FirestoreHelper currentUserFirestoreInstance;
+    private NavController navController;
+    private FirestoreHelper firestoreHelper;
 
-    /**
-     * Called when the activity is created.
-     *
-     * @param savedInstanceState The previously saved state, if any.
-     */
-    FirebaseFirestore firestore;
+    // for in memory list of moods
+    private final List<Mood> moodCache = new ArrayList<>();
+
+    public List<Mood> getMoodCache() {
+        return moodCache;
+    }
+
+    // Add a helper to add a new mood to moodCache
+    public void addMoodToCache(Mood newMood) {
+        // insert at the start so newest appears first
+        moodCache.add(0, newMood);
+    }
+
+    private static final int PERMISSION_REQUEST_CODE = 101;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Contains the fragment_container
 
-        if (savedInstanceState == null) {
-            loadFragment(new ProfileFragment());
+
+
+
+
+        setContentView(R.layout.activity_main);
+
+
+        // Get the current user ID and FirestoreHelper instance.
+        currentUserId = getIntent().getStringExtra("USER_ID");
+        firestoreHelper = new FirestoreHelper();
+
+        // Set up the persistent listener for friend requests.
+        setupNotificationListener();
+
+
+        // Request POST_NOTIFICATIONS permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
+            }
+        }
+
+        // Request location permission.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
+        // Retrieve the passed user ID
+        currentUserId = getIntent().getStringExtra("USER_ID");
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "Error: No logged in user ID provided", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Create a single FirestoreHelper instance for the logged in user
+        currentUserFirestoreInstance = new FirestoreHelper();
+
+        // Initialize NavController
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        navController = navHostFragment.getNavController();
+
+        // If launched via notification, navigate directly to FollowingFragment.
+        // After initializing navController
+        if (getIntent() != null) {
+            if (getIntent().getBooleanExtra("open_notification", false)) {
+                navController.navigate(R.id.notificationFragment);
+            }
         }
 
 
-        //  Setting up firebase and all the moodHistory firebase functions
-        firestore = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        Log.d("CURRENT_USER", "User ID: " + currentUser.getUid());
 
-        firestoreMoodHistory firestoreHistory = new firestoreMoodHistory(firestore);
+        FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
+        notifier.startListeningIncomingRequests(this, currentUserId, currentUserFirestoreInstance);
+        notifier.startListeningAcceptedRequests(this, currentUserId);
 
         // Bind navigation icons
         final ImageView ivHome = findViewById(R.id.ivHome);
         final ImageView ivAddMood = findViewById(R.id.ivAddMood);
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
+        final ImageView ivSearch = findViewById(R.id.ivSearch);
+        final ImageView ivNotification = findViewById(R.id.ivNotification);
 
-        // Set click listeners with Toast feedback and load appropriate fragments
+
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new SettingsFragment()); // Placeholder fragment
+            navController.navigate(R.id.homeFeedFragment);
         });
 
         ivAddMood.setOnClickListener(view -> {
             Toast.makeText(this, "Add Mood Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());  // Placeholder fragment
+            navController.navigate(R.id.addNewMoodNavGraphFragment);
         });
 
         ivProfile.setOnClickListener(view -> {
             Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new ProfileFragment());
+            navController.navigate(R.id.profileNavGraphFragment);
         });
 
         ivMap.setOnClickListener(view -> {
             Toast.makeText(this, "Map Clicked", Toast.LENGTH_SHORT).show();
-            loadFragment(new MapFragment()); // Placeholder fragment
+            navController.navigate(R.id.mapFragment);
         });
 
+        ivSearch.setOnClickListener(v -> {
+            Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.searchFragment);
+        });
+
+        ivNotification.setOnClickListener(v -> {
+            Toast.makeText(this, "Notifications Clicked", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.notificationFragment);
+        });
+
+
     }
 
-    /**
-     * Loads a fragment into the fragment container.
-     *
-     * @param fragment The fragment to load.
-     */
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+    private void setupNotificationListener() {
+        firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                // When a friend request is received, update the icon to show the badge.
+                runOnUiThread(() -> updateNotificationIcon(true));
+            }
+            @Override
+            public void onFailure(Exception e) {
+                // Optionally, if there's an error (or if no friend request exists), hide the badge.
+                runOnUiThread(() -> updateNotificationIcon(false));
+            }
+        });
     }
+
+
+    public void updateNotificationIcon(boolean hasNotifications) {
+        ImageView ivNotification = findViewById(R.id.ivNotification);
+        if (ivNotification != null) {
+            if (hasNotifications) {
+                ivNotification.setImageResource(R.drawable.ic_notification_badge);
+            } else {
+                ivNotification.setImageResource(R.drawable.ic_notification);
+            }
+        }
+    }
+
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Notification permission is required for friend request alerts", Toast.LENGTH_LONG).show();
+            }
+        }
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Location permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Location permission is required for location-based features", Toast.LENGTH_LONG).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public FirestoreHelper getFirestoreHelper() {
+        return currentUserFirestoreInstance;
+    }
+
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+
 
 }

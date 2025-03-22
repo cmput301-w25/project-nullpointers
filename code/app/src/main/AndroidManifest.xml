@@ -16,7 +16,26 @@
         <!-- Add this metadata tag -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAEXM6z7pPz1urQwRZnCzhesevaK6bQCn0"/>
+            android:value="AIzaSyB20UWD5augVjyvAs2Q9olGBFvEpVunkX0"/>
+
+        <!-- Splash Screen Activity as the launcher -->
+        <activity
+            android:name=".mainFragments.SplashFragment"
+            android:exported="true"
+            android:theme="@style/Theme.NullPointersApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
+
 
         <activity
             android:name=".AuthActivity"
@@ -28,8 +47,14 @@
         </activity>
         <!-- Main Activity (After successful login) -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
+        <receiver android:name="com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestActionReceiver" />
+        <!-- test container for FragmentScenario -->
+        <activity
+            android:name="androidx.fragment.app.testing.EmptyFragmentActivity"
+            android:exported="true"/>
 
     </application>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />

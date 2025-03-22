@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Filter FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_filter"
         android:layout_width="wrap_content"
@@ -12,32 +13,25 @@
         android:src="@android:drawable/ic_menu_sort_by_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="16dp"/>
+        android:layout_margin="16dp"
+        app:tint="@color/textColor"
+        app:backgroundTint="@color/primaryColor"/>
 
+    <!-- Map Fragment -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/showNearbySwitch"/>
+        android:layout_height="match_parent"/>
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/showNearbySwitch"
+    <!-- Unified Filter Panel -->
+    <include
+        android:id="@+id/filter_panel_container"
+        layout="@layout/filter_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Nearby (5km)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_margin="16dp"/>
-
-    <include
-        android:id="@+id/emotion_list_container"
-        layout="@layout/emotion_list_container"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
