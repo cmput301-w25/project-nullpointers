@@ -41,7 +41,6 @@
         android:fillColor="#00000000"
         android:pathData="M27,14c3,-2 7,-2 10,0" />
 
-    <!-- Mouth (downward oval) -->
     <path
         android:fillColor="#000000"
         android:pathData="M24,36m-5,0a5,8 0,1 1,10 0a5,8 0,1 1,-10 0" />
