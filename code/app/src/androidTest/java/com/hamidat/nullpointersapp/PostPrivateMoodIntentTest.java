@@ -24,28 +24,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import androidx.test.rule.GrantPermissionRule;
+import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 @LargeTest
-public class PostPrivateMoodIntentTest {
+public class PostPrivateMoodIntentTest extends BaseUITest{
     /*
     TODO - Do we need to login as another user and check this? Or is being able to post a private mood enough
      */
-
-    // default grant all permissions so the popups don't stop expresso from running
-    @Rule
-    public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
-            android.Manifest.permission.POST_NOTIFICATIONS,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-    );
-
-    // Launch MainActivity with a dummy user id so that AddMoodFragment can get a FirestoreHelper instance.
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                    .putExtra("USER_ID", "EHxg6TEtQFWHaqbnkt5H")); // the user id for testUser
-
     @Test
     public void addPrivateMoodShouldAddValidMoodEntry() {
         // Click on the Add Mood icon to open AddMoodFragment
@@ -84,34 +69,9 @@ public class PostPrivateMoodIntentTest {
 
     @After
     public void tearDown() {
-        // Run after each test method:
-        // Delete the test mood from both the global moods collection and the user's moodHistory subcollection.
-        deleteTestMoodIfExists("EHxg6TEtQFWHaqbnkt5H", "Feeling great!");
+        TestMoodHelper.deleteMoodByDescription(
+                TEST_USER_ID,
+                "Feeling great!"
+        );
     }
-
-    private void deleteTestMoodIfExists(String userId, String moodDescription) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Query the global "moods" collection for the test mood using moodDescription and userId
-        db.collection("moods")
-                .whereEqualTo("moodDescription", moodDescription)
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (var doc : queryDocumentSnapshots.getDocuments()) {
-                        String moodId = doc.getId();
-                        // Delete the mood document from the global "moods" collection
-                        db.collection("moods").document(moodId).delete()
-                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted test mood from moods collection: " + moodId))
-                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete test mood from moods collection: " + e.getMessage()));
-
-                        // Now delete the mood reference from the user's "moodHistory" subcollection
-                        db.collection("users").document(userId)
-                                .update("moodHistory", FieldValue.arrayRemove(moodId))
-                                .addOnSuccessListener(aVoid -> Log.d("Teardown", "Deleted mood reference from user's moodHistory: " + moodId))
-                                .addOnFailureListener(e -> Log.e("Teardown", "Failed to delete mood reference: " + e.getMessage()));
-                    }
-                })
-                .addOnFailureListener(e -> Log.e("Teardown", "Failed to query test mood: " + e.getMessage()));
-    }
-
 }
