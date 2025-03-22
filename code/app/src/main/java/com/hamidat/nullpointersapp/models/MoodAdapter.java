@@ -74,6 +74,17 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
 
+        // Truncate the mood description to the first 20 characters and add an ellipsis if needed.
+        String fullDesc = currentMood.getMoodDescription();
+        String truncated = fullDesc.length() > 20
+                ? fullDesc.substring(0, 20) + "…"
+                : fullDesc;
+        holder.tvMoodDescription.setText(truncated);
+
+        // Set up the View More button click listener to display the full mood details.
+        holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
+
+
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
 
@@ -167,6 +178,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnEdit;
         Button btnComment;
         Button btnDelete;
+        Button btnViewMore;
+        public MoodViewHolder(@NonNull View itemView) {
+            super(itemView);
+            // … existing findViewById calls …
+            btnViewMore = itemView.findViewById(R.id.btnViewMore);
+        }
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
