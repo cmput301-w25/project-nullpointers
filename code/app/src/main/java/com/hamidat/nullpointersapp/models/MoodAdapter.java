@@ -76,21 +76,19 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
 
-        // Truncate the mood description to the first 20 characters and add an ellipsis if needed.
+        // Truncate the mood description to the first 15 characters and add an ellipsis if needed.
         String fullDesc = currentMood.getMoodDescription();
-        String truncated = fullDesc.length() > 20
-                ? fullDesc.substring(0, 20) + "…"
+        String truncated = fullDesc.length() > 15
+                ? fullDesc.substring(0, 15) + "…"
                 : fullDesc;
-        holder.tvMoodDescription.setText(truncated);
+        holder.tvMoodDescription.setText("Why: " + truncated);
 
-        // Set up the View More button click listener to display the full mood details.
         holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
 
 
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
 
-        // For owner moods, set up Edit/Delete actions.
         boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
         if (isOwnMood) {
             if (holder.btnEdit != null) {
@@ -158,10 +156,18 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
         Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
 
+
+        //this adds the little labels and formats neater
         tvMood.setText(mood.getMood());
-        tvDesc.setText(mood.getMoodDescription());
-        tvTime.setText(mood.getTimestamp().toDate().toString());
-        tvSocial.setText(mood.getSocialSituation());
+        tvDesc.setText("Why: " + mood.getMoodDescription());
+
+        Date date = mood.getTimestamp().toDate();
+        String formatted = new SimpleDateFormat("MMM dd hh:mm a", Locale.getDefault()).format(date);
+        tvTime.setText("Date: " + formatted);
+
+        tvSocial.setText("Situation: " + mood.getSocialSituation());
+
+
         if (mood.getImageBase64() != null) {
             byte[] data = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
             iv.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
@@ -242,17 +248,20 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
 
         void bind(Mood mood) {
-            tvSocialSituation.setText(mood.getSocialSituation());
-            tvMood.setText("Mood: " + mood.getMood());
-            tvMoodDescription.setText(mood.getMoodDescription());
+            tvMood.setText(mood.getMood());
+            tvMoodDescription.setText("Description: " + mood.getMoodDescription());
 
+            // NEW FORMAT -- date to only show month, day, and time (e.g. “Mar 22 09:00 AM”)
             Timestamp ts = mood.getTimestamp();
             if (ts != null) {
                 Date date = ts.toDate();
-                tvTimestamp.setText(new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(date));
+                String formatted = new SimpleDateFormat("MMM dd hh:mm a", Locale.getDefault()).format(date);
+                tvTimestamp.setText("Date: " + formatted);
             } else {
-                tvTimestamp.setText("No Timestamp");
+                tvTimestamp.setText("Date: N/A");
             }
+
+            tvSocialSituation.setText("Situation: " + mood.getSocialSituation());
 
             // Reset profile image to fallback first.
             ivProfile.setImageResource(R.drawable.default_user_icon);
