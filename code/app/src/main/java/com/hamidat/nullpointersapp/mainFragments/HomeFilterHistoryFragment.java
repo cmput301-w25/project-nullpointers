@@ -50,14 +50,16 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private CardView cardFromDate, cardToDate;
     private TextView tvFromDate, tvToDate;
     private Timestamp fromTimestamp, toTimestamp;
-    private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbAll;
+    private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbAll, cbConfused, cbDisgust, cbFear, cbShame, cbSuprised;
     private EditText filterDescription;
     private List<String> checkedEmotions;
     private String filterDescriptionText;
+    private Switch toggleSevenDays, toggleAscendingOrder;
 
-    private Switch toggleSevenDays;
+    private Boolean setToggleWeek, setOrder;
 
-    public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp, String savedFilterDescription, List<String> savedCheckedEmotions, MoodFilterCallback moodCallback) {
+    public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp,
+                                      String savedFilterDescription, List<String> savedCheckedEmotions, boolean savedToggleWeek, boolean savedToggleAscending, MoodFilterCallback moodCallback) {
         currentUserId = UserID;
         firestoreHelper = firestoreHelperInstance;
 
@@ -67,11 +69,16 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         filterDescriptionText = savedFilterDescription;
         checkedEmotions = savedCheckedEmotions;
 
+        setToggleWeek = savedToggleWeek;
+        setOrder = savedToggleAscending;
+
         callback = moodCallback;
     }
 
     public interface MoodFilterCallback {
-        void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions);
+        void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription,
+                                 List<String> savingEmotions, boolean setToggleWeek, boolean setOrder);
+        void onShowToast(String message);
     }
 
     @Override
@@ -87,6 +94,12 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         cbAngry = filterView.findViewById(R.id.checkboxAngry);
         cbChill = filterView.findViewById(R.id.checkboxChill);
 
+        cbConfused = filterView.findViewById(R.id.checkboxConfused);
+        cbShame = filterView.findViewById(R.id.checkboxShame);
+        cbFear = filterView.findViewById(R.id.checkboxFear);
+        cbDisgust = filterView.findViewById(R.id.checkboxDisgust);
+        cbSuprised = filterView.findViewById(R.id.checkboxSuprised);
+
         tvToDate = filterView.findViewById(R.id.textToDate);
         tvFromDate = filterView.findViewById(R.id.textFromDate);
 
@@ -97,6 +110,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         // description for filtering text.
         filterDescription = filterView.findViewById(R.id.reasonDescription);
         toggleSevenDays = filterView.findViewById(R.id.switchRecent7Days);
+        toggleAscendingOrder = filterView.findViewById(R.id.ascendingOrder);
 
         // Buttons for applying/resetting
         MaterialButton applyFilterButton = filterView.findViewById(R.id.buttonApplyFilter);
@@ -108,54 +122,39 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             cbSad.setChecked(checkedEmotions.contains("Sad"));
             cbAngry.setChecked(checkedEmotions.contains("Angry"));
             cbChill.setChecked(checkedEmotions.contains("Chill"));
+            cbConfused.setChecked(checkedEmotions.contains("Confused"));
+            cbShame.setChecked(checkedEmotions.contains("Shame"));
+            cbFear.setChecked(checkedEmotions.contains("Fear"));
+            cbDisgust.setChecked(checkedEmotions.contains("Disgust"));
+            cbSuprised.setChecked(checkedEmotions.contains("Suprised"));
+
         } else {
             // If null then none are selected.
             cbAll.setChecked(true);
         }
 
-        // displaying to the text views in simple date format. initialize to current date if fromTimestamp or toTimestamp is null.
-        Calendar calendar = Calendar.getInstance();
-        Timestamp initTimestamp = new Timestamp(calendar.getTime());
+        updateDateText(tvFromDate, fromTimestamp);
+        updateDateText(tvToDate, toTimestamp);
 
-        if (fromTimestamp != null) {
-            updateDateText(tvFromDate, fromTimestamp);
-        } else {
-            updateDateText(tvFromDate, initTimestamp);
+        toggleSevenDays.setChecked(setToggleWeek);
+        toggleAscendingOrder.setChecked(setOrder);
+
+        // If setToggle is true, then we are still having disabled calendar
+        if (setToggleWeek) {
+            applySevenDayToggleState(setToggleWeek);
         }
 
-        if (toTimestamp != null) {
-            updateDateText(tvToDate, toTimestamp);
-        } else {
-            updateDateText(tvToDate, initTimestamp);
-        }
 
         // Toggle seven says selector automatically sets the date to days before and allow the queries.
         toggleSevenDays.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                // Disable Date Pickers
-                cardFromDate.setEnabled(false);
-                cardToDate.setEnabled(false);
-                tvFromDate.setTextColor(Color.GRAY);
-                tvToDate.setTextColor(Color.GRAY);
+                setToggleWeek = true;
+                applySevenDayToggleState(setToggleWeek);
 
-                // Automatically set "From" date to 7 days ago
-                Calendar sevenDays = Calendar.getInstance();
-                sevenDays.add(Calendar.DAY_OF_YEAR, -7);
-                fromTimestamp = new Timestamp(sevenDays.getTime());
-
-                Calendar today = Calendar.getInstance();
-                toTimestamp = new Timestamp(today.getTime());
-
-                // Update UI
-                updateDateText(tvFromDate, fromTimestamp);
-                updateDateText(tvToDate, toTimestamp);
 
             } else {
-                // Re-enable Date Pickers
-                cardFromDate.setEnabled(true);
-                cardToDate.setEnabled(true);
-                tvFromDate.setTextColor(Color.BLACK);
-                tvToDate.setTextColor(Color.BLACK);
+                setToggleWeek = false;
+                applySevenDayToggleState(setToggleWeek);
             }
         });
 
@@ -186,13 +185,28 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
      */
     public void resetAll() {
         // resetting all the fields, and then recalling
+
         filterDescription.setText("");
         toTimestamp = null;
         fromTimestamp = null;
+        // ascending = false and recent week false
+        setToggleWeek = false;
+        setOrder = false;
+        toggleSevenDays.setChecked(false);
+        toggleAscendingOrder.setChecked(false);
+
+        // all emotional states removed
         cbHappy.setChecked(false);
         cbSad.setChecked(false);
         cbAngry.setChecked(false);
         cbChill.setChecked(false);
+        cbFear.setChecked(false);
+        cbDisgust.setChecked(false);
+        cbShame.setChecked(false);
+        cbSuprised.setChecked(false);
+        cbConfused.setChecked(false);
+
+        // default cbAll set.
         cbAll.setChecked(true);
     }
 
@@ -254,15 +268,21 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         if (cbAngry.isChecked()) selectedEmotions.add("Angry");
         if (cbChill.isChecked()) selectedEmotions.add("Chill");
 
+        if (cbFear.isChecked()) selectedEmotions.add("Fear");
+        if (cbDisgust.isChecked()) selectedEmotions.add("Disgust");
+        if (cbShame.isChecked()) selectedEmotions.add("Shame");
+        if (cbSuprised.isChecked()) selectedEmotions.add("Suprised");
+        if (cbConfused.isChecked()) selectedEmotions.add("Confused");
+
         // Getting the current description.
         EditText filterDescription = filterView.findViewById(R.id.reasonDescription);
         String searchDescription = filterDescription.getText().toString().trim();
 
-        // Retrieving the moods collection.
+        // Beginning to Construct the Query
+
         CollectionReference allMoods = firestore.collection("moods");
         Query filterQuery = allMoods;
 
-        // Getting all the moods of the followed users (base query containing everything)
         if (followingList != null && !followingList.isEmpty()) {
             filterQuery = filterQuery.whereIn("userId", followingList);
         }
@@ -272,11 +292,27 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             filterQuery = filterQuery
                     .whereGreaterThanOrEqualTo("timestamp", fromTimestamp)
                     .whereLessThanOrEqualTo("timestamp", toTimestamp);
+        } else if ((fromTimestamp == null) ^ (toTimestamp == null)) {
+            if (callback != null) {
+                callback.onShowToast("To filter by time, please have both date ranges selected!");
+            }
+
         }
 
-        // Get all the checked emotions.if cbAll is checked is true then we don't need to run this query here.
+
+        // Get all the checked emotions if cbAll is checked is true then we don't need to run this query here.
         if (!selectedEmotions.isEmpty() && !cbAll.isChecked()) {
             filterQuery = filterQuery.whereIn("mood", selectedEmotions);
+        }
+
+        // Running query for querying by ascending (will display oldest first)
+
+        if (toggleAscendingOrder.isChecked()) {
+            filterQuery = filterQuery.orderBy("timestamp", Query.Direction.ASCENDING);
+            setOrder = true;
+        } else {
+            filterQuery = filterQuery.orderBy("timestamp", Query.Direction.DESCENDING);
+            setOrder = false;
         }
 
         filterQuery.addSnapshotListener((querySnapshot, e) -> {
@@ -292,7 +328,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                 }
             }
             if (callback != null) {
-                callback.onMoodFilterApplied(filteredMoods, toTimestamp, fromTimestamp, searchDescription, selectedEmotions);
+                callback.onMoodFilterApplied(filteredMoods, toTimestamp, fromTimestamp, searchDescription, selectedEmotions, setToggleWeek, setOrder);
             }
         });
 
@@ -306,6 +342,11 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
      *
      */
     private void updateDateText(TextView textView, Timestamp timestamp) {
+        if (timestamp == null) {
+            textView.setText("Select Date");
+            return;
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
         textView.setText(sdf.format(timestamp.toDate()));
     }
@@ -335,6 +376,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                     if (isFromDate) {
                         if (selectedTimestamp.compareTo(todayTimestamp) > 0) {
                             Toast.makeText(getContext(), "End date cannot be in the future!", Toast.LENGTH_SHORT).show();
+                            return;
                         }
                         fromTimestamp = selectedTimestamp;
                     } else {
@@ -347,6 +389,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                         // Checking if toDate was set into future (not allowed)
                         if (selectedTimestamp.compareTo(todayTimestamp) > 0) {
                             Toast.makeText(getContext(), "End date cannot be in the future!", Toast.LENGTH_SHORT).show();
+                            return;
                         }
                         toTimestamp = new Timestamp(selectedCalendar.getTime());
                     }
@@ -383,6 +426,46 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         }
         return filteredList;
     }
+
+    /**
+     * applySevenDayToggleState is a function which checks if setToggleWeek is true, accordingly updates the
+     * usability of the calendar.
+     *
+     * @param isEnabled the boolean value to determine if calendar functionality should be set.
+     */
+
+    private void applySevenDayToggleState(boolean isEnabled) {
+        if (isEnabled) {
+            cardFromDate.setEnabled(false);
+            cardToDate.setEnabled(false);
+            tvFromDate.setTextColor(Color.GRAY);
+            tvToDate.setTextColor(Color.GRAY);
+
+            Calendar sevenDays = Calendar.getInstance();
+            sevenDays.add(Calendar.DAY_OF_YEAR, -7);
+            fromTimestamp = new Timestamp(sevenDays.getTime());
+
+            Calendar today = Calendar.getInstance();
+            toTimestamp = new Timestamp(today.getTime());
+
+            updateDateText(tvFromDate, fromTimestamp);
+            updateDateText(tvToDate, toTimestamp);
+        } else {
+            cardFromDate.setEnabled(true);
+            cardToDate.setEnabled(true);
+            tvFromDate.setTextColor(Color.BLACK);
+            tvToDate.setTextColor(Color.BLACK);
+
+            fromTimestamp = null;
+            toTimestamp = null;
+
+            updateDateText(tvFromDate, null);
+            updateDateText(tvToDate, null);
+        }
+
+        // Also update the variable so it's passed back in the callback
+    }
+
 
 }
 

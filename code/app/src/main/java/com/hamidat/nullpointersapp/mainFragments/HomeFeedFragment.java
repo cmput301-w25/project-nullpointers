@@ -51,6 +51,9 @@ public class HomeFeedFragment extends Fragment {
     private String savedDescription = "";
     private List<String> savedCheckedEmotions = new ArrayList<>();
 
+    private boolean savedToggleWeek;
+    private boolean savedToggleAscending;
+
 
     @Nullable
     @Override
@@ -115,24 +118,25 @@ public class HomeFeedFragment extends Fragment {
 
         // buttonFollowing is the button which displays the HomeFilterHistoryFragment for filtering moods in HomeFeed.
         buttonFollowing.setOnClickListener(v -> {
-            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, savedToTimestamp, savedFromTimestamp, savedDescription, savedCheckedEmotions, new HomeFilterHistoryFragment.MoodFilterCallback() {
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, savedToTimestamp, savedFromTimestamp, savedDescription, savedCheckedEmotions, savedToggleWeek, savedToggleAscending, new HomeFilterHistoryFragment.MoodFilterCallback() {
                 @Override
-                public void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions) {
+                public void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions, boolean setToggleWeek, boolean setOrder) {
                     allMoods.clear();
                     allMoods.addAll(filteredMoods);
 
-                    // Sorting
-                    java.util.Collections.sort(allMoods, (m1, m2) -> {
-                        if (m1.getTimestamp() == null || m2.getTimestamp() == null) return 0;
-                        return m2.getTimestamp().compareTo(m1.getTimestamp());
-                    });
-                    // Notifying moodAdapter of data change.
                     moodAdapter.notifyDataSetChanged();
 
                     savedToTimestamp = savingTo;
                     savedFromTimestamp = savingFrom;
                     savedDescription = savingDescription;
                     savedCheckedEmotions = savingEmotions;
+                    savedToggleWeek = setToggleWeek;
+                    savedToggleAscending = setOrder;
+
+                }
+                @Override
+                public void onShowToast(String message) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show(); // ✅ Safe context
                 }
             });
             filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");
