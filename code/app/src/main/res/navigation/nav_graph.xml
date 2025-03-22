@@ -75,10 +75,13 @@
         android:id="@+id/settingsFragment"
         android:name="com.hamidat.nullpointersapp.mainFragments.SettingsFragment"
         android:label="Settings">
-
-
-
     </fragment>
+
+    <fragment
+        android:id="@+id/deleteMoodFragment"
+        android:name="com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment"
+        android:label="Delete Mood" />
+
     <action
         android:id="@+id/action_global_editMoodFragment"
         app:destination="@id/editMoodFragment" />
