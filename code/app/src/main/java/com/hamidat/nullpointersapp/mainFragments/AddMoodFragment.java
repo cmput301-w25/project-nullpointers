@@ -38,6 +38,7 @@ import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class AddMoodFragment extends Fragment {
 
@@ -280,8 +281,6 @@ public class AddMoodFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             imageUri = data.getData();
-            ivPhotoPreview.setImageURI(imageUri);
-            ivPhotoPreview.setVisibility(View.VISIBLE);
             encodeImageToBase64(imageUri);
         }
     }
@@ -293,6 +292,9 @@ public class AddMoodFragment extends Fragment {
             inputStream.read(bytes);
             inputStream.close();
 
+            Log.d("AddMoodFragment", "Image size (bytes): " + bytes.length);
+            Log.d("AddMoodFragment", "Base64 sample: " + Base64.encodeToString(Arrays.copyOf(bytes, 32), Base64.DEFAULT));
+
             if (bytes.length > 65536) {
                 Toast.makeText(getActivity(), "Image too large! Max 64KB", Toast.LENGTH_SHORT).show();
                 base64Image = null;
@@ -300,6 +302,8 @@ public class AddMoodFragment extends Fragment {
             }
 
             base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+            ivPhotoPreview.setImageURI(imageUri);
+            ivPhotoPreview.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             Toast.makeText(getActivity(), "Failed to process image", Toast.LENGTH_SHORT).show();
         }

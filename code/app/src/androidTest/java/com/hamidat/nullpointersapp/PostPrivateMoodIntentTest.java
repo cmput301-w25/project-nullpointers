@@ -36,26 +36,17 @@ public class PostPrivateMoodIntentTest extends BaseUITest{
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());
 
-        // Verify the Add Mood UI is displayed (checking the title)
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
-
-        // Enter a reason for the mood
         onView(withId(R.id.Reason))
                 .perform(typeText("Feeling great!"), closeSoftKeyboard());
         // Turn on the toggle to make it a private mood
         onView(withId(R.id.switchPrivacy))
                 .perform(click());
 
-        // Select a mood (e.g., Happy)
         onView(withId(R.id.rbHappy)).perform(click());
 
-        // Select a social situation (e.g., One-on-One)
         onView(withId(R.id.rbOneOnOne)).perform(click());
-
-        // Toggle off location to avoid validation issues (default is attached)
         onView(withId(R.id.btnAttachLocation)).perform(click());
-
-        // Click on the Save button
         onView(withId(R.id.btnSaveEntry)).perform(click());
 
 
