@@ -1,5 +1,6 @@
 package com.hamidat.nullpointersapp.models;
 
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import androidx.annotation.NonNull;
@@ -142,6 +144,47 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
     }
 
+    private void showDetailDialog(Mood mood, View anchor) {
+        AlertDialog.Builder b = new AlertDialog.Builder(anchor.getContext());
+        View dialogView = LayoutInflater.from(anchor.getContext())
+                .inflate(R.layout.dialog_mood_details, null);
+        b.setView(dialogView);
+
+        TextView tvMood = dialogView.findViewById(R.id.tvDialogMood);
+        TextView tvDesc = dialogView.findViewById(R.id.tvDialogDescription);
+        TextView tvTime = dialogView.findViewById(R.id.tvDialogTimestamp);
+        TextView tvSocial = dialogView.findViewById(R.id.tvDialogSocial);
+        ImageView iv = dialogView.findViewById(R.id.ivDialogImage);
+        Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
+        Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
+
+        tvMood.setText(mood.getMood());
+        tvDesc.setText(mood.getMoodDescription());
+        tvTime.setText(mood.getTimestamp().toDate().toString());
+        tvSocial.setText(mood.getSocialSituation());
+        if (mood.getImageBase64() != null) {
+            byte[] data = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
+            iv.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+        } else iv.setVisibility(View.GONE);
+
+        AlertDialog dlg = b.create();
+        btnDelete.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putString(DeleteMoodFragment.ARG_MOOD_ID, mood.getMoodId());
+            args.putString(DeleteMoodFragment.ARG_OWNER_ID, mood.getUserId());
+            Navigation.findNavController(anchor).navigate(R.id.deleteMoodFragment, args);
+            dlg.dismiss();
+        });
+        btnEdit.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putSerializable("mood", mood);
+            Navigation.findNavController(anchor).navigate(R.id.editMoodFragment, args);
+            dlg.dismiss();
+        });
+        dlg.show();
+    }
+
+
     @Override
     public int getItemCount() {
         return moods.size();
@@ -179,11 +222,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnComment;
         Button btnDelete;
         Button btnViewMore;
-        public MoodViewHolder(@NonNull View itemView) {
-            super(itemView);
-            // … existing findViewById calls …
-            btnViewMore = itemView.findViewById(R.id.btnViewMore);
-        }
+
+
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -194,9 +234,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivProfile = itemView.findViewById(R.id.ivProfile);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
-            btnEdit = itemView.findViewById(R.id.btnEdit);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
+            //btnEdit = itemView.findViewById(R.id.btnEdit);
+            //btnDelete = itemView.findViewById(R.id.btnDelete);
             btnComment = itemView.findViewById(R.id.btnComment);
+            btnViewMore = itemView.findViewById(R.id.btnViewMore);
+
         }
 
         void bind(Mood mood) {
