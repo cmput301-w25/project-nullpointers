@@ -78,14 +78,14 @@ public class DeleteMoodFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Inflate the item_mood_card.xml layout for this fragment.
-        return inflater.inflate(R.layout.item_mood_card, container, false);
+        return inflater.inflate(R.layout.dialog_mood_details, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // Locate the delete button in item_mood_card.xml (its id is btnDelete).
-        Button btnDelete = view.findViewById(R.id.btnDelete);
+        Button btnDelete = view.findViewById(R.id.btnDialogDelete);
 
         btnDelete.setOnClickListener(v -> {
             // Ensure we have a valid mood ID.

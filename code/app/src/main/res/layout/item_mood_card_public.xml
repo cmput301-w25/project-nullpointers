@@ -127,6 +127,15 @@
                 android:backgroundTint="@color/white"
                 android:text="Comments"
                 android:textColor="@color/buttonColor" />
+
+            <Button
+                android:id="@+id/btnViewMore"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="View More"
+                android:textColor="@color/buttonColor"
+                android:backgroundTint="@color/white" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
