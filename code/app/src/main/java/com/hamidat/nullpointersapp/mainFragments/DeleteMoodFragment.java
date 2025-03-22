@@ -84,7 +84,7 @@ public class DeleteMoodFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Locate the delete button in item_mood_card.xml (its id is btnDelete).
+        // Locate the delete button in dialog modal
         Button btnDelete = view.findViewById(R.id.btnDialogDelete);
 
         btnDelete.setOnClickListener(v -> {

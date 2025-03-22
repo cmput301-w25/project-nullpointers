@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import androidx.annotation.NonNull;
@@ -175,12 +176,27 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         AlertDialog dlg = b.create();
         btnDelete.setOnClickListener(v -> {
-            Bundle args = new Bundle();
-            args.putString(DeleteMoodFragment.ARG_MOOD_ID, mood.getMoodId());
-            args.putString(DeleteMoodFragment.ARG_OWNER_ID, mood.getUserId());
-            Navigation.findNavController(anchor).navigate(R.id.deleteMoodFragment, args);
+            // Firestore delete
+            new FirestoreDeleteMood(FirebaseFirestore.getInstance())
+                    .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            // Remove from adapter and refresh
+                            int pos = moods.indexOf(mood);
+                            if (pos != -1) {
+                                moods.remove(pos);
+                                notifyItemRemoved(pos);
+                            }
+                            Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
             dlg.dismiss();
         });
+
         btnEdit.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putSerializable("mood", mood);
