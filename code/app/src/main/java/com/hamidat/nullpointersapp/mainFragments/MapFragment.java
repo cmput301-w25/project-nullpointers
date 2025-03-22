@@ -98,12 +98,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView selectedDateDisplay;
 
     // Mood checkboxes
-    private CheckBox cbHappy, cbSad, cbAngry, cbChill;
+    private CheckBox cbHappy, cbSad, cbAngry, cbChill,cbFear,cbDisgust,cbShame,cbSurprise,cbConfusion;
     private Switch allSwitch;
     private Set<String> selectedMoods = new HashSet<>();
 
     // Date filter
-    private boolean isLast7DaysFilter;
+    private boolean isLast7DaysFilter = true;
     private Date selectedDate = null;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -242,6 +242,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         cbAngry = filterPanelContainer.findViewById(R.id.checkbox_angry);
         cbChill = filterPanelContainer.findViewById(R.id.checkbox_chill);
 
+         cbFear = filterPanelContainer.findViewById(R.id.checkbox_fear);
+         cbDisgust = filterPanelContainer.findViewById(R.id.checkbox_disgust);
+         cbShame = filterPanelContainer.findViewById(R.id.checkbox_shame);
+         cbSurprise = filterPanelContainer.findViewById(R.id.checkbox_surprise);
+         cbConfusion = filterPanelContainer.findViewById(R.id.checkbox_confusion);
+
+
         // Setup the logic for mood checkboxes
         setupMoodCheckboxes();
 
@@ -304,8 +311,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mapFragment.getMapAsync(this);
         }
 
-        // Default date display to "Today" on initial load
-        selectedDateDisplay.setText("Today");
+        // Default date display to "last 7 days" on initial load
+        selectedDateDisplay.setText("Last 7 Days");
     }
 
     // --------------------------------------------------
@@ -337,6 +344,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             updateAllSwitchState();
         });
 
+        cbFear.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Fear");
+            else selectedMoods.remove("Fear");
+            updateAllSwitchState();
+        });
+
+        cbDisgust.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Disgust");
+            else selectedMoods.remove("Disgust");
+            updateAllSwitchState();
+        });
+
+        cbShame.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Shame");
+            else selectedMoods.remove("Shame");
+            updateAllSwitchState();
+        });
+
+        cbSurprise.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Surprise");
+            else selectedMoods.remove("Surprise");
+            updateAllSwitchState();
+        });
+
+        cbConfusion.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Confusion");
+            else selectedMoods.remove("Confusion");
+            updateAllSwitchState();
+        });
+
         // "All" switch toggles all four checkboxes
         allSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (buttonView.isPressed()) {
@@ -344,13 +381,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 cbSad.setChecked(isChecked);
                 cbAngry.setChecked(isChecked);
                 cbChill.setChecked(isChecked);
+                cbFear.setChecked(isChecked);
+                cbDisgust.setChecked(isChecked);
+                cbShame.setChecked(isChecked);
+                cbSurprise.setChecked(isChecked);
+                cbConfusion.setChecked(isChecked);
             }
         });
+
     }
 
     private void updateAllSwitchState() {
         // If all 4 moods are selected, "All" switch should be on
-        boolean allSelected = selectedMoods.size() == 4;
+        boolean allSelected = selectedMoods.size() == 9;
         if (allSwitch.isChecked() != allSelected) {
             allSwitch.setChecked(allSelected);
         }
@@ -497,21 +540,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         allDummyItems.clear();
         List<LatLng> usedPositions = new ArrayList<>();
 
+        // Calculate the cutoff date: 7 days ago from now.
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -7);
+        Date sevenDaysAgo = cal.getTime();
+
         for (Mood mood : history.getMoodArray()) {
+            // Skip moods with no valid location.
             if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
 
-            double lat = mood.getLatitude();
-            double lng = mood.getLongitude();
-            LatLng originalPos = new LatLng(lat, lng);
+            // If our filter is on, skip moods older than 7 days.
+            if (isLast7DaysFilter && mood.getTimestamp() != null) {
+                Date moodDate = mood.getTimestamp().toDate();
+                if (moodDate.before(sevenDaysAgo)) {
+                    continue;
+                }
+            }
 
+            // Get date and time strings for marker info.
             String dateString = "Unknown Date";
             String timeString = "Unknown Time";
-
             if (mood.getTimestamp() != null) {
                 Date dateObj = mood.getTimestamp().toDate();
                 dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dateObj);
                 timeString = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(dateObj);
             }
+
+            double lat = mood.getLatitude();
+            double lng = mood.getLongitude();
+            LatLng originalPos = new LatLng(lat, lng);
 
             // Jitter duplicates so markers don't overlap exactly
             boolean duplicate = false;
@@ -544,7 +601,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             ));
         }
 
-        // Update cluster on main thread
+        // Update markers on main thread
         new Handler(Looper.getMainLooper()).post(() -> {
             if (clusterManager != null) {
                 clusterManager.clearItems();
@@ -553,11 +610,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (isFirstLoad && !allDummyItems.isEmpty()) {
                     isFirstLoad = false;
                     // Optionally move camera to show all markers
-                    // ...
                 }
             }
         });
     }
+
 
     // --------------------------------------------------
     //      Filtering

@@ -57,8 +57,8 @@ public class LoginFragment extends Fragment {
 
             // this is only for ease of demo and testing
             // if they're not using auth, just log them in as the guest user
-            final String loginUsername = "guestUser";
-            final String loginPassword = "123";
+            final String loginUsername = "ogua1";
+            final String loginPassword = "ogua1";
 
             FirestoreHelper firestoreHelper = new FirestoreHelper();
             firestoreHelper.getUserByUsername(loginUsername, new FirestoreHelper.FirestoreCallback() {

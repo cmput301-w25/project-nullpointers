@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/filter_panel_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/filter_panel_background"
+    android:elevation="8dp"
+    android:padding="0dp">
+
+    <!-- Header with title and close button -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primaryColor"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/filter_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter Mood History"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColor" />
+
+        <ImageButton
+            android:id="@+id/btnCloseFilter"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:layout_alignParentEnd="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:tint="@color/textColor" />
+    </RelativeLayout>
+
+    <!-- Recent Week Filter -->
+    <LinearLayout
+        android:id="@+id/llRecentWeekFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvRecentWeekLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show only past 7 days"
+            android:textSize="16sp"
+            android:textColor="@color/textColor" />
+
+        <Switch
+            android:id="@+id/switchRecentWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+    <!-- Emotional State Filter -->
+    <LinearLayout
+        android:id="@+id/llMoodFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvMoodFilterLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Mood:"
+            android:textSize="16sp"
+            android:textColor="@color/textColor" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/llMoodCheckboxContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Nine mood checkboxes -->
+                <CheckBox
+                    android:id="@+id/cbHappy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Happy"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbSad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sad"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbAngry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Angry"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbChill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chill"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbFear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fear"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbDisgust"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Disgust"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbShame"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shame"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbSurprise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Surprise"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbConfusion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Confusion"
+                    android:textColor="@color/textColor" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Reason Filter -->
+    <LinearLayout
+        android:id="@+id/llReasonFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvReasonFilterLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Reason contains:"
+            android:textSize="16sp"
+            android:textColor="@color/textColor" />
+
+        <EditText
+            android:id="@+id/etReasonFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter keyword" />
+    </LinearLayout>
+
+    <!-- Apply and Reset Buttons -->
+    <LinearLayout
+        android:id="@+id/llButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <Button
+            android:id="@+id/btnApplyFilter"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Apply Filter"
+            android:backgroundTint="@color/accentColor"
+            android:textColor="@color/textColor" />
+
+        <Button
+            android:id="@+id/btnResetFilter"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Reset Filter"
+            android:layout_marginStart="12dp"
+            android:backgroundTint="@color/buttonColor"
+            android:textColor="@color/textColor" />
+    </LinearLayout>
+
+</LinearLayout>
