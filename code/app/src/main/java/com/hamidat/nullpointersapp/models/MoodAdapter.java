@@ -153,11 +153,20 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         TextView tvDesc = dialogView.findViewById(R.id.tvDialogDescription);
         TextView tvTime = dialogView.findViewById(R.id.tvDialogTimestamp);
         TextView tvSocial = dialogView.findViewById(R.id.tvDialogSocial);
+        TextView tvLocation = dialogView.findViewById(R.id.tvDialogLocation);
+
         ImageView iv = dialogView.findViewById(R.id.ivDialogImage);
         Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
         Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
 
-
+        //showing the location - if applicable
+        double lat = mood.getLatitude();
+        double lng = mood.getLongitude();
+        if (lat != 0 && lng != 0) {
+            tvLocation.setText(String.format("Location: %.4f, %.4f", lat, lng));
+        } else {
+            tvLocation.setText("Location: N/A");
+        }
         //this adds the little labels and formats neater
         tvMood.setText(mood.getMood());
         tvDesc.setText("Why: " + mood.getMoodDescription());
