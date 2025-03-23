@@ -8,7 +8,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
-import static com.hamidat.nullpointersapp.ViewActionsHelper.hasItemCount;
+import static com.hamidat.nullpointersapp.androidTestHelpers.ViewActionsHelper.hasItemCount;
 import static org.hamcrest.Matchers.allOf;
 
 import android.os.SystemClock;

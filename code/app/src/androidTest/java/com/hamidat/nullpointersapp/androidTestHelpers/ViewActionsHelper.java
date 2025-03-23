@@ -1,4 +1,4 @@
-package com.hamidat.nullpointersapp;
+package com.hamidat.nullpointersapp.androidTestHelpers;
 
 import android.os.SystemClock;
 import android.view.View;

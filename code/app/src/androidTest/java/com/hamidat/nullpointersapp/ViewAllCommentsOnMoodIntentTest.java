@@ -1,9 +1,7 @@
 package com.hamidat.nullpointersapp;
 
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -15,6 +13,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.hamidat.nullpointersapp.androidTestHelpers.ViewActionsHelper;
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 import org.junit.After;

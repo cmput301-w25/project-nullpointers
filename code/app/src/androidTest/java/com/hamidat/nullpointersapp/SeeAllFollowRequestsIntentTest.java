@@ -2,29 +2,18 @@ package com.hamidat.nullpointersapp;
 
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.View;
 
-import androidx.test.espresso.contrib.RecyclerViewActions;
-import androidx.test.espresso.matcher.BoundedMatcher;
-import androidx.test.filters.LargeTest;
-
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static com.hamidat.nullpointersapp.ViewActionsHelper.waitForView;
 
 import com.hamidat.nullpointersapp.utils.testUtils.TestUsersHelper;
 public class SeeAllFollowRequestsIntentTest extends BaseUITest {

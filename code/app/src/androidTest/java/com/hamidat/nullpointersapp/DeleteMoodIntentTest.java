@@ -7,26 +7,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.androidTestHelpers.ViewActionsHelper;
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import androidx.test.espresso.contrib.RecyclerViewActions;
