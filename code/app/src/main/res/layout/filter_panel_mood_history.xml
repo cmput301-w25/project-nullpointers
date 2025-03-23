@@ -8,7 +8,7 @@
     android:elevation="8dp"
     android:padding="0dp">
 
-    <!-- Header with title and close button -->
+    <!-- Header Section -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
             android:tint="@color/textColor" />
     </RelativeLayout>
 
-    <!-- Recent Week Filter -->
+    <!-- Recent Week Filter Section -->
     <LinearLayout
         android:id="@+id/llRecentWeekFilter"
         android:layout_width="match_parent"
@@ -55,10 +55,11 @@
             android:id="@+id/switchRecentWeek"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp" />
+            android:layout_marginStart="12dp"
+            android:checked="false" />
     </LinearLayout>
 
-    <!-- Emotional State Filter -->
+    <!-- Emotional State Filter Section -->
     <LinearLayout
         android:id="@+id/llMoodFilter"
         android:layout_width="match_parent"
@@ -66,13 +67,29 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tvMoodFilterLabel"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Filter by Mood:"
-            android:textSize="16sp"
-            android:textColor="@color/textColor" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvMoodFilterLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Filter by Mood:"
+                android:textSize="16sp"
+                android:textColor="@color/textColor" />
+
+            <Button
+                android:id="@+id/btnSelectAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select All"
+                android:backgroundTint="@color/buttonColor"
+                android:textColor="@color/textColor" />
+        </LinearLayout>
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -83,7 +100,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- Nine mood checkboxes -->
                 <CheckBox
                     android:id="@+id/cbHappy"
                     android:layout_width="wrap_content"
@@ -150,7 +166,35 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <!-- Reason Filter -->
+    <!-- Date Filter Section -->
+    <LinearLayout
+        android:id="@+id/llDateFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btnSelectDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Date"
+            android:backgroundTint="@color/buttonColor"
+            android:textColor="@color/textColor" />
+
+        <TextView
+            android:id="@+id/tvSelectedDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Any Date"
+            android:textColor="@color/textColor"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp" />
+    </LinearLayout>
+
+    <!-- Reason Filter Section -->
     <LinearLayout
         android:id="@+id/llReasonFilter"
         android:layout_width="match_parent"
@@ -173,7 +217,7 @@
             android:hint="Enter keyword" />
     </LinearLayout>
 
-    <!-- Apply and Reset Buttons -->
+    <!-- Apply and Reset Buttons Section -->
     <LinearLayout
         android:id="@+id/llButtons"
         android:layout_width="match_parent"
