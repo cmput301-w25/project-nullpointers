@@ -3,13 +3,16 @@ package com.hamidat.nullpointersapp;
 import android.os.SystemClock;
 import android.view.View;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.util.HumanReadables;
 import androidx.test.espresso.util.TreeIterables;
 
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import java.util.concurrent.TimeoutException;
 
@@ -71,6 +74,26 @@ public class ViewActionsHelper {
                         .withViewDescription(HumanReadables.describe(rootView))
                         .withCause(new TimeoutException())
                         .build();
+            }
+        };
+    }
+
+    /**
+     * Matcher for checking RecyclerView item count.
+     */
+    public static Matcher<View> hasItemCount(int count) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                if (!(view instanceof RecyclerView)) return false;
+                RecyclerView recyclerView = (RecyclerView) view;
+                return recyclerView.getAdapter() != null &&
+                        recyclerView.getAdapter().getItemCount() == count;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("RecyclerView should have " + count + " items");
             }
         };
     }

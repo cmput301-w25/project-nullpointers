@@ -18,11 +18,11 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import org.junit.Test;
 
-public class ViewOtherUsersProfileIntentTest extends BaseUITest {
+public class ViewThreeRecentMoodsIntentTest extends BaseUITest {
     private static final String TEST_SEARCH_QUERY = "hamihami";
 
     @Test
-    public void viewTheOtherUsersProfile() {
+    public void viewTheOtherUsersProfileForMoods() {
         // Click on search icon and ensure search edit text is displayed.
         onView(withId(R.id.ivSearch)).perform(click());
         onView(withId(R.id.etSearch)).check(matches(isDisplayed()));
@@ -41,6 +41,12 @@ public class ViewOtherUsersProfileIntentTest extends BaseUITest {
         onView(allOf(withId(R.id.username_text), withText(TEST_SEARCH_QUERY)))
                 .check(matches(isDisplayed()));
 
-        Log.d("ViewOtherUsersProfileTest", "The other users profile is visible");
+        // Wait for mood events to be fetched
+        SystemClock.sleep(3000);
+
+        // Assert that exactly 3 moods are loaded in rvMoodEvents
+        onView(withIndex(withId(R.id.rvMoodEvents), 1)).check(matches(hasItemCount(3)));
+
+        Log.d("ViewThreeRecentMoodsIntentTest", "3 mood events are visible");
     }
 }
