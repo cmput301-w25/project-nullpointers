@@ -104,20 +104,21 @@
             android:textColor="@android:color/black" />
 
         <!-- Following -->
+
+        <!-- Spacer -->
         <Button
             android:id="@+id/tvFollowing"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:text=" Following"
-            android:textSize="12sp"
-            android:padding="2dp"
             android:layout_marginStart="4dp"
-            android:textColor="@color/white"
             android:backgroundTint="@color/buttonColor"
-            app:backgroundTint="@null"
-            android:textStyle="bold" />
+            android:padding="2dp"
+            android:text=" Following"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
 
-        <!-- Spacer -->
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"

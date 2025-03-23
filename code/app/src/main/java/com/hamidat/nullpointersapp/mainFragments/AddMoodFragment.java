@@ -1,10 +1,13 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.util.Log;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -34,6 +38,7 @@ import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class AddMoodFragment extends Fragment {
 
@@ -117,7 +122,11 @@ public class AddMoodFragment extends Fragment {
             btnAttachPhoto.setOnClickListener(v -> openImagePicker());
 
             btnSaveEntry.setOnClickListener(v -> {
+                Log.d(TAG, "ADD MOOD: Save button clicked");
+
                 String reasonText = etReason.getText().toString().trim();
+                Log.d(TAG, "ADD MOOD: Reason: " + reasonText);
+
                 int selectedMoodId = rgMood.getCheckedRadioButtonId();
                 int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
 
@@ -174,23 +183,49 @@ public class AddMoodFragment extends Fragment {
                             isPrivate
                     );
                 }
+                Log.d(TAG, "ADD MOOD: Mood object created successfully ");
+
 
 
                 // Save to Firestore
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
                     @Override
                     public void onSuccess(Object result) {
+                        Log.d(TAG, "ADD MOOD: Firestore save successful");
+
                         new Handler(Looper.getMainLooper()).post(() -> {
                             AppEventBus.getInstance().post(new AppEventBus.MoodAddedEvent());
                         });
-                        if (!isAdded()) return;
-                        Toast.makeText(requireContext(), "Mood saved!", Toast.LENGTH_SHORT).show();
-                        mainActivity.addMoodToCache(newlyCreatedMood);
-                        Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
+
+                        // Don’t skip these in tests or fast UI transitions
+                        if (getActivity() instanceof MainActivity) {
+                            MainActivity mainActivity = (MainActivity) getActivity();
+                            mainActivity.addMoodToCache(newlyCreatedMood);
+                            Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
+                        }
+
+                        try {
+                            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                            Log.d(TAG, "ADD MOOD: NavController was created");
+
+                            navController.navigate(R.id.homeFeedFragment);
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "ADD MOOD: Navigation failed", e);
+                        }
+
+//                        if (!isAdded()) return;
+//                        Toast.makeText(requireContext(), "Mood saved!", Toast.LENGTH_SHORT).show();
+//                        mainActivity.addMoodToCache(newlyCreatedMood);
+//                        Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
+//
+//                        Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
+                        Log.e(TAG, "ADD MOOD: Firestore exception: " + e.getMessage(), e);
+
                         if (!isAdded()) return;
                         Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -246,8 +281,6 @@ public class AddMoodFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             imageUri = data.getData();
-            ivPhotoPreview.setImageURI(imageUri);
-            ivPhotoPreview.setVisibility(View.VISIBLE);
             encodeImageToBase64(imageUri);
         }
     }
@@ -259,6 +292,9 @@ public class AddMoodFragment extends Fragment {
             inputStream.read(bytes);
             inputStream.close();
 
+            Log.d("AddMoodFragment", "Image size (bytes): " + bytes.length);
+            Log.d("AddMoodFragment", "Base64 sample: " + Base64.encodeToString(Arrays.copyOf(bytes, 32), Base64.DEFAULT));
+
             if (bytes.length > 65536) {
                 Toast.makeText(getActivity(), "Image too large! Max 64KB", Toast.LENGTH_SHORT).show();
                 base64Image = null;
@@ -266,6 +302,8 @@ public class AddMoodFragment extends Fragment {
             }
 
             base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+            ivPhotoPreview.setImageURI(imageUri);
+            ivPhotoPreview.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             Toast.makeText(getActivity(), "Failed to process image", Toast.LENGTH_SHORT).show();
         }

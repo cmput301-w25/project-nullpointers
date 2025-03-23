@@ -87,7 +87,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("mood", currentMood);
                         Navigation.findNavController(v)
-                                .navigate(R.id.action_homeFeedFragment_to_editMoodFragment, bundle);
+                                .navigate(R.id.action_global_editMoodFragment, bundle);
+
 
                     }
                 });

@@ -10,10 +10,8 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 
-import com.hamidat.nullpointersapp.mainFragments.SplashFragment;
-
 /**
- * UI tests for the {@link com.hamidat.nullpointersapp.mainFragments.SplashFragment} class.
+ * UI tests for the {@link SplashActivity} class.
  * <p>
  * Verifies that the splash screen displays briefly and then
  * transitions to {@link AuthActivity}.
@@ -26,8 +24,8 @@ public class SplashActivityTest {
      * the ability to monitor launched intents.
      */
     @Rule
-    public IntentsTestRule<SplashFragment> splashActivityRule =
-            new IntentsTestRule<>(SplashFragment.class);
+    public IntentsTestRule<SplashActivity> splashActivityRule =
+            new IntentsTestRule<>(SplashActivity.class);
 
     /**
      * Tests that the SplashActivity transitions to AuthActivity

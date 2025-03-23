@@ -35,6 +35,7 @@
     </RelativeLayout>
 
     <!-- Date Selection Section -->
+    <!-- Updated Date Selection Section -->
     <LinearLayout
         android:id="@+id/date_filter_section"
         android:layout_width="match_parent"
@@ -71,7 +72,7 @@
                 android:id="@+id/selected_date_display"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Today"
+                android:text="Last 7 Days"
                 android:textColor="@color/textColor"
                 android:gravity="end"
                 android:paddingStart="8dp"
@@ -87,8 +88,6 @@
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
 
-
-
             <Switch
                 android:id="@+id/showLast7DaysSwitch"
                 android:layout_width="match_parent"
@@ -97,10 +96,11 @@
                 android:textColor="@color/textColor"
                 android:layout_alignParentEnd="true"
                 android:thumbTint="@color/accentColor"
-                android:trackTint="@color/primaryColor" />
-
+                android:trackTint="@color/primaryColor"
+                android:checked="true" />
         </LinearLayout>
     </LinearLayout>
+
 
     <!-- Divider -->
     <View
@@ -220,6 +220,67 @@
                 android:text="Chill"
                 app:buttonTint="@color/accentColor"
                 android:textColor="@color/textColor" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/mood_filter_container_row2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="8dp">
+
+            <CheckBox
+                android:id="@+id/checkbox_fear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fear"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+
+            <CheckBox
+                android:id="@+id/checkbox_disgust"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disgust"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+
+            <CheckBox
+                android:id="@+id/checkbox_shame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shame"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/mood_filter_container_row3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="8dp">
+            <CheckBox
+                android:id="@+id/checkbox_surprise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Surprise"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+
+            <CheckBox
+                android:id="@+id/checkbox_confusion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confusion"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor" />
         </LinearLayout>
     </LinearLayout>
 

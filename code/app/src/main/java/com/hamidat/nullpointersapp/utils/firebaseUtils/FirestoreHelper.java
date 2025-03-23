@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.models.Mood;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * FirestoreHelper provides a unified interface for interacting with Firestore.
@@ -58,7 +59,23 @@ public class FirestoreHelper {
     }
 
     public void getUserByUsername(String username, FirestoreCallback callback) {
-        firestoreUsers.getUserByUsername(username, callback);
+        firestore.collection("users")
+                .whereEqualTo("username", username)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // User exists → not unique
+                        var doc = querySnapshot.getDocuments().get(0);
+                        Map<String, Object> userData = doc.getData();
+                        userData.put("userId", doc.getId());
+                        callback.onSuccess(userData);
+                    } else {
+                        // Username is unique
+                        callback.onFailure(new Exception("Username not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
     // ======= ADD/EDIT MOOD FUNCTIONS =======
