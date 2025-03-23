@@ -6,9 +6,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -182,20 +184,36 @@ public class HomeFeedFragment extends Fragment {
                                 return m2.getTimestamp().compareTo(m1.getTimestamp());
                             });
 
-                            requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
+                            Log.d("HomeFeedFragment", "onSuccess: Mood history fetched, updating UI...");
+
+                            Activity activity = getActivity();
+                            if (activity != null && isAdded()) {
+                                activity.runOnUiThread(() -> {
+                                    Log.d("HomeFeedFragment", "Running notifyDataSetChanged() on UI thread");
+                                    moodAdapter.notifyDataSetChanged();
+                                });
+                            } else {
+                                Log.w("HomeFeedFragment", "Fragment not attached, skipping UI update");
+                            }
                         }
+
                         @Override
                         public void onFailure(Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Error loading moods: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            runOnUiThreadIfAttached(() -> {
+                                Log.e("HomeFeedFragment", "Error loading moods: " + e.getMessage());
+                                Toast.makeText(getContext(), "Error loading moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                         }
                     });
                 }
             }
+
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThreadIfAttached(() -> {
+                    Log.e("HomeFeedFragment", "Error fetching user data: " + e.getMessage());
+                    Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
@@ -211,6 +229,13 @@ public class HomeFeedFragment extends Fragment {
         }
         CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
         bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
+    }
+
+    private void runOnUiThreadIfAttached(Runnable action) {
+        Activity activity = getActivity();
+        if (activity != null && isAdded()) {
+            activity.runOnUiThread(action);
+        }
     }
 
 

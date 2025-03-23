@@ -11,7 +11,6 @@ import com.hamidat.nullpointersapp.models.moodHistory;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * Handles Firestore operations related to retrieving mood history.
