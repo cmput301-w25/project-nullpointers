@@ -102,7 +102,6 @@ public class EditMoodFragment extends Fragment {
         base64Image = moodToEdit.getImageBase64();
 
         // Pre-select the mood radio
-        // Example -- if mood is Happy, check that radio button. Adjust logic if needed
         String moodStr = moodToEdit.getMood();
         if (moodStr != null) {
             if (moodStr.equalsIgnoreCase("Happy")) {
@@ -113,8 +112,19 @@ public class EditMoodFragment extends Fragment {
                 rgMood.check(R.id.rbAngry);
             } else if (moodStr.equalsIgnoreCase("Chill")) {
                 rgMood.check(R.id.rbChill);
+            } else if (moodStr.equalsIgnoreCase("Fear")) {
+                rgMood.check(R.id.rbFear);
+            } else if (moodStr.equalsIgnoreCase("Disgust")) {
+                rgMood.check(R.id.rbDisgust);
+            } else if (moodStr.equalsIgnoreCase("Shame")) {
+                rgMood.check(R.id.rbShame);
+            } else if (moodStr.equalsIgnoreCase("Surprise")) {
+                rgMood.check(R.id.rbSurprise);
+            } else if (moodStr.equalsIgnoreCase("Confusion")) {
+                rgMood.check(R.id.rbConfusion);
             }
         }
+
 
         // Pre-selecting the social situation
         String socialStr = moodToEdit.getSocialSituation();
