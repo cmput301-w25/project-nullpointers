@@ -124,7 +124,7 @@ public class RejectTooLargePhotographIntentTest extends BaseUITest {
 
     @After
     public void tearDown() {
-        TestMoodHelper.deleteMoodByDescription(TEST_USER_ID, "Mood with photo!");
+        TestMoodHelper.deleteMoodByDescription(TEST_USER_ID, "Mood with too-large photo!");
         Log.d(TAG, "Teardown complete");
     }
 }
