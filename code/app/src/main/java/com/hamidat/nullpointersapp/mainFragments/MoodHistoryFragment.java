@@ -1,12 +1,17 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
-import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,7 +21,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -25,16 +29,15 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 
-/**
- * Fragment that displays the user's mood history and allows filtering.
- */
 public class MoodHistoryFragment extends Fragment {
 
     private RecyclerView rvMoodHistory;
@@ -45,20 +48,29 @@ public class MoodHistoryFragment extends Fragment {
     private String currentUserId;
     private Button btnMoodHistoryFilter;
 
-    // these are just for remembering the users current filter
-    private boolean showAllChecked = true;
+    // Filter state variables (default: show all events)
+    private boolean recentWeekFilter = false;
     private boolean happyChecked = false;
     private boolean sadChecked = false;
     private boolean angryChecked = false;
     private boolean chillChecked = false;
+    private boolean fearChecked = false;
+    private boolean disgustChecked = false;
+    private boolean shameChecked = false;
+    private boolean surpriseChecked = false;
+    private boolean confusionChecked = false;
+    private String reasonKeyword = "";
+    private Date selectedDateFilter = null;
 
+    // Reference to our sliding filter panel
+    private View filterPanel;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-         return inflater.inflate(R.layout.fragment_mood_history, container, false);
+        return inflater.inflate(R.layout.fragment_mood_history, container, false);
     }
 
     @Override
@@ -69,6 +81,7 @@ public class MoodHistoryFragment extends Fragment {
         tvNoMoodEntries = view.findViewById(R.id.tvNoMoodEntries);
         rvMoodHistory = view.findViewById(R.id.rvMoodHistory);
         rvMoodHistory.setLayoutManager(new LinearLayoutManager(getContext()));
+        btnMoodHistoryFilter = view.findViewById(R.id.btnFilterMoodHistory);
 
         if (getActivity() instanceof MainActivity) {
             currentUserId = ((MainActivity) getActivity()).getCurrentUserId();
@@ -77,54 +90,258 @@ public class MoodHistoryFragment extends Fragment {
             return;
         }
 
-        // Fix: Pass currentUserId to MoodAdapter constructor
         moodAdapter = new MoodAdapter(moodList, currentUserId);
         rvMoodHistory.setAdapter(moodAdapter);
 
-        btnMoodHistoryFilter = view.findViewById(R.id.btnFilterMoodHistory);
-
         firestore = FirebaseFirestore.getInstance();
+
+        // Inflate and add the filter panel (initially hidden) BEFORE loading mood history.
+        filterPanel = LayoutInflater.from(getContext()).inflate(R.layout.filter_panel_mood_history, null);
+        filterPanel.setVisibility(View.GONE);
+        ((ViewGroup) view).addView(filterPanel);
+
+        // Setup filter panel controls and listeners.
+        setupFilterPanel();
+
+        // Now load mood history.
         loadMoodHistory();
 
-        btnMoodHistoryFilter.setOnClickListener(v -> showFilterDialog());
+        // When filter button is clicked, slide up the filter panel.
+        btnMoodHistoryFilter.setOnClickListener(v -> showFilterPanel());
     }
 
+    /**
+     * Sets up the controls on the filter panel.
+     */
+    private void setupFilterPanel() {
+        // Recent week switch
+        Switch switchRecentWeek = filterPanel.findViewById(R.id.switchRecentWeek);
+        // Mood checkboxes
+        CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
+        CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
+        CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
+        CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
+        CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
+        CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+        CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
+        CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
+        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
+        // Select All button for moods
+        Button btnSelectAll = filterPanel.findViewById(R.id.btnSelectAll);
+        // Reason filter text
+        EditText etReasonFilter = filterPanel.findViewById(R.id.etReasonFilter);
+        // Date filter controls
+        Button btnSelectDate = filterPanel.findViewById(R.id.btnSelectDate);
+        TextView tvSelectedDate = filterPanel.findViewById(R.id.tvSelectedDate);
+        // Close, Apply, and Reset buttons
+        ImageButton btnCloseFilter = filterPanel.findViewById(R.id.btnCloseFilter);
+        Button btnApplyFilter = filterPanel.findViewById(R.id.btnApplyFilter);
+        Button btnResetFilter = filterPanel.findViewById(R.id.btnResetFilter);
+
+        // Restore previous selections
+        switchRecentWeek.setChecked(recentWeekFilter);
+        cbHappy.setChecked(happyChecked);
+        cbSad.setChecked(sadChecked);
+        cbAngry.setChecked(angryChecked);
+        cbChill.setChecked(chillChecked);
+        cbFear.setChecked(fearChecked);
+        cbDisgust.setChecked(disgustChecked);
+        cbShame.setChecked(shameChecked);
+        cbSurprise.setChecked(surpriseChecked);
+        cbConfusion.setChecked(confusionChecked);
+        etReasonFilter.setText(reasonKeyword);
+        if (selectedDateFilter != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            tvSelectedDate.setText(sdf.format(selectedDateFilter));
+        } else {
+            tvSelectedDate.setText("Any Date");
+        }
+        // Set initial text for Select All button
+        btnSelectAll.setText("Select All");
+
+        // When the recent week switch is toggled, override the date filter.
+        switchRecentWeek.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            recentWeekFilter = isChecked;
+            if (isChecked) {
+                // Disable date selection if 7-day filter is active.
+                btnSelectDate.setEnabled(false);
+                tvSelectedDate.setText("Last 7 Days");
+            } else {
+                btnSelectDate.setEnabled(true);
+                if (selectedDateFilter != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    tvSelectedDate.setText(sdf.format(selectedDateFilter));
+                } else {
+                    tvSelectedDate.setText("Any Date");
+                }
+            }
+        });
+
+        // Select All button toggles between selecting and deselecting all mood checkboxes.
+        btnSelectAll.setOnClickListener(v -> {
+            if (cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() && cbChill.isChecked() &&
+                    cbFear.isChecked() && cbDisgust.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
+                    cbConfusion.isChecked()) {
+                // Deselect all.
+                cbHappy.setChecked(false);
+                cbSad.setChecked(false);
+                cbAngry.setChecked(false);
+                cbChill.setChecked(false);
+                cbFear.setChecked(false);
+                cbDisgust.setChecked(false);
+                cbShame.setChecked(false);
+                cbSurprise.setChecked(false);
+                cbConfusion.setChecked(false);
+                btnSelectAll.setText("Select All");
+            } else {
+                // Select all.
+                cbHappy.setChecked(true);
+                cbSad.setChecked(true);
+                cbAngry.setChecked(true);
+                cbChill.setChecked(true);
+                cbFear.setChecked(true);
+                cbDisgust.setChecked(true);
+                cbShame.setChecked(true);
+                cbSurprise.setChecked(true);
+                cbConfusion.setChecked(true);
+                btnSelectAll.setText("Deselect All");
+            }
+        });
+
+        // Date filter: open DatePickerDialog when Select Date is clicked.
+        btnSelectDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            if (selectedDateFilter != null) {
+                calendar.setTime(selectedDateFilter);
+            }
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (DatePicker view1, int year1, int month1, int dayOfMonth) -> {
+                Calendar selectedCal = Calendar.getInstance();
+                selectedCal.set(year1, month1, dayOfMonth, 0, 0, 0);
+                selectedCal.set(Calendar.MILLISECOND, 0);
+                selectedDateFilter = selectedCal.getTime();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                tvSelectedDate.setText(sdf.format(selectedDateFilter));
+            }, year, month, day);
+            datePickerDialog.show();
+        });
+
+        // Close filter panel button (animate down and hide)
+        btnCloseFilter.setOnClickListener(v -> hideFilterPanel());
+
+        // Apply filter button: update filter states and reload mood history.
+        btnApplyFilter.setOnClickListener(v -> {
+            recentWeekFilter = switchRecentWeek.isChecked();
+            happyChecked = cbHappy.isChecked();
+            sadChecked = cbSad.isChecked();
+            angryChecked = cbAngry.isChecked();
+            chillChecked = cbChill.isChecked();
+            fearChecked = cbFear.isChecked();
+            disgustChecked = cbDisgust.isChecked();
+            shameChecked = cbShame.isChecked();
+            surpriseChecked = cbSurprise.isChecked();
+            confusionChecked = cbConfusion.isChecked();
+            reasonKeyword = etReasonFilter.getText().toString().trim();
+
+            Toast.makeText(getContext(), "Filter Applied", Toast.LENGTH_SHORT).show();
+            hideFilterPanel();
+            loadMoodHistory();
+        });
+
+        // Reset filter button: clear all selections.
+        btnResetFilter.setOnClickListener(v -> {
+            recentWeekFilter = false;
+            happyChecked = false;
+            sadChecked = false;
+            angryChecked = false;
+            chillChecked = false;
+            fearChecked = false;
+            disgustChecked = false;
+            shameChecked = false;
+            surpriseChecked = false;
+            confusionChecked = false;
+            reasonKeyword = "";
+            selectedDateFilter = null;
+
+            switchRecentWeek.setChecked(recentWeekFilter);
+            cbHappy.setChecked(happyChecked);
+            cbSad.setChecked(sadChecked);
+            cbAngry.setChecked(angryChecked);
+            cbChill.setChecked(chillChecked);
+            cbFear.setChecked(fearChecked);
+            cbDisgust.setChecked(disgustChecked);
+            cbShame.setChecked(shameChecked);
+            cbSurprise.setChecked(surpriseChecked);
+            cbConfusion.setChecked(confusionChecked);
+            etReasonFilter.setText(reasonKeyword);
+            tvSelectedDate.setText("Any Date");
+            btnSelectDate.setEnabled(true);
+            btnSelectAll.setText("Select All");
+
+            Toast.makeText(getContext(), "Filters Reset", Toast.LENGTH_SHORT).show();
+            hideFilterPanel();
+            loadMoodHistory();
+        });
+    }
 
     /**
-     * Loads the user's mood history from Firestore and applies filters.
+     * Loads the mood history from Firestore applying the selected filters.
      */
     private void loadMoodHistory() {
-        // Compute the start of the current week.
-        Calendar calendar = Calendar.getInstance();
-        // Set to the first day of week (adjust if your week starts on a different day)
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date startOfWeek = calendar.getTime();
-
-        // I have to separate the qeury a bit to filter moods by the selection
-        // start making the query
         Query query = firestore.collection("moods")
-                .whereEqualTo("userId", currentUserId)
-                .whereGreaterThanOrEqualTo("timestamp", startOfWeek)
-                .orderBy("timestamp", Query.Direction.DESCENDING);
+                .whereEqualTo("userId", currentUserId);
 
-        // if "Show All" is NOT checked, filter moods based on selected categories
-        if (!showAllChecked) {
+        // If recent week filter is on, use it exclusively.
+        if (recentWeekFilter) {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            Date sevenDaysAgo = cal.getTime();
+            query = query.whereGreaterThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(sevenDaysAgo));
+        }
+        // Otherwise, if a specific date is selected, use that.
+        else if (selectedDateFilter != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(selectedDateFilter);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            Date startOfDay = cal.getTime();
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            Date endOfDay = cal.getTime();
+            query = query.whereGreaterThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(startOfDay))
+                    .whereLessThan("timestamp", new com.google.firebase.Timestamp(endOfDay));
+        }
+
+        // Apply mood filter only if not all moods are selected.
+        if (!cbAllMoodsSelected()) {
             List<String> selectedMoods = new ArrayList<>();
-            if (happyChecked) selectedMoods.add("Happy");
-            if (sadChecked) selectedMoods.add("Sad");
-            if (angryChecked) selectedMoods.add("Angry");
-            if (chillChecked) selectedMoods.add("Chill");
-
+            CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
+            CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
+            CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
+            CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
+            CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
+            CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+            CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
+            CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
+            CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
+            if (cbHappy.isChecked()) selectedMoods.add("Happy");
+            if (cbSad.isChecked()) selectedMoods.add("Sad");
+            if (cbAngry.isChecked()) selectedMoods.add("Angry");
+            if (cbChill.isChecked()) selectedMoods.add("Chill");
+            if (cbFear.isChecked()) selectedMoods.add("Fear");
+            if (cbDisgust.isChecked()) selectedMoods.add("Disgust");
+            if (cbShame.isChecked()) selectedMoods.add("Shame");
+            if (cbSurprise.isChecked()) selectedMoods.add("Surprise");
+            if (cbConfusion.isChecked()) selectedMoods.add("Confusion");
             if (!selectedMoods.isEmpty()) {
                 query = query.whereIn("mood", selectedMoods);
             }
         }
 
-        // Query Firestore for mood events for the current user starting from the beginning of the week.
+        query = query.orderBy("timestamp", Query.Direction.DESCENDING);
         query.get().addOnSuccessListener(querySnapshot -> {
             moodList.clear();
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
@@ -133,11 +350,19 @@ public class MoodHistoryFragment extends Fragment {
                     moodList.add(mood);
                 }
             }
-            if (moodList.isEmpty()) {
-                tvNoMoodEntries.setVisibility(View.VISIBLE);
-            } else {
-                tvNoMoodEntries.setVisibility(View.GONE);
+            // Further client-side filtering for reason keyword.
+            if (!reasonKeyword.isEmpty()) {
+                List<Mood> filteredList = new ArrayList<>();
+                for (Mood m : moodList) {
+                    if (m.getMoodDescription() != null &&
+                            m.getMoodDescription().toLowerCase().contains(reasonKeyword.toLowerCase())) {
+                        filteredList.add(m);
+                    }
+                }
+                moodList.clear();
+                moodList.addAll(filteredList);
             }
+            tvNoMoodEntries.setVisibility(moodList.isEmpty() ? View.VISIBLE : View.GONE);
             moodAdapter.notifyDataSetChanged();
             tvMostFrequentMood.setText("Most frequent: " + calculateMostFrequentMood(moodList));
         }).addOnFailureListener(e -> {
@@ -146,80 +371,59 @@ public class MoodHistoryFragment extends Fragment {
     }
 
     /**
-     * Displays a dialog for filtering mood history.
+     * Helper method to determine if all mood checkboxes are selected.
      */
-    private void showFilterDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_filter_mood_history, null);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-
-        // get references to dialog elements
-        CheckBox cbShowAll = dialogView.findViewById(R.id.cb_moodhistory_show_all);
-        CheckBox cbMoodHistoryHappy = dialogView.findViewById(R.id.cb_moodhistory_happy);
-        CheckBox cbMoodHistorySad = dialogView.findViewById(R.id.cb_moodhistory_sad);
-        CheckBox cbMoodHistoryAngry = dialogView.findViewById(R.id.cb_moodhistory_angry);
-        CheckBox cbMoodHistoryChill = dialogView.findViewById(R.id.cb_moodhistory_chill);
-        Button btnApply = dialogView.findViewById(R.id.btnApplyMoodHistoryFilter);
-
-        // using an arr of all mood checkboxes for easy enabling/disabling
-        CheckBox[] moodCheckboxes = {cbMoodHistoryHappy, cbMoodHistorySad, cbMoodHistoryAngry, cbMoodHistoryChill};
-
-        // Restore the last selection
-        cbShowAll.setChecked(showAllChecked);
-        cbMoodHistoryHappy.setChecked(happyChecked);
-        cbMoodHistorySad.setChecked(sadChecked);
-        cbMoodHistoryAngry.setChecked(angryChecked);
-        cbMoodHistoryChill.setChecked(chillChecked);
-
-        // disable individual mood checkboxes if "Show All" is checked
-        for (CheckBox cb : moodCheckboxes) {
-            cb.setEnabled(!showAllChecked);
-        }
-
-        // handling the "Show All" logic -> lmk if you guys do want to remove this though
-        cbShowAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (CheckBox cb : moodCheckboxes) {
-                cb.setChecked(false); // Uncheck all moods if "Show All" is checked
-                cb.setEnabled(!isChecked); // Disable moods when "Show All" is checked
-            }
-        });
-
-        btnApply.setOnClickListener(v -> {
-            // store the current filter settings
-            showAllChecked = cbShowAll.isChecked();
-            happyChecked = cbMoodHistoryHappy.isChecked();
-            sadChecked = cbMoodHistorySad.isChecked();
-            angryChecked = cbMoodHistoryAngry.isChecked();
-            chillChecked = cbMoodHistoryChill.isChecked();
-
-            String message;
-            if (cbShowAll.isChecked()) {
-                message = "Showing all moods";
-            } else {
-                message = "Filter Applied: ";
-                if (cbMoodHistoryHappy.isChecked()) message += "Happy ";
-                if (cbMoodHistorySad.isChecked()) message += "Sad ";
-                if (cbMoodHistoryAngry.isChecked()) message += "Angry ";
-                if (cbMoodHistoryChill.isChecked()) message += "Chill ";
-            }
-
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-
-            loadMoodHistory();
-        });
-
-        dialog.show();
+    private boolean cbAllMoodsSelected() {
+        CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
+        CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
+        CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
+        CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
+        CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
+        CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+        CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
+        CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
+        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
+        return cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() && cbChill.isChecked() &&
+                cbFear.isChecked() && cbDisgust.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
+                cbConfusion.isChecked();
     }
 
     /**
-     * Calculates the most frequent mood from the list of mood events.
-     * Only returns the mood if available; otherwise returns "N/A".
-     *
-     * @param moods List of mood entries.
-     * @return The most common mood or "N/A" if empty.
+     * Slides up the filter panel from the bottom.
+     */
+    private void showFilterPanel() {
+        final View root = getView();
+        if (root == null) return;
+        filterPanel.setVisibility(View.VISIBLE);
+        root.post(() -> {
+            int rootHeight = root.getHeight();
+            int panelHeight = filterPanel.getHeight();
+            filterPanel.setY(rootHeight);
+            filterPanel.animate()
+                    .y(rootHeight - panelHeight)
+                    .setDuration(300)
+                    .start();
+        });
+    }
+
+    /**
+     * Slides down the filter panel and hides it.
+     */
+    private void hideFilterPanel() {
+        final View root = getView();
+        if (root == null) return;
+        root.post(() -> {
+            int rootHeight = root.getHeight();
+            filterPanel.animate()
+                    .y(rootHeight)
+                    .setDuration(300)
+                    .withEndAction(() -> filterPanel.setVisibility(View.GONE))
+                    .start();
+        });
+    }
+
+    /**
+     * Calculates the most frequent mood in the list.
      */
     private String calculateMostFrequentMood(List<Mood> moods) {
         if (moods.isEmpty()) return "N/A";

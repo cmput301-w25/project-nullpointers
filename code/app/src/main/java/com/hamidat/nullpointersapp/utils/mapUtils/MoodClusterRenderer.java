@@ -59,15 +59,30 @@ public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem>
             case "Chill":
                 drawableId = R.drawable.ic_pin_chill;
                 break;
+            case "Fear":
+                drawableId = R.drawable.ic_pin_fear;
+                break;
+            case "Disgust":
+                drawableId = R.drawable.ic_pin_disgust;
+                break;
+            case "Shame":
+                drawableId = R.drawable.ic_pin_shame;
+                break;
+            case "Surprise":
+                drawableId = R.drawable.ic_pin_surprise;
+                break;
+            case "Confusion":
+                drawableId = R.drawable.ic_pin_confusion;
+                break;
             default:
                 drawableId = R.drawable.ic_pin_default;
                 break;
         }
         BitmapDescriptor icon = getBitmapDescriptorFromVector(context, drawableId);
         markerOptions.icon(icon);
-        // Anchor the icon so that the bottom-center aligns with the marker's location.
         markerOptions.anchor(0.5f, 1.0f);
     }
+
 
     /**
      * Converts a vector drawable resource into a BitmapDescriptor.
