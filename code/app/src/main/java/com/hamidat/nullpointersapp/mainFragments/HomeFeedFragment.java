@@ -28,8 +28,8 @@ import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
-import com.hamidat.nullpointersapp.models.moodHistory;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,10 +38,22 @@ import java.util.Map;
 public class HomeFeedFragment extends Fragment {
 
     private RecyclerView rvMoodList;
+
+    private Button buttonFollowing;
     private MoodAdapter moodAdapter;
     private ArrayList<Mood> allMoods = new ArrayList<>();
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
+
+    // Adding all the storage for HomeFilterHistoryFragment for data persistence
+    private Timestamp savedFromTimestamp = null;
+    private Timestamp savedToTimestamp = null;
+    private String savedDescription = "";
+    private List<String> savedCheckedEmotions = new ArrayList<>();
+
+    private boolean savedToggleWeek;
+    private boolean savedToggleAscending;
+
 
     @Nullable
     @Override
@@ -52,6 +64,10 @@ public class HomeFeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.full_mood_event, container, false);
         rvMoodList = view.findViewById(R.id.rvMoodList);
         rvMoodList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        buttonFollowing = view.findViewById(R.id.tvFollowing);
+
+
         if(getActivity() instanceof MainActivity){
             MainActivity mainActivity = (MainActivity)getActivity();
             firestoreHelper = mainActivity.getFirestoreHelper();
@@ -99,6 +115,33 @@ public class HomeFeedFragment extends Fragment {
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) { }
         });
+
+        // buttonFollowing is the button which displays the HomeFilterHistoryFragment for filtering moods in HomeFeed.
+        buttonFollowing.setOnClickListener(v -> {
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, savedToTimestamp, savedFromTimestamp, savedDescription, savedCheckedEmotions, savedToggleWeek, savedToggleAscending, new HomeFilterHistoryFragment.MoodFilterCallback() {
+                @Override
+                public void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions, boolean setToggleWeek, boolean setOrder) {
+                    allMoods.clear();
+                    allMoods.addAll(filteredMoods);
+
+                    moodAdapter.notifyDataSetChanged();
+
+                    savedToTimestamp = savingTo;
+                    savedFromTimestamp = savingFrom;
+                    savedDescription = savingDescription;
+                    savedCheckedEmotions = savingEmotions;
+                    savedToggleWeek = setToggleWeek;
+                    savedToggleAscending = setOrder;
+
+                }
+                @Override
+                public void onShowToast(String message) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show(); // ✅ Safe context
+                }
+            });
+            filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");
+        });
+
     }
 
     private void fetchMoodData() {
@@ -108,7 +151,6 @@ public class HomeFeedFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
-                    @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
                     if (followingIds == null) {
@@ -157,6 +199,7 @@ public class HomeFeedFragment extends Fragment {
             }
         });
     }
+
 
     /**
      * Opens a dialog for viewing and adding comments for the given mood event.
