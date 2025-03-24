@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO; FIX: THIS TEST DOES NOT WORK!!!!!!!
 /**
  * Instrumented tests for MapFragment.
  *

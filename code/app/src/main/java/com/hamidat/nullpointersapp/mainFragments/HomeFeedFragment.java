@@ -6,9 +6,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +30,8 @@ import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
-import com.hamidat.nullpointersapp.models.moodHistory;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,10 +40,22 @@ import java.util.Map;
 public class HomeFeedFragment extends Fragment {
 
     private RecyclerView rvMoodList;
+
+    private Button buttonFollowing;
     private MoodAdapter moodAdapter;
     private ArrayList<Mood> allMoods = new ArrayList<>();
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
+
+    // Adding all the storage for HomeFilterHistoryFragment for data persistence
+    private Timestamp savedFromTimestamp = null;
+    private Timestamp savedToTimestamp = null;
+    private String savedDescription = "";
+    private List<String> savedCheckedEmotions = new ArrayList<>();
+
+    private boolean savedToggleWeek;
+    private boolean savedToggleAscending;
+
 
     @Nullable
     @Override
@@ -52,6 +66,10 @@ public class HomeFeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.full_mood_event, container, false);
         rvMoodList = view.findViewById(R.id.rvMoodList);
         rvMoodList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        buttonFollowing = view.findViewById(R.id.tvFollowing);
+
+
         if(getActivity() instanceof MainActivity){
             MainActivity mainActivity = (MainActivity)getActivity();
             firestoreHelper = mainActivity.getFirestoreHelper();
@@ -99,6 +117,33 @@ public class HomeFeedFragment extends Fragment {
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) { }
         });
+
+        // buttonFollowing is the button which displays the HomeFilterHistoryFragment for filtering moods in HomeFeed.
+        buttonFollowing.setOnClickListener(v -> {
+            HomeFilterHistoryFragment filterFragment = new HomeFilterHistoryFragment(currentUserId, firestoreHelper, savedToTimestamp, savedFromTimestamp, savedDescription, savedCheckedEmotions, savedToggleWeek, savedToggleAscending, new HomeFilterHistoryFragment.MoodFilterCallback() {
+                @Override
+                public void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription, List<String> savingEmotions, boolean setToggleWeek, boolean setOrder) {
+                    allMoods.clear();
+                    allMoods.addAll(filteredMoods);
+
+                    moodAdapter.notifyDataSetChanged();
+
+                    savedToTimestamp = savingTo;
+                    savedFromTimestamp = savingFrom;
+                    savedDescription = savingDescription;
+                    savedCheckedEmotions = savingEmotions;
+                    savedToggleWeek = setToggleWeek;
+                    savedToggleAscending = setOrder;
+
+                }
+                @Override
+                public void onShowToast(String message) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show(); // ✅ Safe context
+                }
+            });
+            filterFragment.show(getChildFragmentManager(), "FilterMoodsSheet");
+        });
+
     }
 
     private void fetchMoodData() {
@@ -108,7 +153,6 @@ public class HomeFeedFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
-                    @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
                     ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
                     if (followingIds == null) {
@@ -140,23 +184,40 @@ public class HomeFeedFragment extends Fragment {
                                 return m2.getTimestamp().compareTo(m1.getTimestamp());
                             });
 
-                            requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
+                            Log.d("HomeFeedFragment", "onSuccess: Mood history fetched, updating UI...");
+
+                            Activity activity = getActivity();
+                            if (activity != null && isAdded()) {
+                                activity.runOnUiThread(() -> {
+                                    Log.d("HomeFeedFragment", "Running notifyDataSetChanged() on UI thread");
+                                    moodAdapter.notifyDataSetChanged();
+                                });
+                            } else {
+                                Log.w("HomeFeedFragment", "Fragment not attached, skipping UI update");
+                            }
                         }
+
                         @Override
                         public void onFailure(Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(), "Error loading moods: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            runOnUiThreadIfAttached(() -> {
+                                Log.e("HomeFeedFragment", "Error loading moods: " + e.getMessage());
+                                Toast.makeText(getContext(), "Error loading moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                         }
                     });
                 }
             }
+
             @Override
             public void onFailure(Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThreadIfAttached(() -> {
+                    Log.e("HomeFeedFragment", "Error fetching user data: " + e.getMessage());
+                    Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
+
 
     /**
      * Opens a dialog for viewing and adding comments for the given mood event.
@@ -168,6 +229,13 @@ public class HomeFeedFragment extends Fragment {
         }
         CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
         bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
+    }
+
+    private void runOnUiThreadIfAttached(Runnable action) {
+        Activity activity = getActivity();
+        if (activity != null && isAdded()) {
+            activity.runOnUiThread(action);
+        }
     }
 
 
