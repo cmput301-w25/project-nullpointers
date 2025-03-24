@@ -31,10 +31,28 @@
     <string name="happy">Happy</string>
     <string name="sad">Sad</string>
     <string name="angry">Angry</string>
-    <string name="chill">Chill</string>
+<!--    <string name="chill">Chill</string>-->
     <string name="search">Search</string>
     <string name="back">Back</string>
     <string name="edit_mood">Edit Mood</string>
     <string name="user_logout_btn_text">Logout</string>
+    <string name="confused">Confused</string>
+    <string name="shameful">Shameful</string>
+    <string name="afraid">Afraid</string>
+    <string name="surprised">Surprised</string>
+    <string name="disgusted">Disgusted</string>
+    <string-array name="mood_options">
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>Angry</item>
+        <item>Confused</item>
+        <item>Disgusted</item>
+        <item>Afraid</item>
+        <item>Shameful</item>
+        <item>Surprised</item>
+    </string-array>
+    <string name="select_mood">Select mood</string>
+
+
 
 </resources>

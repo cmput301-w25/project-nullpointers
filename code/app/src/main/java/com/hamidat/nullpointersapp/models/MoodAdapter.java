@@ -1,5 +1,6 @@
 package com.hamidat.nullpointersapp.models;
 
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.hamidat.nullpointersapp.R;
+import com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
 import androidx.annotation.NonNull;
@@ -74,10 +77,19 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
 
+        // Truncate the mood description to the first 15 characters and add an ellipsis if needed.
+        String fullDesc = currentMood.getMoodDescription();
+        String truncated = fullDesc.length() > 15
+                ? fullDesc.substring(0, 15) + "…"
+                : fullDesc;
+        holder.tvMoodDescription.setText("Why: " + truncated);
+
+        holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
+
+
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
 
-        // For owner moods, set up Edit/Delete actions.
         boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
         if (isOwnMood) {
             if (holder.btnEdit != null) {
@@ -131,6 +143,93 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
     }
 
+    private void showDetailDialog(Mood mood, View anchor) {
+        AlertDialog.Builder b = new AlertDialog.Builder(anchor.getContext());
+        View dialogView = LayoutInflater.from(anchor.getContext())
+                .inflate(R.layout.dialog_mood_details, null);
+        b.setView(dialogView);
+
+        TextView tvMood = dialogView.findViewById(R.id.tvDialogMood);
+        TextView tvDesc = dialogView.findViewById(R.id.tvDialogDescription);
+        TextView tvTime = dialogView.findViewById(R.id.tvDialogTimestamp);
+        TextView tvSocial = dialogView.findViewById(R.id.tvDialogSocial);
+        TextView tvLocation = dialogView.findViewById(R.id.tvDialogLocation);
+
+        ImageView iv = dialogView.findViewById(R.id.ivDialogImage);
+        Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
+        Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
+
+        //showing the location - if applicable
+        double lat = mood.getLatitude();
+        double lng = mood.getLongitude();
+        if (lat != 0 && lng != 0) {
+            tvLocation.setText(String.format("Location: %.4f, %.4f", lat, lng));
+        } else {
+            tvLocation.setText("Location: N/A");
+        }
+        //this adds the little labels and formats neater
+        String moodEmoji;
+        switch (mood.getMood().toLowerCase(Locale.ROOT)) {
+            case "happy":     moodEmoji = "😊  🟡"; break;
+            case "sad":       moodEmoji = "😢  🔵"; break;
+            case "angry":     moodEmoji = "😠  🔴"; break;
+            case "confused":  moodEmoji = "😕  ⚫"; break;
+            case "disgusted": moodEmoji = "🤢  🟠"; break;
+            case "afraid":    moodEmoji = "😱  🟣"; break;
+            case "shameful":  moodEmoji = "😳  🟤"; break;
+            case "surprised": moodEmoji = "😮  🟢"; break;
+            default:          moodEmoji = "❓  ⚪"; break;
+        }
+        tvMood.setText(moodEmoji);
+
+
+        tvDesc.setText("Why: " + mood.getMoodDescription());
+
+        Date date = mood.getTimestamp().toDate();
+        String formatted = new SimpleDateFormat("MMM dd hh:mm a", Locale.getDefault()).format(date);
+        tvTime.setText("Date: " + formatted);
+
+        tvSocial.setText("Situation: " + mood.getSocialSituation());
+
+
+        if (mood.getImageBase64() != null) {
+            byte[] data = Base64.decode(mood.getImageBase64(), Base64.DEFAULT);
+            iv.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+        } else iv.setVisibility(View.GONE);
+
+        AlertDialog dlg = b.create();
+        btnDelete.setOnClickListener(v -> {
+            // Firestore delete
+            new FirestoreDeleteMood(FirebaseFirestore.getInstance())
+                    .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            // Remove from adapter and refresh
+                            int pos = moods.indexOf(mood);
+                            if (pos != -1) {
+                                moods.remove(pos);
+                                notifyItemRemoved(pos);
+                            }
+                            Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            dlg.dismiss();
+        });
+
+        btnEdit.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putSerializable("mood", mood);
+            Navigation.findNavController(anchor).navigate(R.id.editMoodFragment, args);
+            dlg.dismiss();
+        });
+        dlg.show();
+    }
+
+
     @Override
     public int getItemCount() {
         return moods.size();
@@ -167,6 +266,9 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnEdit;
         Button btnComment;
         Button btnDelete;
+        Button btnViewMore;
+
+
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -177,23 +279,46 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivProfile = itemView.findViewById(R.id.ivProfile);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
-            btnEdit = itemView.findViewById(R.id.btnEdit);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
+            //btnEdit = itemView.findViewById(R.id.btnEdit);
+            //btnDelete = itemView.findViewById(R.id.btnDelete);
             btnComment = itemView.findViewById(R.id.btnComment);
+            btnViewMore = itemView.findViewById(R.id.btnViewMore);
+
         }
 
         void bind(Mood mood) {
-            tvSocialSituation.setText(mood.getSocialSituation());
-            tvMood.setText("Mood: " + mood.getMood());
-            tvMoodDescription.setText(mood.getMoodDescription());
 
+            //showing a emoji-color instead of the word on the item cards and dialog
+            String moodEmoji;
+            switch (mood.getMood().toLowerCase(Locale.ROOT)) {
+                case "happy":     moodEmoji = "😊  🟡"; break;
+                case "sad":       moodEmoji = "😢  🔵"; break;
+                case "angry":     moodEmoji = "😠  🔴"; break;
+                case "confused":  moodEmoji = "😕  ⚫"; break;
+                case "disgusted": moodEmoji = "🤢  🟠"; break;
+                case "afraid":    moodEmoji = "😱  🟣"; break;
+                case "shameful":  moodEmoji = "😳  🟤"; break;
+                case "surprised": moodEmoji = "😮  🟢"; break;
+                default:          moodEmoji = "❓  ⚪"; break;
+            }
+            tvMood.setText(moodEmoji);
+
+
+
+
+            tvMoodDescription.setText("Description: " + mood.getMoodDescription());
+
+            // NEW FORMAT -- date to only show month, day, and time (e.g. “Mar 22 09:00 AM”)
             Timestamp ts = mood.getTimestamp();
             if (ts != null) {
                 Date date = ts.toDate();
-                tvTimestamp.setText(new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(date));
+                String formatted = new SimpleDateFormat("MMM dd hh:mm a", Locale.getDefault()).format(date);
+                tvTimestamp.setText("Date: " + formatted);
             } else {
-                tvTimestamp.setText("No Timestamp");
+                tvTimestamp.setText("Date: N/A");
             }
+
+            tvSocialSituation.setText("Situation: " + mood.getSocialSituation());
 
             // Reset profile image to fallback first.
             ivProfile.setImageResource(R.drawable.default_user_icon);

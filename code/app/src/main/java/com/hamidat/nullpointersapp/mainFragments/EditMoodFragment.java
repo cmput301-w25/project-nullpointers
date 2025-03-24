@@ -13,10 +13,13 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,7 +51,7 @@ public class EditMoodFragment extends Fragment {
     private Mood moodToEdit;
     private ImageView ivPhotoPreview;
     private EditText etReason;
-    private RadioGroup rgMood;
+    private Spinner spinnerMood;
     private RadioGroup rgSocialSituation;
     private Button btnAttachLocation;
 
@@ -60,6 +63,9 @@ public class EditMoodFragment extends Fragment {
     private double latitude;
     private double longitude;
     private boolean attachLocation = true;
+
+    private Switch switchPrivacy;
+
 
     @Nullable
     @Override
@@ -86,12 +92,19 @@ public class EditMoodFragment extends Fragment {
         // Initialize UI components
         ivPhotoPreview = view.findViewById(R.id.ivPhotoPreview);
         etReason = view.findViewById(R.id.Reason);
-        rgMood = view.findViewById(R.id.rgMood);
+        //rgMood = view.findViewById(R.id.rgMood);
         rgSocialSituation = view.findViewById(R.id.rgSocialSituation);
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
         Button btnCancel = view.findViewById(R.id.btnCancel);
         btnAttachLocation = view.findViewById(R.id.btnAttachLocation);
+        switchPrivacy = view.findViewById(R.id.switchPrivacy);
+
+        // Pre‑set - based on the existing Mood’s privacy flag
+        switchPrivacy.setChecked(moodToEdit.isPrivate());
+
+
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
@@ -102,43 +115,35 @@ public class EditMoodFragment extends Fragment {
         base64Image = moodToEdit.getImageBase64();
 
         // Pre-select the mood radio
-        String moodStr = moodToEdit.getMood();
-        if (moodStr != null) {
-            if (moodStr.equalsIgnoreCase("Happy")) {
-                rgMood.check(R.id.rbHappy);
-            } else if (moodStr.equalsIgnoreCase("Sad")) {
-                rgMood.check(R.id.rbSad);
-            } else if (moodStr.equalsIgnoreCase("Angry")) {
-                rgMood.check(R.id.rbAngry);
-            } else if (moodStr.equalsIgnoreCase("Chill")) {
-                rgMood.check(R.id.rbChill);
-            } else if (moodStr.equalsIgnoreCase("Fear")) {
-                rgMood.check(R.id.rbFear);
-            } else if (moodStr.equalsIgnoreCase("Disgust")) {
-                rgMood.check(R.id.rbDisgust);
-            } else if (moodStr.equalsIgnoreCase("Shame")) {
-                rgMood.check(R.id.rbShame);
-            } else if (moodStr.equalsIgnoreCase("Surprise")) {
-                rgMood.check(R.id.rbSurprise);
-            } else if (moodStr.equalsIgnoreCase("Confusion")) {
-                rgMood.check(R.id.rbConfusion);
-            }
+        // Example -- if mood is Happy, check that radio button. Adjust logic if needed
+        spinnerMood = view.findViewById(R.id.spinnerMood);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMood.setAdapter(adapter);
+
+        // Pre-select the existing mood value
+        String currentMood = moodToEdit.getMood();
+        if (currentMood != null) {
+            int position = adapter.getPosition(currentMood);
+            if (position >= 0) spinnerMood.setSelection(position);
         }
 
 
-        // Pre-selecting the social situation
         String socialStr = moodToEdit.getSocialSituation();
-        if (socialStr != null) {
-            if (socialStr.equalsIgnoreCase("Alone")) {
-                rgSocialSituation.check(R.id.rbAlone);
-            } else if (socialStr.equalsIgnoreCase("One on One")) {
-                rgSocialSituation.check(R.id.rbOneOnOne);
-            } else if (socialStr.equalsIgnoreCase("Group")) {
-                rgSocialSituation.check(R.id.rbGroup);
-            } else if (socialStr.equalsIgnoreCase("Crowd")) {
-                rgSocialSituation.check(R.id.rbCrowd);
+        if (socialStr != null && !socialStr.trim().isEmpty()) {
+            for (int i = 0; i < rgSocialSituation.getChildCount(); i++) {
+                MaterialRadioButton rb = (MaterialRadioButton) rgSocialSituation.getChildAt(i);
+                if (rb.getText().toString().equalsIgnoreCase(socialStr.trim())) {
+                    rb.setChecked(true);
+                    break;
+                }
             }
         }
+
 
         // If there's an existing image, show it
         if (base64Image != null && !base64Image.isEmpty()) {
@@ -207,27 +212,13 @@ public class EditMoodFragment extends Fragment {
     private void saveEdits() {
         // Gather updated data
         String reasonText = etReason.getText().toString().trim();
-        int selectedMoodId = rgMood.getCheckedRadioButtonId();
+        String newMoodType = spinnerMood.getSelectedItem().toString();
         int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
-
-        if (reasonText.isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
+        if (selectedSocialId == -1) {
+            Toast.makeText(getActivity(), "Please select a social situation", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (selectedMoodId == -1 || selectedSocialId == -1) {
-            Toast.makeText(getActivity(), "Please select mood and social situation", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (attachLocation && (latitude == 0.0 || longitude == 0.0)) {
-            // optional check if you want to force valid location
-            Toast.makeText(getActivity(), "Location not available", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Get selected values
-        MaterialRadioButton moodButton = getView().findViewById(selectedMoodId);
-        MaterialRadioButton socialButton = getView().findViewById(selectedSocialId);
-        String newMoodType = moodButton.getText().toString();
+        MaterialRadioButton socialButton = requireView().findViewById(selectedSocialId);
         String newSocialSituation = socialButton.getText().toString();
 
         double finalLat = attachLocation ? latitude : 0.0;
@@ -243,6 +234,11 @@ public class EditMoodFragment extends Fragment {
         // If user picked a new image, base64Image is set; else keep old. So:
         moodToEdit.setImageBase64(base64Image);
         moodToEdit.setEdited(true);
+
+        //privacy indicator
+        boolean isPrivate = switchPrivacy.isChecked();
+        moodToEdit.setPrivate(isPrivate);
+
 
         // Firestore update
         firestoreHelper.updateMood(moodToEdit, new FirestoreHelper.FirestoreCallback() {
