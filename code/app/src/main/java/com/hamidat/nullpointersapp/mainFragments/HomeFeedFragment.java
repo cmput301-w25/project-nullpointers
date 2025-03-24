@@ -28,6 +28,7 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.models.Comment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
@@ -240,25 +241,25 @@ public class HomeFeedFragment extends Fragment {
 
 
     // Simple Comment model.
-    public static class Comment {
-        private String userId;
-        private String commentText;
-        private Timestamp timestamp;
-
-        public Comment() { }
-
-        public Comment(String userId, String commentText, Timestamp timestamp) {
-            this.userId = userId;
-            this.commentText = commentText;
-            this.timestamp = timestamp;
-        }
-        public String getUserId() { return userId; }
-        public String getCommentText() { return commentText; }
-        public Timestamp getTimestamp() { return timestamp; }
-        public void setUserId(String userId) { this.userId = userId; }
-        public void setCommentText(String commentText) { this.commentText = commentText; }
-        public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
-    }
+//    public static class Comment {
+//        private String userId;
+//        private String commentText;
+//        private Timestamp timestamp;
+//
+//        public Comment() { }
+//
+//        public Comment(String userId, String commentText, Timestamp timestamp) {
+//            this.userId = userId;
+//            this.commentText = commentText;
+//            this.timestamp = timestamp;
+//        }
+//        public String getUserId() { return userId; }
+//        public String getCommentText() { return commentText; }
+//        public Timestamp getTimestamp() { return timestamp; }
+//        public void setUserId(String userId) { this.userId = userId; }
+//        public void setCommentText(String commentText) { this.commentText = commentText; }
+//        public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
+//    }
 
     // Simple adapter for comments.
     public static class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
