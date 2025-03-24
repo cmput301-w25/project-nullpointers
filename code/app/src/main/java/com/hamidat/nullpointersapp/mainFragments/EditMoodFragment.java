@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -63,6 +64,9 @@ public class EditMoodFragment extends Fragment {
     private double longitude;
     private boolean attachLocation = true;
 
+    private Switch switchPrivacy;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -94,6 +98,13 @@ public class EditMoodFragment extends Fragment {
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
         Button btnCancel = view.findViewById(R.id.btnCancel);
         btnAttachLocation = view.findViewById(R.id.btnAttachLocation);
+        switchPrivacy = view.findViewById(R.id.switchPrivacy);
+
+        // Pre‑set - based on the existing Mood’s privacy flag
+        switchPrivacy.setChecked(moodToEdit.isPrivate());
+
+
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
@@ -122,19 +133,17 @@ public class EditMoodFragment extends Fragment {
         }
 
 
-        // Pre-selecting the social situation
         String socialStr = moodToEdit.getSocialSituation();
-        if (socialStr != null) {
-            if (socialStr.equalsIgnoreCase("Alone")) {
-                rgSocialSituation.check(R.id.rbAlone);
-            } else if (socialStr.equalsIgnoreCase("One on One")) {
-                rgSocialSituation.check(R.id.rbOneOnOne);
-            } else if (socialStr.equalsIgnoreCase("Group")) {
-                rgSocialSituation.check(R.id.rbGroup);
-            } else if (socialStr.equalsIgnoreCase("Crowd")) {
-                rgSocialSituation.check(R.id.rbCrowd);
+        if (socialStr != null && !socialStr.trim().isEmpty()) {
+            for (int i = 0; i < rgSocialSituation.getChildCount(); i++) {
+                MaterialRadioButton rb = (MaterialRadioButton) rgSocialSituation.getChildAt(i);
+                if (rb.getText().toString().equalsIgnoreCase(socialStr.trim())) {
+                    rb.setChecked(true);
+                    break;
+                }
             }
         }
+
 
         // If there's an existing image, show it
         if (base64Image != null && !base64Image.isEmpty()) {
@@ -225,6 +234,11 @@ public class EditMoodFragment extends Fragment {
         // If user picked a new image, base64Image is set; else keep old. So:
         moodToEdit.setImageBase64(base64Image);
         moodToEdit.setEdited(true);
+
+        //privacy indicator
+        boolean isPrivate = switchPrivacy.isChecked();
+        moodToEdit.setPrivate(isPrivate);
+
 
         // Firestore update
         firestoreHelper.updateMood(moodToEdit, new FirestoreHelper.FirestoreCallback() {
