@@ -10,12 +10,17 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 /**
- * Unit tests for filtering moods based on description using TestHelper.
+ * Unit tests for {@link TestHelper#filterMoodsByDescription(ArrayList, String)}.
+ * These tests verify the filtering of mood objects based on description keywords.
  */
 public class HomeFilterHistoryFragmentTest {
 
     private ArrayList<Mood> moodList;
 
+    /**
+     * Sets up a sample mood list before each test.
+     * Includes moods with and without matching descriptions.
+     */
     @Before
     public void setUp() {
         moodList = new ArrayList<>();
@@ -25,25 +30,34 @@ public class HomeFilterHistoryFragmentTest {
         moodList.add(new Mood("Chill", "", 10.0, 20.0, "Group", "user4", false));
     }
 
+    /**
+     * Tests filtering when a keyword matches one mood description.
+     * Expects a single result containing the matching mood.
+     */
     @Test
     public void testFilterMoodsByDescription_MatchFound() {
         ArrayList<Mood> filtered = TestHelper.filterMoodsByDescription(moodList, "anxious");
-
         assertEquals(1, filtered.size());
         assertEquals("Sad", filtered.get(0).getMood());
     }
 
+    /**
+     * Tests filtering when an empty keyword is provided.
+     * Expects the entire list to be returned without filtering.
+     */
     @Test
     public void testFilterMoodsByDescription_EmptyKeyword() {
         ArrayList<Mood> filtered = TestHelper.filterMoodsByDescription(moodList, "");
-
         assertEquals(moodList.size(), filtered.size()); // Should return all
     }
 
+    /**
+     * Tests filtering when the keyword doesn't match any mood description.
+     * Expects an empty result.
+     */
     @Test
     public void testFilterMoodsByDescription_NoMatch() {
         ArrayList<Mood> filtered = TestHelper.filterMoodsByDescription(moodList, "vacation");
-
         assertEquals(0, filtered.size()); // No mood matches "vacation"
     }
 }

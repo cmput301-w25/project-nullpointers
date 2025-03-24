@@ -10,12 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Unit tests for search filtering logic in SearchFragment.
+ * Unit tests for search filtering logic in {@link SearchFragment},
+ * specifically for matching usernames using {@link TestHelper#filterUsers(List, String, String, int)}.
  */
 public class SearchFragmentTest {
 
     private List<SearchFragment.User> mockUsers;
 
+    /**
+     * Sets up a mock list of users before each test.
+     */
     @Before
     public void setUp() {
         mockUsers = new ArrayList<>();
@@ -28,6 +32,9 @@ public class SearchFragmentTest {
         mockUsers.add(new SearchFragment.User("u7", "Jordan"));
     }
 
+    /**
+     * Tests that filtering returns case-insensitive matches for a given keyword.
+     */
     @Test
     public void testSearchFiltersMatchingUsers_caseInsensitive() {
         List<SearchFragment.User> result = TestHelper.filterUsers(mockUsers, "jo", "u0", 6);
@@ -37,12 +44,18 @@ public class SearchFragmentTest {
         assertTrue(result.stream().anyMatch(u -> u.username.equalsIgnoreCase("jordan")));
     }
 
+    /**
+     * Tests that the search result excludes the current user from matching.
+     */
     @Test
     public void testSearchExcludesCurrentUser() {
         List<SearchFragment.User> result = TestHelper.filterUsers(mockUsers, "jane", "u2", 6);
         assertEquals(0, result.size());
     }
 
+    /**
+     * Tests that the search result does not exceed the maximum limit of results.
+     */
     @Test
     public void testSearchRespectsMaxLimit() {
         List<SearchFragment.User> result = TestHelper.filterUsers(mockUsers, "a", "u0", 3);
