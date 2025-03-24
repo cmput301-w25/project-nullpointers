@@ -321,6 +321,9 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             if (querySnapshot != null) {
                 for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                     Mood mood = doc.toObject(Mood.class);
+                    if (mood.isPrivate() && !mood.getUserId().equals(currentUserId)) {
+                        continue;
+                    }
                     filteredMoods.add(mood);
 
                     // Call the filtering reason for the description.
