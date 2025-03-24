@@ -268,6 +268,26 @@ public class TestHelper {
         return result;
     }
 
+    /**
+     * Filters a list of Mood objects based on whether their description contains a given keyword.
+     *
+     * @param moods   The list of Mood objects.
+     * @param keyword The keyword to search for (case-insensitive).
+     * @return A filtered list of Mood objects where the description contains the keyword.
+     */
+    public static ArrayList<Mood> filterMoodsByDescription(ArrayList<Mood> moods, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) return moods;
 
+        ArrayList<Mood> filteredList = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+
+        for (Mood mood : moods) {
+            String description = mood.getMoodDescription() != null ? mood.getMoodDescription().toLowerCase() : "";
+            if (description.contains(lowerKeyword)) {
+                filteredList.add(mood);
+            }
+        }
+        return filteredList;
+    }
 
 }

@@ -124,30 +124,22 @@
 
             <Button
                 android:id="@+id/btnComment"
-                android:layout_width="32dp"
-                android:layout_height="35dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/white"
                 android:text="Comments"
-                android:textColor="@color/buttonColor" />
+                android:textColor="@color/buttonColor"
+                android:backgroundTint="@color/white" />
 
             <Button
-                android:id="@+id/btnEdit"
-                android:layout_width="39dp"
-                android:layout_height="36dp"
+                android:id="@+id/btnViewMore"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@android:color/transparent"
-                android:text="Edit"
-                android:textColor="@color/buttonColor" />
-
-            <Button
-                android:id="@+id/btnDelete"
-                android:layout_width="21dp"
-                android:layout_height="35dp"
-                android:layout_weight="1"
-                android:backgroundTint="@android:color/transparent"
-                android:text="Delete"
-                android:textColor="@color/buttonColor" />
+                android:text="View More"
+                android:textColor="@color/buttonColor"
+                android:backgroundTint="@color/white" />
         </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
