@@ -13,10 +13,13 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -44,7 +47,7 @@ public class AddMoodFragment extends Fragment {
     private String base64Image;
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
-    private RadioGroup rgMood;
+    //private RadioGroup rgMood;
     private RadioGroup rgSocialSituation;
     private FusedLocationProviderClient fusedLocationClient;
     private double latitude;
@@ -66,10 +69,17 @@ public class AddMoodFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Spinner spinner = view.findViewById(R.id.spinnerMood);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.mood_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+
         // Initialize UI components
         ivPhotoPreview = view.findViewById(R.id.ivPhotoPreview);
         EditText etReason = view.findViewById(R.id.Reason);
-        rgMood = view.findViewById(R.id.rgMood);
+        //rgMood = view.findViewById(R.id.rgMood);
         rgSocialSituation = view.findViewById(R.id.rgSocialSituation);
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
@@ -118,28 +128,22 @@ public class AddMoodFragment extends Fragment {
 
             btnSaveEntry.setOnClickListener(v -> {
                 String reasonText = etReason.getText().toString().trim();
-                int selectedMoodId = rgMood.getCheckedRadioButtonId();
                 int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
 
-                // Validate inputs
+// Validate inputs
                 if (reasonText.isEmpty()) {
                     Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (selectedMoodId == -1 || selectedSocialId == -1) {
+                if (spinner.getSelectedItemPosition() == AdapterView.INVALID_POSITION || selectedSocialId == -1) {
                     Toast.makeText(getActivity(), "Please select mood and social situation", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // Only enforce location validation if attachLocation is true
-                if (attachLocation && (latitude == 0.0 || longitude == 0.0)) {
-                    Toast.makeText(getActivity(), "Location not available", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
+                String moodType = spinner.getSelectedItem().toString();
 
                 // Get selected values
-                MaterialRadioButton moodButton = view.findViewById(selectedMoodId);
                 MaterialRadioButton socialButton = view.findViewById(selectedSocialId);
-                String moodType = moodButton.getText().toString();
                 String socialSituation = socialButton.getText().toString();
 
                 // If attachLocation is false, set lat and lng to 0.0 so that it won't be displayed on the map

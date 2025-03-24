@@ -72,54 +72,14 @@
                     android:textColor="@color/textColor"
                     android:layout_marginBottom="8dp" />
 
-                <RadioGroup
-                    android:id="@+id/rgMood"
+                <Spinner
+                    android:id="@+id/spinnerMood"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="24dp"
-                    android:weightSum="4">
+                    android:entries="@array/mood_options"
+                    android:prompt="@string/select_mood"/>
 
-                    <RadioButton
-                        android:id="@+id/rbHappy"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/happy"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor"
-                        android:gravity="center" />
 
-                    <RadioButton
-                        android:id="@+id/rbSad"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/sad"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor"
-                        android:gravity="center" />
-
-                    <RadioButton
-                        android:id="@+id/rbAngry"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/angry"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor"
-                        android:gravity="center" />
-
-                    <RadioButton
-                        android:id="@+id/rbChill"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/chill"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor"
-                        android:gravity="center" />
-                </RadioGroup>
 
             </LinearLayout>
 

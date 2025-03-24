@@ -13,10 +13,12 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,7 +50,7 @@ public class EditMoodFragment extends Fragment {
     private Mood moodToEdit;
     private ImageView ivPhotoPreview;
     private EditText etReason;
-    private RadioGroup rgMood;
+    private Spinner spinnerMood;
     private RadioGroup rgSocialSituation;
     private Button btnAttachLocation;
 
@@ -86,7 +88,7 @@ public class EditMoodFragment extends Fragment {
         // Initialize UI components
         ivPhotoPreview = view.findViewById(R.id.ivPhotoPreview);
         etReason = view.findViewById(R.id.Reason);
-        rgMood = view.findViewById(R.id.rgMood);
+        //rgMood = view.findViewById(R.id.rgMood);
         rgSocialSituation = view.findViewById(R.id.rgSocialSituation);
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
@@ -103,18 +105,22 @@ public class EditMoodFragment extends Fragment {
 
         // Pre-select the mood radio
         // Example -- if mood is Happy, check that radio button. Adjust logic if needed
-        String moodStr = moodToEdit.getMood();
-        if (moodStr != null) {
-            if (moodStr.equalsIgnoreCase("Happy")) {
-                rgMood.check(R.id.rbHappy);
-            } else if (moodStr.equalsIgnoreCase("Sad")) {
-                rgMood.check(R.id.rbSad);
-            } else if (moodStr.equalsIgnoreCase("Angry")) {
-                rgMood.check(R.id.rbAngry);
-            } else if (moodStr.equalsIgnoreCase("Chill")) {
-                rgMood.check(R.id.rbChill);
-            }
+        spinnerMood = view.findViewById(R.id.spinnerMood);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMood.setAdapter(adapter);
+
+        // Pre-select the existing mood value
+        String currentMood = moodToEdit.getMood();
+        if (currentMood != null) {
+            int position = adapter.getPosition(currentMood);
+            if (position >= 0) spinnerMood.setSelection(position);
         }
+
 
         // Pre-selecting the social situation
         String socialStr = moodToEdit.getSocialSituation();
@@ -197,27 +203,13 @@ public class EditMoodFragment extends Fragment {
     private void saveEdits() {
         // Gather updated data
         String reasonText = etReason.getText().toString().trim();
-        int selectedMoodId = rgMood.getCheckedRadioButtonId();
+        String newMoodType = spinnerMood.getSelectedItem().toString();
         int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
-
-        if (reasonText.isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
+        if (selectedSocialId == -1) {
+            Toast.makeText(getActivity(), "Please select a social situation", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (selectedMoodId == -1 || selectedSocialId == -1) {
-            Toast.makeText(getActivity(), "Please select mood and social situation", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (attachLocation && (latitude == 0.0 || longitude == 0.0)) {
-            // optional check if you want to force valid location
-            Toast.makeText(getActivity(), "Location not available", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Get selected values
-        MaterialRadioButton moodButton = getView().findViewById(selectedMoodId);
-        MaterialRadioButton socialButton = getView().findViewById(selectedSocialId);
-        String newMoodType = moodButton.getText().toString();
+        MaterialRadioButton socialButton = requireView().findViewById(selectedSocialId);
         String newSocialSituation = socialButton.getText().toString();
 
         double finalLat = attachLocation ? latitude : 0.0;

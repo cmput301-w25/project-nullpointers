@@ -168,7 +168,21 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvLocation.setText("Location: N/A");
         }
         //this adds the little labels and formats neater
-        tvMood.setText(mood.getMood());
+        String moodEmoji;
+        switch (mood.getMood().toLowerCase(Locale.ROOT)) {
+            case "happy":     moodEmoji = "😊  🟡"; break;
+            case "sad":       moodEmoji = "😢  🔵"; break;
+            case "angry":     moodEmoji = "😠  🔴"; break;
+            case "confused":  moodEmoji = "😕  ⚫"; break;
+            case "disgusted": moodEmoji = "🤢  🟠"; break;
+            case "afraid":    moodEmoji = "😱  🟣"; break;
+            case "shameful":  moodEmoji = "😳  🟤"; break;
+            case "surprised": moodEmoji = "😮  🟢"; break;
+            default:          moodEmoji = "❓  ⚪"; break;
+        }
+        tvMood.setText(moodEmoji);
+
+
         tvDesc.setText("Why: " + mood.getMoodDescription());
 
         Date date = mood.getTimestamp().toDate();
