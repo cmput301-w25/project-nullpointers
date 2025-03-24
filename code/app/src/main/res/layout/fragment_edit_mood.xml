@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
-android:id="@+id/main"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:background="@color/white">
@@ -27,7 +28,8 @@ android:background="@color/white">
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/rounded_box"
-        android:padding="16dp">
+        android:padding="16dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml">
 
         <!-- Title text at the top -->
         <TextView
@@ -43,15 +45,25 @@ android:background="@color/white">
             android:paddingVertical="10dp"
             android:layout_marginBottom="16dp"/>
 
+        <Switch
+            android:id="@+id/switchPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColor"
+            android:text="Private Mood"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
         <!-- "What mood are you feeling?" section -->
         <!-- Updated Mood Selection Section in fragment_add_mood.xml -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="16dp"
             android:background="@drawable/rounded_bin"
-            android:padding="12dp"
-            android:orientation="vertical">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/tvMoodLabel"
@@ -63,91 +75,14 @@ android:background="@color/white">
                 android:textColor="@color/textColor"
                 android:layout_marginBottom="8dp" />
 
-            <HorizontalScrollView
+            <Spinner
+                android:id="@+id/spinnerMood"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fillViewport="true">
+                android:entries="@array/mood_options"
+                android:prompt="@string/select_mood"/>
 
-                <RadioGroup
-                    android:id="@+id/rgMood"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/rbHappy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/happy"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbSad"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sad"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbAngry"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/angry"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbChill"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/chill"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <!-- New mood options -->
-                    <RadioButton
-                        android:id="@+id/rbFear"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Fear"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbDisgust"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Disgust"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbShame"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Shame"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbSurprise"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Surprise"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-
-                    <RadioButton
-                        android:id="@+id/rbConfusion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Confusion"
-                        android:textSize="10sp"
-                        android:textColor="@color/textColor" />
-                </RadioGroup>
-            </HorizontalScrollView>
         </LinearLayout>
 
 

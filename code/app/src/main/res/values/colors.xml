@@ -6,6 +6,8 @@
 
     <!-- our custom UI colours -->
     <color name="textColor">#27470F</color>
+    <color name="lightGreenBackground">#F0FAE8</color>
+    <color name="darkText">#333333</color>
     <color name="primary">#e9f3dc</color>
     <color name="primaryColor">#8DC34C</color>
     <color name="secondaryColor">#96DCC8</color>

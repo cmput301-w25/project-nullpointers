@@ -122,11 +122,22 @@
 
             <Button
                 android:id="@+id/btnComment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
                 android:text="Comments"
-                android:textColor="@color/buttonColor" />
+                android:textColor="@color/buttonColor"
+                android:backgroundTint="@color/white" />
+
+            <Button
+                android:id="@+id/btnViewMore"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:text="View More"
+                android:textColor="@color/buttonColor"
+                android:backgroundTint="@color/white" />
         </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
