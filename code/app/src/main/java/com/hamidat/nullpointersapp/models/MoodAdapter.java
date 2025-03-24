@@ -287,7 +287,25 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
 
         void bind(Mood mood) {
-            tvMood.setText(mood.getMood());
+
+            //showing a emoji-color instead of the word on the item cards and dialog
+            String moodEmoji;
+            switch (mood.getMood().toLowerCase(Locale.ROOT)) {
+                case "happy":     moodEmoji = "😊  🟡"; break;
+                case "sad":       moodEmoji = "😢  🔵"; break;
+                case "angry":     moodEmoji = "😠  🔴"; break;
+                case "confused":  moodEmoji = "😕  ⚫"; break;
+                case "disgusted": moodEmoji = "🤢  🟠"; break;
+                case "afraid":    moodEmoji = "😱  🟣"; break;
+                case "shameful":  moodEmoji = "😳  🟤"; break;
+                case "surprised": moodEmoji = "😮  🟢"; break;
+                default:          moodEmoji = "❓  ⚪"; break;
+            }
+            tvMood.setText(moodEmoji);
+
+
+
+
             tvMoodDescription.setText("Description: " + mood.getMoodDescription());
 
             // NEW FORMAT -- date to only show month, day, and time (e.g. “Mar 22 09:00 AM”)
