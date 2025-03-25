@@ -158,6 +158,45 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         ImageView iv = dialogView.findViewById(R.id.ivDialogImage);
         Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
         Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
+        boolean isOwnMood = mood.getUserId() != null && mood.getUserId().equals(currentUserId);
+
+
+        //only show edit and delete if it is my own mood
+        if (!isOwnMood) {
+            btnDelete.setVisibility(View.GONE);
+            btnEdit.setVisibility(View.GONE);
+        }
+
+        AlertDialog dlg = b.create();
+
+        if (isOwnMood) {//if its my own
+            btnDelete.setOnClickListener(v -> {
+                new FirestoreDeleteMood(FirebaseFirestore.getInstance())
+                        .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                            @Override public void onSuccess(Object result) {
+                                int pos = moods.indexOf(mood);
+                                if (pos != -1) {
+                                    moods.remove(pos);
+                                    notifyItemRemoved(pos);
+                                }
+                                Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
+                            }
+                            @Override public void onFailure(Exception e) {
+                                Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                dlg.dismiss();
+            });
+
+            btnEdit.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                args.putSerializable("mood", mood);
+                Navigation.findNavController(anchor).navigate(R.id.editMoodFragment, args);
+                dlg.dismiss();
+            });
+        }
+
+
 
         //showing the location - if applicable
         double lat = mood.getLatitude();
@@ -197,7 +236,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             iv.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
         } else iv.setVisibility(View.GONE);
 
-        AlertDialog dlg = b.create();
         btnDelete.setOnClickListener(v -> {
             // Firestore delete
             new FirestoreDeleteMood(FirebaseFirestore.getInstance())
