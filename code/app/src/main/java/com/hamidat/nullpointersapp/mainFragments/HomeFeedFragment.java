@@ -277,7 +277,6 @@ public class HomeFeedFragment extends Fragment {
         public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
             Comment comment = comments.get(position);
             holder.text1.setText(comment.getCommentText());
-            // For simplicity, display userId in text2. You might replace this with the actual username.
             holder.text2.setText(comment.getUserId());
         }
         @Override
