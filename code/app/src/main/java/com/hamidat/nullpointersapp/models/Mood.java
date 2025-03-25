@@ -2,7 +2,9 @@ package com.hamidat.nullpointersapp.models;
 
 import com.google.firebase.Timestamp;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Model representing a mood event.
@@ -21,6 +23,11 @@ public class Mood implements Serializable {
     private String imageBase64;
     private Timestamp timestamp;
     private String userId;
+
+    private int likeCount = 0;
+    private int commentCount = 0;
+    private List<String> likedByUserIds = new ArrayList<>();
+
 
     // privacy
     private boolean isPrivate;
@@ -105,5 +112,35 @@ public class Mood implements Serializable {
     public Timestamp getTimestamp() { return timestamp; }
     public String getUserId() { return userId; }
     public boolean isPrivate() {return isPrivate;}
+
+    // My updates for the like and comment count
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public List<String> getLikedByUserIds() {
+        if (likedByUserIds == null) likedByUserIds = new ArrayList<>();
+        return likedByUserIds;
+    }
+
+    public void setLikedByUserIds(List<String> likedByUserIds) {
+        this.likedByUserIds = (likedByUserIds != null) ? likedByUserIds : new ArrayList<>();
+    }
+
+    public boolean isLikedBy(String userId) {
+        return getLikedByUserIds().contains(userId);
+    }
 
 }

@@ -13,6 +13,8 @@ public abstract class BaseUITest {
     protected final String TEST_USER_ID = "EHxg6TEtQFWHaqbnkt5H";
     protected final String TEST_USER_2_ID = "IDoB3Z7dsQmHtgHSW9Oc";
     protected final String TEST_USER_3_ID = "CuUYwxXUvC8OIOlsg5Mr";
+    protected final String HAMIHAMI_USER_ID = "gWDMoQr8MYWJO4b39fUa";
+
 
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
