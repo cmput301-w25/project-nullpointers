@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +46,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
     private FirestoreHelper firestoreHelper;
 
+
     /**
      * Constructs a new MoodAdapter.
      *
@@ -73,9 +76,56 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     @Override
+    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            Object payload = payloads.get(0);
+            Mood mood = moods.get(position);
+
+            if ("likeOnly".equals(payload)) {
+                holder.tvLikeCount.setText(String.valueOf(mood.getLikeCount()));
+                holder.btnLike.setImageResource(mood.isLikedBy(currentUserId)
+                        ? R.drawable.ic_heart_filled
+                        : R.drawable.ic_heart_outline);
+                return; // only update likes
+            } else if ("commentOnly".equals(payload)) {
+                holder.btnComment.setText("Comments (" + mood.getCommentCount() + ")");
+                return; // only update comments
+            }
+        }
+
+        // Fallback to full bind if no payload or unknown
+        super.onBindViewHolder(holder, position, payloads);
+    }
+
+
+    @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
+
+        boolean isLiked = currentMood.isLikedBy(currentUserId);
+        holder.btnLike.setImageResource(isLiked ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+        holder.tvLikeCount.setText(String.valueOf(currentMood.getLikeCount()));
+        holder.btnComment.setText("Comments (" + currentMood.getCommentCount() + ")");
+
+        // Toggle like logic
+        holder.btnLike.setOnClickListener(v -> {
+            boolean currentlyLiked = currentMood.isLikedBy(currentUserId);
+            if (currentlyLiked) {
+                currentMood.getLikedByUserIds().remove(currentUserId);
+                currentMood.setLikeCount(currentMood.getLikeCount() - 1);
+            } else {
+                currentMood.getLikedByUserIds().add(currentUserId);
+                currentMood.setLikeCount(currentMood.getLikeCount() + 1);
+            }
+            notifyItemChanged(holder.getAdapterPosition(), "likeOnly");
+
+            FirebaseFirestore.getInstance()
+                    .collection("moods")
+                    .document(currentMood.getMoodId())
+                    .update("likedByUserIds", currentMood.getLikedByUserIds(),
+                            "likeCount", currentMood.getLikeCount());
+        });
 
         // Truncate the mood description to the first 15 characters and add an ellipsis if needed.
         String fullDesc = currentMood.getMoodDescription();
@@ -282,15 +332,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     /**
-     * Replaces the current list of moods with a new list.
-     */
-    public void updateMoods(List<Mood> newMoods) {
-        moods.clear();
-        moods.addAll(newMoods);
-        notifyDataSetChanged();
-    }
-
-    /**
      * ViewHolder class that binds a Mood object to its corresponding views.
      */
     static class MoodViewHolder extends RecyclerView.ViewHolder {
@@ -299,6 +340,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         TextView tvMoodDescription;
         TextView tvTimestamp;
         TextView tvSocialSituation;
+        TextView tvLikeCount;
+
         ShapeableImageView ivProfile;
         ImageView ivMoodImage;
         Button btnEdit;
@@ -306,6 +349,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnDelete;
         Button btnViewMore;
 
+        ImageButton btnLike;
 
 
         public MoodViewHolder(@NonNull View itemView) {
@@ -317,10 +361,10 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivProfile = itemView.findViewById(R.id.ivProfile);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
-            //btnEdit = itemView.findViewById(R.id.btnEdit);
-            //btnDelete = itemView.findViewById(R.id.btnDelete);
             btnComment = itemView.findViewById(R.id.btnComment);
             btnViewMore = itemView.findViewById(R.id.btnViewMore);
+            btnLike = itemView.findViewById(R.id.btnLike);
+            tvLikeCount = itemView.findViewById(R.id.tvLikeCount);
 
         }
 
