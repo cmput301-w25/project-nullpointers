@@ -96,7 +96,7 @@ public class FirestoreMoodHistory {
      */
     public void firebaseToMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
         CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
-        // Note: whereIn supports up to 10 items; for more, you may need to split the query.
+        // Note: whereIn supports up to 10 items;
         Query query = moodsRef.whereIn("userId", userIds);
         // We pass null for the userID since we have multiple users.
         attachSnapshotListener(query, null, callback);

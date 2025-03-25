@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -23,49 +24,67 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
+
 import androidx.test.rule.GrantPermissionRule;
 
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
+import com.hamidat.nullpointersapp.utils.testUtils.TestUsersHelper;
 
 @LargeTest
 public class AddMoodIntentTest extends BaseUITest {
     private static final String TEST_REASON = "Feeling great!";
+    private static final String TAG = "AddMoodIntentTest";
 
     @Test
     public void addMoodShouldAddValidMoodEntry() {
+        Log.d(TAG, "Starting test: addMoodShouldAddValidMoodEntry");
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());
 
         // Verify the Add Mood UI is displayed (checking the title)
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
 
+        // Type the reason
         onView(withId(R.id.Reason))
                 .perform(typeText(TEST_REASON), closeSoftKeyboard());
 
-        // Select a mood ( Happy)
-        onView(withId(R.id.rbHappy)).perform(click());
+        // Select a mood from the dropdown (Spinner)
+        onView(withId(R.id.spinnerMood)).perform(click());
+        onView(withText("Happy")).perform(click());
 
         // Select a social situation
         onView(withId(R.id.rbGroup)).perform(click());
 
-        // Toggle off location to avoid validation issues (default is attached)
+        // Toggle off location to avoid validation issues
         onView(withId(R.id.btnAttachLocation)).perform(click());
 
-        // Click on the Save button
+        // Click on Save button
+        Log.d(TAG, "Saving the mood entry");
         onView(withId(R.id.btnSaveEntry)).perform(click());
 
         // after this the UI goes back to the homefeed fragment
         // need to click the edit button on the specifc mood card
         SystemClock.sleep(3000);
 
-        // Wait briefly to ensure the home feed is updated
+        // Ensure RecyclerView is visible
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
+        SystemClock.sleep(3000);
 
-        // Verify the mood card contents are shown
-        onView(withText(TEST_REASON)).check(matches(isDisplayed()));
-        onView(withText("Happy")).check(matches(isDisplayed()));
-        onView(withText("Group")).check(matches(isDisplayed()));
+        // Click on the first View More button (to open full mood details)
+        Log.d(TAG, "Opening 'View More' dialog for the most recent mood");
+        onView(withIndex(withId(R.id.btnViewMore), 0)).perform(click());
+
+        // Validate contents in dialog
+        Log.d(TAG, "Verifying mood details in the dialog...");
+        onView(withId(R.id.tvDialogDescription)).check(matches(withText("Why: " + TEST_REASON)));
+        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡")));
+        onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Group")));
+
+        Log.d(TAG, "Mood details verified successfully.");
+
     }
+
 
 
     @After

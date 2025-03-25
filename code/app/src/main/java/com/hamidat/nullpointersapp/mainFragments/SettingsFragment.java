@@ -136,7 +136,7 @@ public class SettingsFragment extends Fragment {
 
     private void updateUserProfilePicture(String base64Image) {
         // Update the user's document with the new profile picture.
-        // You need to implement updateUserProfilePicture in FirestoreHelper/FirestoreUsers.
+        // need to implement updateUserProfilePicture in FirestoreHelper/FirestoreUsers.
         firestoreHelper.updateUserProfilePicture(currentUserId, base64Image, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
