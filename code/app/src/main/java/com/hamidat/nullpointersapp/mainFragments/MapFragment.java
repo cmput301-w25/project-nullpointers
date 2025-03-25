@@ -549,6 +549,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             // Skip moods with no valid location.
             if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
 
+            // Determine if the mood should be visible
+            boolean isVisible = false;
+            if (mood.isPrivate()) {
+                // Private moods only visible to the owner
+                isVisible = mood.getUserId().equals(currentUserId);
+            } else {
+                // Public moods visible to followers
+                isVisible = true;
+            }
+
+            if (!isVisible) continue;
+
             // If our filter is on, skip moods older than 7 days.
             if (isLast7DaysFilter && mood.getTimestamp() != null) {
                 Date moodDate = mood.getTimestamp().toDate();
