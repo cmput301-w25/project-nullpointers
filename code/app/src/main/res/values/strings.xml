@@ -52,6 +52,8 @@
         <item>Surprised</item>
     </string-array>
     <string name="select_mood">Select mood</string>
+    <string name="register_now_styled">New Member? <font color="#5BA946">Register now</font></string>
+    <string name="login_now_styled">Already a Member? <font color="#5BA946">Login</font></string>
 
 
 
