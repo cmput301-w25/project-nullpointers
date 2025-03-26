@@ -162,6 +162,7 @@ public class SearchFragment extends Fragment {
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
         ImageView ivProfilePicture = profileView.findViewById(R.id.profile_icon);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
+        TextView tvFriendCount = profileView.findViewById(R.id.tvFriendCount);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -208,6 +209,25 @@ public class SearchFragment extends Fragment {
                         btnFollowUnfollow.setText("Unfollow");
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
+
+                        // Get their friend count to display
+                        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                if (result instanceof Map) {
+                                    Map<String, Object> theirData = (Map<String, Object>) result;
+                                    List<String> theirFollowing = (List<String>) theirData.get("following");
+                                    int friendCount = theirFollowing != null ? theirFollowing.size() : 0;
+                                    tvFriendCount.setText("Friends: " + friendCount);
+                                    tvFriendCount.setVisibility(View.VISIBLE);
+                                }
+                            }
+                            @Override
+                            public void onFailure(Exception e) {
+                                tvFriendCount.setVisibility(View.GONE);
+                            }
+                        });
+
                     } else {
                         btnFollowUnfollow.setText("Follow");
                         rvMoodEvents.setVisibility(View.GONE);

@@ -27,6 +27,7 @@ import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 
+import java.util.List;
 import java.util.Map;
 
 public class ProfileFragment extends Fragment {
@@ -52,9 +53,9 @@ public class ProfileFragment extends Fragment {
         usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
-        Button btnFollowing = view.findViewById(R.id.btnFollowing);
+        Button tvFriends = view.findViewById(R.id.btnFollowing);
 
-        btnFollowing.setOnClickListener(v -> {
+        tvFriends.setOnClickListener(v -> {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
         });
@@ -74,6 +75,10 @@ public class ProfileFragment extends Fragment {
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
                         usernameText.setText(username);
+
+                        List<String> following = (List<String>) userData.get("following");
+                        int count = (following != null) ? following.size() : 0;
+                        tvFriends.setText("My Friends: " + count);
 
                         // Update the profile image if available
                         String base64ProfilePic = (String) userData.get("profilePicture");
