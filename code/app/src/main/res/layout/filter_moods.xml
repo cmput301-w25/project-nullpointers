@@ -233,7 +233,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="All"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxHappy"
@@ -241,7 +242,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/happy"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxSad"
@@ -249,7 +251,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/sad"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxConfused"
@@ -257,7 +260,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/confused"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxAngry"
@@ -265,7 +269,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/angry"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxDisgusted"
@@ -273,7 +278,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/disgusted"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxAfraid"
@@ -281,7 +287,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/afraid"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxShameful"
@@ -289,7 +296,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/shameful"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
 
                         <CheckBox
                             android:id="@+id/checkboxSuprised"
@@ -297,7 +305,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/surprised"
-                            android:textSize="10sp" />
+                            android:textSize="10sp"
+                            android:buttonTint="@drawable/checkbox_tint"/>
                     </LinearLayout>
                 </HorizontalScrollView>
 
