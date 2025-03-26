@@ -65,13 +65,15 @@
         app:layout_constraintTop_toBottomOf="@id/username_text"
         app:layout_constraintVertical_bias="0.315" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnFollowUnfollow"
-        style="@style/UserProfileButtonStyle"
+        android:background="@drawable/demo_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
+        android:textAllCaps="false"
         android:text="Follow"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
