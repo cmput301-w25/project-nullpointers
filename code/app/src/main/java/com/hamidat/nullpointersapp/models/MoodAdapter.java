@@ -135,7 +135,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         holder.tvMoodDescription.setText("Why: " + truncated);
 
         holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
-
+        holder.itemView.setOnClickListener(v -> showDetailDialog(currentMood, v));
 
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
