@@ -2,7 +2,6 @@ package com.hamidat.nullpointersapp.mainFragments;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
+import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,9 +54,8 @@ public class MoodHistoryFragment extends Fragment {
     private boolean happyChecked = false;
     private boolean sadChecked = false;
     private boolean angryChecked = false;
-    private boolean chillChecked = false;
-    private boolean fearChecked = false;
-    private boolean disgustChecked = false;
+    private boolean afraidChecked = false;
+    private boolean disgustedChecked = false;
     private boolean shameChecked = false;
     private boolean surpriseChecked = false;
     private boolean confusionChecked = false;
@@ -141,12 +140,11 @@ public class MoodHistoryFragment extends Fragment {
         CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
         CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
         CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
-        CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
-        CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
-        CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+        CheckBox cbAfraid = filterPanel.findViewById(R.id.cbAfraid);
+        CheckBox cbDisgusted = filterPanel.findViewById(R.id.cbDisgusted);
         CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
         CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
-        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
+        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfused);
         // Select All button for moods
         Button btnSelectAll = filterPanel.findViewById(R.id.btnSelectAll);
         // Reason filter text
@@ -164,9 +162,8 @@ public class MoodHistoryFragment extends Fragment {
         cbHappy.setChecked(happyChecked);
         cbSad.setChecked(sadChecked);
         cbAngry.setChecked(angryChecked);
-        cbChill.setChecked(chillChecked);
-        cbFear.setChecked(fearChecked);
-        cbDisgust.setChecked(disgustChecked);
+        cbAfraid.setChecked(afraidChecked);
+        cbDisgusted.setChecked(disgustedChecked);
         cbShame.setChecked(shameChecked);
         cbSurprise.setChecked(surpriseChecked);
         cbConfusion.setChecked(confusionChecked);
@@ -200,16 +197,15 @@ public class MoodHistoryFragment extends Fragment {
 
         // Select All button toggles between selecting and deselecting all mood checkboxes.
         btnSelectAll.setOnClickListener(v -> {
-            if (cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() && cbChill.isChecked() &&
-                    cbFear.isChecked() && cbDisgust.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
+            if (cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() &&
+                    cbAfraid.isChecked() && cbDisgusted.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
                     cbConfusion.isChecked()) {
                 // Deselect all.
                 cbHappy.setChecked(false);
                 cbSad.setChecked(false);
                 cbAngry.setChecked(false);
-                cbChill.setChecked(false);
-                cbFear.setChecked(false);
-                cbDisgust.setChecked(false);
+                cbAfraid.setChecked(false);
+                cbDisgusted.setChecked(false);
                 cbShame.setChecked(false);
                 cbSurprise.setChecked(false);
                 cbConfusion.setChecked(false);
@@ -219,9 +215,8 @@ public class MoodHistoryFragment extends Fragment {
                 cbHappy.setChecked(true);
                 cbSad.setChecked(true);
                 cbAngry.setChecked(true);
-                cbChill.setChecked(true);
-                cbFear.setChecked(true);
-                cbDisgust.setChecked(true);
+                cbAfraid.setChecked(true);
+                cbDisgusted.setChecked(true);
                 cbShame.setChecked(true);
                 cbSurprise.setChecked(true);
                 cbConfusion.setChecked(true);
@@ -258,9 +253,8 @@ public class MoodHistoryFragment extends Fragment {
             happyChecked = cbHappy.isChecked();
             sadChecked = cbSad.isChecked();
             angryChecked = cbAngry.isChecked();
-            chillChecked = cbChill.isChecked();
-            fearChecked = cbFear.isChecked();
-            disgustChecked = cbDisgust.isChecked();
+            afraidChecked = cbAfraid.isChecked();
+            disgustedChecked = cbDisgusted.isChecked();
             shameChecked = cbShame.isChecked();
             surpriseChecked = cbSurprise.isChecked();
             confusionChecked = cbConfusion.isChecked();
@@ -277,9 +271,8 @@ public class MoodHistoryFragment extends Fragment {
             happyChecked = false;
             sadChecked = false;
             angryChecked = false;
-            chillChecked = false;
-            fearChecked = false;
-            disgustChecked = false;
+            afraidChecked = false;
+            disgustedChecked = false;
             shameChecked = false;
             surpriseChecked = false;
             confusionChecked = false;
@@ -290,9 +283,8 @@ public class MoodHistoryFragment extends Fragment {
             cbHappy.setChecked(happyChecked);
             cbSad.setChecked(sadChecked);
             cbAngry.setChecked(angryChecked);
-            cbChill.setChecked(chillChecked);
-            cbFear.setChecked(fearChecked);
-            cbDisgust.setChecked(disgustChecked);
+            cbAfraid.setChecked(afraidChecked);
+            cbDisgusted.setChecked(disgustedChecked);
             cbShame.setChecked(shameChecked);
             cbSurprise.setChecked(surpriseChecked);
             cbConfusion.setChecked(confusionChecked);
@@ -342,21 +334,19 @@ public class MoodHistoryFragment extends Fragment {
             CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
             CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
             CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
-            CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
-            CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
-            CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+            CheckBox cbAfraid = filterPanel.findViewById(R.id.cbAfraid);
+            CheckBox cbDisgusted = filterPanel.findViewById(R.id.cbDisgusted);
             CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
             CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
-            CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
+            CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfused);
             if (cbHappy.isChecked()) selectedMoods.add("Happy");
             if (cbSad.isChecked()) selectedMoods.add("Sad");
             if (cbAngry.isChecked()) selectedMoods.add("Angry");
-            if (cbChill.isChecked()) selectedMoods.add("Chill");
-            if (cbFear.isChecked()) selectedMoods.add("Fear");
-            if (cbDisgust.isChecked()) selectedMoods.add("Disgust");
-            if (cbShame.isChecked()) selectedMoods.add("Shame");
-            if (cbSurprise.isChecked()) selectedMoods.add("Surprise");
-            if (cbConfusion.isChecked()) selectedMoods.add("Confusion");
+            if (cbAfraid.isChecked()) selectedMoods.add("Afraid");
+            if (cbDisgusted.isChecked()) selectedMoods.add("Disgusted");
+            if (cbShame.isChecked()) selectedMoods.add("Shameful");
+            if (cbSurprise.isChecked()) selectedMoods.add("Surprised");
+            if (cbConfusion.isChecked()) selectedMoods.add("Confused");
             if (!selectedMoods.isEmpty()) {
                 query = query.whereIn("mood", selectedMoods);
             }
@@ -398,14 +388,13 @@ public class MoodHistoryFragment extends Fragment {
         CheckBox cbHappy = filterPanel.findViewById(R.id.cbHappy);
         CheckBox cbSad = filterPanel.findViewById(R.id.cbSad);
         CheckBox cbAngry = filterPanel.findViewById(R.id.cbAngry);
-        CheckBox cbChill = filterPanel.findViewById(R.id.cbChill);
-        CheckBox cbFear = filterPanel.findViewById(R.id.cbFear);
-        CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgust);
+        CheckBox cbAfraid = filterPanel.findViewById(R.id.cbAfraid);
+        CheckBox cbDisgust = filterPanel.findViewById(R.id.cbDisgusted);
         CheckBox cbShame = filterPanel.findViewById(R.id.cbShame);
         CheckBox cbSurprise = filterPanel.findViewById(R.id.cbSurprise);
-        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfusion);
-        return cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() && cbChill.isChecked() &&
-                cbFear.isChecked() && cbDisgust.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
+        CheckBox cbConfusion = filterPanel.findViewById(R.id.cbConfused);
+        return cbHappy.isChecked() && cbSad.isChecked() && cbAngry.isChecked() &&
+                cbAfraid.isChecked() && cbDisgust.isChecked() && cbShame.isChecked() && cbSurprise.isChecked() &&
                 cbConfusion.isChecked();
     }
 

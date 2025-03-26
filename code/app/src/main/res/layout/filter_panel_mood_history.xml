@@ -122,45 +122,38 @@
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbChill"
+                    android:id="@+id/cbAfraid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chill"
+                    android:text="@string/afraid"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbFear"
+                    android:id="@+id/cbDisgusted"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Fear"
-                    android:textColor="@color/textColor" />
-
-                <CheckBox
-                    android:id="@+id/cbDisgust"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Disgust"
+                    android:text="@string/disgusted"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
                     android:id="@+id/cbShame"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Shame"
+                    android:text="@string/shameful"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
                     android:id="@+id/cbSurprise"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Surprise"
+                    android:text="@string/surprised"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbConfusion"
+                    android:id="@+id/cbConfused"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confusion"
+                    android:text="@string/confused"
                     android:textColor="@color/textColor" />
             </LinearLayout>
         </HorizontalScrollView>

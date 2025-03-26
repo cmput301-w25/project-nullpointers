@@ -50,7 +50,7 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private CardView cardFromDate, cardToDate;
     private TextView tvFromDate, tvToDate;
     private Timestamp fromTimestamp, toTimestamp;
-    private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbAll, cbConfused, cbDisgust, cbFear, cbShame, cbSuprised;
+    private CheckBox cbHappy, cbSad, cbAngry, cbAll, cbConfused, cbDisgusted, cbAfraid, cbShameful, cbSuprised;
     private EditText filterDescription;
     private List<String> checkedEmotions;
     private String filterDescriptionText;
@@ -92,12 +92,11 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         cbHappy = filterView.findViewById(R.id.checkboxHappy);
         cbSad = filterView.findViewById(R.id.checkboxSad);
         cbAngry = filterView.findViewById(R.id.checkboxAngry);
-        cbChill = filterView.findViewById(R.id.checkboxChill);
 
         cbConfused = filterView.findViewById(R.id.checkboxConfused);
-        cbShame = filterView.findViewById(R.id.checkboxShame);
-        cbFear = filterView.findViewById(R.id.checkboxFear);
-        cbDisgust = filterView.findViewById(R.id.checkboxDisgust);
+        cbShameful = filterView.findViewById(R.id.checkboxShameful);
+        cbAfraid = filterView.findViewById(R.id.checkboxAfraid);
+        cbDisgusted = filterView.findViewById(R.id.checkboxDisgusted);
         cbSuprised = filterView.findViewById(R.id.checkboxSuprised);
 
         tvToDate = filterView.findViewById(R.id.textToDate);
@@ -121,11 +120,10 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             cbHappy.setChecked(checkedEmotions.contains("Happy"));
             cbSad.setChecked(checkedEmotions.contains("Sad"));
             cbAngry.setChecked(checkedEmotions.contains("Angry"));
-            cbChill.setChecked(checkedEmotions.contains("Chill"));
             cbConfused.setChecked(checkedEmotions.contains("Confused"));
-            cbShame.setChecked(checkedEmotions.contains("Shame"));
-            cbFear.setChecked(checkedEmotions.contains("Fear"));
-            cbDisgust.setChecked(checkedEmotions.contains("Disgust"));
+            cbShameful.setChecked(checkedEmotions.contains("Shameful"));
+            cbAfraid.setChecked(checkedEmotions.contains("Afraid"));
+            cbDisgusted.setChecked(checkedEmotions.contains("Disgusted"));
             cbSuprised.setChecked(checkedEmotions.contains("Suprised"));
 
         } else {
@@ -199,10 +197,9 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         cbHappy.setChecked(false);
         cbSad.setChecked(false);
         cbAngry.setChecked(false);
-        cbChill.setChecked(false);
-        cbFear.setChecked(false);
-        cbDisgust.setChecked(false);
-        cbShame.setChecked(false);
+        cbAfraid.setChecked(false);
+        cbDisgusted.setChecked(false);
+        cbShameful.setChecked(false);
         cbSuprised.setChecked(false);
         cbConfused.setChecked(false);
 
@@ -266,11 +263,10 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         if (cbHappy.isChecked()) selectedEmotions.add("Happy");
         if (cbSad.isChecked()) selectedEmotions.add("Sad");
         if (cbAngry.isChecked()) selectedEmotions.add("Angry");
-        if (cbChill.isChecked()) selectedEmotions.add("Chill");
 
-        if (cbFear.isChecked()) selectedEmotions.add("Fear");
-        if (cbDisgust.isChecked()) selectedEmotions.add("Disgust");
-        if (cbShame.isChecked()) selectedEmotions.add("Shame");
+        if (cbAfraid.isChecked()) selectedEmotions.add("Afraid");
+        if (cbDisgusted.isChecked()) selectedEmotions.add("Disgusted");
+        if (cbShameful.isChecked()) selectedEmotions.add("Shameful");
         if (cbSuprised.isChecked()) selectedEmotions.add("Suprised");
         if (cbConfused.isChecked()) selectedEmotions.add("Confused");
 

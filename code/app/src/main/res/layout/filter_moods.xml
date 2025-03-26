@@ -215,98 +215,91 @@
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
-                <LinearLayout
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    >
 
-                    <CheckBox
-                        android:id="@+id/checkboxAll"
-                        android:layout_width="65dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="All"
-                        android:textSize="10sp" />
-
-                    <CheckBox
-                        android:id="@+id/checkboxHappy"
-                        android:layout_width="73dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Happy"
-                        android:textSize="10sp" />
-
-                    <CheckBox
-                        android:id="@+id/checkboxSad"
-                        android:layout_width="61dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Sad"
-                        android:textSize="10sp" />
-
-                    <CheckBox
-                        android:id="@+id/checkboxChill"
-                        android:layout_width="70dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Chill"
-                        android:textSize="10sp" />
-
-                    <CheckBox
-                        android:id="@+id/checkboxConfused"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Confused"
-                        android:textSize="10sp" />
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
 
-                </LinearLayout>
+                        <CheckBox
+                            android:id="@+id/checkboxAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="All"
+                            android:textSize="10sp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                        <CheckBox
+                            android:id="@+id/checkboxHappy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/happy"
+                            android:textSize="10sp" />
 
-                    <CheckBox
-                        android:id="@+id/checkboxAngry"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Angry"
-                        android:textSize="10sp" />
+                        <CheckBox
+                            android:id="@+id/checkboxSad"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/sad"
+                            android:textSize="10sp" />
 
-                    <CheckBox
-                        android:id="@+id/checkboxDisgust"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Disgust"
-                        android:textSize="10sp" />
+                        <CheckBox
+                            android:id="@+id/checkboxConfused"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/confused"
+                            android:textSize="10sp" />
 
-                    <CheckBox
-                        android:id="@+id/checkboxFear"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Fear"
-                        android:textSize="10sp" />
+                        <CheckBox
+                            android:id="@+id/checkboxAngry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/angry"
+                            android:textSize="10sp" />
 
-                    <CheckBox
-                        android:id="@+id/checkboxShame"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Shame"
-                        android:textSize="10sp" />
+                        <CheckBox
+                            android:id="@+id/checkboxDisgusted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/disgusted"
+                            android:textSize="10sp" />
 
-                    <CheckBox
-                        android:id="@+id/checkboxSuprised"
-                        android:layout_width="70dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Suprised"
-                        android:textSize="10sp" />
-                </LinearLayout>
+                        <CheckBox
+                            android:id="@+id/checkboxAfraid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/afraid"
+                            android:textSize="10sp" />
+
+                        <CheckBox
+                            android:id="@+id/checkboxShameful"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/shameful"
+                            android:textSize="10sp" />
+
+                        <CheckBox
+                            android:id="@+id/checkboxSuprised"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/surprised"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </HorizontalScrollView>
 
             </LinearLayout>
 
