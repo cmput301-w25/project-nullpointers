@@ -117,7 +117,6 @@ public class FirestoreHelper {
         firestoreAddEditMoods.updateMood(mood, new FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
-                // You can customize the success message as desired:
                 callback.onSuccess("Mood updated successfully! " + result);
             }
 

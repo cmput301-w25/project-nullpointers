@@ -20,12 +20,14 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
 
 @LargeTest
 public class AddMoodSocialSituationIntentTest extends BaseUITest {
 
     private static final String TEST_REASON = "Testing social situation label.";
     private static final String EXPECTED_SOCIAL_SITUATION_LABEL = "Group";
+    private static final String TAG = "AddMoodSocialSituationIntentTest";
 
     @Test
     public void addMoodWithSocialSituation_shouldDisplayItInFeed() {
@@ -36,7 +38,10 @@ public class AddMoodSocialSituationIntentTest extends BaseUITest {
         // Enter mood reason
         onView(withId(R.id.Reason))
                 .perform(typeText(TEST_REASON), closeSoftKeyboard());
-        onView(withId(R.id.rbSad)).perform(click());
+        // Select a mood from the dropdown (Spinner)
+        onView(withId(R.id.spinnerMood)).perform(click());
+        onView(withText("Sad")).perform(click());
+
 
         // Select Group as the social situation
         onView(withId(R.id.rbGroup)).perform(click());
@@ -48,8 +53,12 @@ public class AddMoodSocialSituationIntentTest extends BaseUITest {
         SystemClock.sleep(2000);
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
 
-        // verify the social situation text appears
-        onView(withText(EXPECTED_SOCIAL_SITUATION_LABEL)).check(matches(isDisplayed()));
+        // Click on the first View More button (to open full mood details)
+        Log.d(TAG, "Opening 'View More' dialog for the most recent mood");
+        onView(withIndex(withId(R.id.btnViewMore), 0)).perform(click());
+
+        Log.d(TAG, "Verifying mood social situation details in the dialog...");
+        onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: " + EXPECTED_SOCIAL_SITUATION_LABEL)));
 
         Log.d("AddMoodSocialSituationIntentTest", "Verified social situation is correctly saved and restored.");
     }

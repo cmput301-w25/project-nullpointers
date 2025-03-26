@@ -7,6 +7,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
+
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -26,6 +28,8 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class DeleteMoodIntentTest extends BaseUITest {
+    private static final String TAG = "DeleteMoodIntentTest";
+
     @Before
     public void setUpMoods() {
         TestMoodHelper.insertTestMood(
@@ -49,16 +53,24 @@ public class DeleteMoodIntentTest extends BaseUITest {
 
     @Test
     public void deleteMoodShouldRemoveMood() {
-        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
         // Small delay to let the navigation complete
-
-        // Click the delete button on the first item in the RecyclerView (newest mood)
-        Log.d("DeleteMoodIntentTest", "The rvMoodList is now displayed");
+        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
         SystemClock.sleep(2000);
 
+        // Click the "View More" button on the newest mood
         onView(withId(R.id.rvMoodList))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0,
-                        ViewActionsHelper.clickChildViewWithId(R.id.btnDelete)));
+                        ViewActionsHelper.clickChildViewWithId(R.id.btnViewMore)));
+        SystemClock.sleep(1000);
+
+        // Click the "Delete" button in the dialog
+        onView(withId(R.id.btnDialogDelete)).perform(click());
+        Log.d("DeleteMoodIntentTest", "Clicked delete on the mood.");
+
+        // Wait for home feed to refresh
+        SystemClock.sleep(2000);
+        onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
+
         Log.d("DeleteMoodIntentTest", "Clicked the delete button of the mood we just added.");
 
         // Wait for HomeFeedFragment to load
@@ -70,15 +82,18 @@ public class DeleteMoodIntentTest extends BaseUITest {
         // Verify that the most recent mood is now the one that wasn't deleted changes persisted,so the edits rem
         onView(withId(R.id.rvMoodList))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0,
-                        ViewActionsHelper.clickChildViewWithId(R.id.btnEdit)));
+                        ViewActionsHelper.clickChildViewWithId(R.id.btnViewMore)));
+        SystemClock.sleep(1000);
 
         // Small wait to let EditMoodFragment load
         SystemClock.sleep(1000);
 
-        onView(withId(R.id.Reason))
-                .check(matches(withText("I'm feeling pretty good!")));
-        onView(withId(R.id.rbSad)).check(matches(ViewMatchers.isChecked()));
-        onView(withId(R.id.rbAlone)).check(matches(ViewMatchers.isChecked()));
+
+        // Check that it’s the expected second mood that still exists
+        onView(withId(R.id.tvDialogDescription))
+                .check(matches(withText("Why: I'm feeling pretty good!")));
+        onView(withId(R.id.tvDialogMood)).check(matches(withText("😢  🔵")));
+        onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Alone")));
 
         Log.d("DeleteMoodIntentTest", "Verified that the mood that we pressed delete for is gone.");
     }

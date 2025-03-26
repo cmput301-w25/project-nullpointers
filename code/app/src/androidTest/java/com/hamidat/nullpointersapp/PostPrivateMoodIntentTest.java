@@ -43,7 +43,8 @@ public class PostPrivateMoodIntentTest extends BaseUITest{
         onView(withId(R.id.switchPrivacy))
                 .perform(click());
 
-        onView(withId(R.id.rbHappy)).perform(click());
+        onView(withId(R.id.spinnerMood)).perform(click());
+        onView(withText("Happy")).perform(click());
 
         onView(withId(R.id.rbOneOnOne)).perform(click());
         onView(withId(R.id.btnAttachLocation)).perform(click());
@@ -54,7 +55,7 @@ public class PostPrivateMoodIntentTest extends BaseUITest{
         // need to click the edit button on the specifc mood card
         SystemClock.sleep(3000);
 
-        // Wait briefly to ensure the home feed is updated (you can replace with IdlingResource later)
+        // Wait briefly to ensure the home feed is updated
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed())); // This will block until the view appears
     }
 

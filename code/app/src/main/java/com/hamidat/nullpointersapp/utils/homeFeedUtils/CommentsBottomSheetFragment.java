@@ -1,5 +1,6 @@
 package com.hamidat.nullpointersapp.utils.homeFeedUtils;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -42,6 +43,8 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
     private List<Comment> commentList = new ArrayList<>();
     private CommentsAdapter commentsAdapter;
     private FirebaseFirestore firestore;
+    private Runnable onDismissListener;
+
 
     // Simple Comment model.
     public static class Comment {
@@ -247,7 +250,23 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
                         }
                     }
                     commentsAdapter.notifyDataSetChanged();
+
+                    firestore.collection("moods").document(moodId)
+                            .update("commentCount", commentList.size());
+
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading comments: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    public void setOnDismissListener(Runnable listener) {
+        this.onDismissListener = listener;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) {
+            onDismissListener.run();
+        }
     }
 }

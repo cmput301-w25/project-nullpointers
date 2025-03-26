@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="191dp"
         android:orientation="vertical"
         android:padding="8dp">
 
@@ -69,8 +69,8 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_alignParentStart="true">
+                        android:layout_alignParentStart="true"
+                        android:orientation="vertical">
 
                         <!-- Mood Description -->
                         <TextView
@@ -122,23 +122,42 @@
             android:orientation="horizontal"
             android:paddingTop="8dp">
 
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginLeft="20dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Like button"
+                android:src="@drawable/ic_heart_outline" />
+
+            <TextView
+                android:id="@+id/tvLikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical"
+                android:layout_marginStart="3dp"
+                android:text="0"
+                android:textColor="@color/buttonColor" />
+
             <Button
                 android:id="@+id/btnComment"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
                 android:layout_weight="1"
-                android:text="Comments"
-                android:textColor="@color/buttonColor"
-                android:backgroundTint="@color/white" />
+                android:backgroundTint="@color/white"
+                android:text="Comments (0)"
+                android:textColor="@color/buttonColor" />
 
             <Button
                 android:id="@+id/btnViewMore"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
                 android:layout_weight="1"
+                android:backgroundTint="@color/white"
                 android:text="View More"
-                android:textColor="@color/buttonColor"
-                android:backgroundTint="@color/white" />
+                android:textColor="@color/buttonColor" />
         </LinearLayout>
 
     </LinearLayout>

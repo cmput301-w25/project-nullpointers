@@ -148,6 +148,7 @@ public class HomeFeedFragment extends Fragment {
     }
 
     private void fetchMoodData() {
+
         if (currentUserId == null || firestoreHelper == null) return;
 
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
@@ -207,6 +208,8 @@ public class HomeFeedFragment extends Fragment {
                         }
                     });
                 }
+                Log.d("FirestoreDebug", " onSuccess: Firestore returned updated mood list");
+
             }
 
             @Override
@@ -229,6 +232,25 @@ public class HomeFeedFragment extends Fragment {
             return;
         }
         CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
+
+        // Update just the comment count
+        bottomSheet.setOnDismissListener(() -> {
+            FirebaseFirestore.getInstance()
+                    .collection("moods")
+                    .document(mood.getMoodId())
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        Long updatedCount = doc.getLong("commentCount");
+                        if (updatedCount != null) {
+                            mood.setCommentCount(updatedCount.intValue());
+                            int index = allMoods.indexOf(mood);
+                            if (index != -1) {
+                                moodAdapter.notifyItemChanged(index, "commentOnly");
+                            }
+                        }
+                    });
+        });
+
         bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
     }
 
@@ -238,5 +260,4 @@ public class HomeFeedFragment extends Fragment {
             activity.runOnUiThread(action);
         }
     }
-
 }

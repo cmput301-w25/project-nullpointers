@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
 public class MoodHistoryFragment extends Fragment {
 
@@ -91,6 +92,26 @@ public class MoodHistoryFragment extends Fragment {
 
         moodAdapter = new MoodAdapter(moodList, currentUserId);
         rvMoodHistory.setAdapter(moodAdapter);
+
+        // Add the comment listener for the person mood history too
+        rvMoodHistory.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(@NonNull View view) {
+                Button btnComment = view.findViewById(R.id.btnComment);
+                if (btnComment != null) {
+                    btnComment.setOnClickListener(v -> {
+                        int pos = rvMoodHistory.getChildAdapterPosition(view);
+                        if (pos != RecyclerView.NO_POSITION) {
+                            Mood mood = moodList.get(pos);
+                            openCommentsDialog(mood);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(@NonNull View view) { }
+        });
 
         firestore = FirebaseFirestore.getInstance();
 
@@ -434,4 +455,31 @@ public class MoodHistoryFragment extends Fragment {
         return mostFrequent;
     }
 
+    private void openCommentsDialog(Mood mood) {
+        if (mood.getMoodId() == null) {
+            Toast.makeText(getContext(), "Cannot load comments: mood id is missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
+
+        // When the dialog is dismissed, update only the comment count from Firestore
+        bottomSheet.setOnDismissListener(() -> {
+            FirebaseFirestore.getInstance()
+                    .collection("moods")
+                    .document(mood.getMoodId())
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        Long updatedCount = doc.getLong("commentCount");
+                        if (updatedCount != null) {
+                            mood.setCommentCount(updatedCount.intValue());
+                            int index = moodList.indexOf(mood);
+                            if (index != -1) {
+                                moodAdapter.notifyItemChanged(index, "commentCountOnly");
+                            }
+                        }
+                    });
+        });
+
+        bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
+    }
 }
