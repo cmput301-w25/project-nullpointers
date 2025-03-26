@@ -39,6 +39,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/textColor"
                 android:textSize="14sp"/>
+
         </LinearLayout>
 
         <TextView
@@ -49,5 +50,15 @@
             android:textColor="@color/textColor"
             android:textSize="14sp"
             android:layout_marginTop="8dp"/>
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/tvCommentTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="2h ago"
+            android:textColor="#68755F"
+            android:textSize="12sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

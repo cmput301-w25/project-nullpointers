@@ -213,7 +213,7 @@ android:background="@color/white">
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="10"
-                    android:text="@string/attach_location"
+                    android:text="@string/detach_location"
                     android:backgroundTint="@color/buttonColor"
                     android:textColor="@color/textColor" />
 

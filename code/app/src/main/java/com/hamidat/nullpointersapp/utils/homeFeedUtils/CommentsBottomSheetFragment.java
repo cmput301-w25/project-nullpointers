@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import android.text.format.DateUtils;
 
 public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
 
@@ -94,6 +95,18 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
             Comment comment = comments.get(position);
             holder.tvCommentUsername.setText(comment.getUsername());
             holder.tvCommentText.setText(comment.getCommentText());
+
+            Timestamp timestamp = comment.getTimestamp();
+            if (timestamp != null) {
+                long timeInMillis = timestamp.toDate().getTime();
+                CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(
+                        timeInMillis,
+                        System.currentTimeMillis(),
+                        DateUtils.MINUTE_IN_MILLIS
+                );
+                holder.tvCommentTimestamp.setText(relativeTime);
+            }
+
             // Load the commenter's profile picture.
             firestoreHelper.getUser(comment.getUserId(), new FirestoreHelper.FirestoreCallback() {
                 @Override
@@ -139,7 +152,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
         }
 
         public static class CommentViewHolder extends RecyclerView.ViewHolder {
-            TextView tvCommentUsername, tvCommentText;
+            TextView tvCommentUsername, tvCommentText, tvCommentTimestamp;
             ShapeableImageView ivUserAvatar;
 
             public CommentViewHolder(@NonNull View itemView) {
@@ -147,6 +160,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
                 tvCommentUsername = itemView.findViewById(R.id.tvCommentUsername);
                 tvCommentText = itemView.findViewById(R.id.tvCommentText);
                 ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
+                tvCommentTimestamp = itemView.findViewById(R.id.tvCommentTimestamp);
             }
         }
     }

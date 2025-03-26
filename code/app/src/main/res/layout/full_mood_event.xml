@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="(Most Recent First)"
+                        android:text="See what your friends are feeling"
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:textStyle="italic" /> <!-- Added spacing -->

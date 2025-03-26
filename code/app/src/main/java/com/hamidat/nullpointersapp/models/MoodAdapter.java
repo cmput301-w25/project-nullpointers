@@ -144,6 +144,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
+        holder.tvPrivate.setVisibility(currentMood.isPrivate() ? View.VISIBLE : View.GONE);
 
         boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
         if (isOwnMood) {
@@ -364,6 +365,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     static class MoodViewHolder extends RecyclerView.ViewHolder {
         TextView tvMood;
         TextView tvEdited;
+        TextView tvPrivate;
         TextView tvMoodDescription;
         TextView tvTimestamp;
         TextView tvSocialSituation;
@@ -384,6 +386,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             super(itemView);
             tvMood = itemView.findViewById(R.id.tvMood);
             tvEdited = itemView.findViewById(R.id.tvEdited);
+            tvPrivate = itemView.findViewById(R.id.tvPrivate);
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
