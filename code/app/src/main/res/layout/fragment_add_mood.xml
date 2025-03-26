@@ -215,7 +215,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="10"
                         android:backgroundTint="@color/buttonColor"
-                        android:text="@string/attach_location"
+                        android:text="@string/detach_location"
                         android:textColor="@color/textColor" />
 
                     <ImageView
