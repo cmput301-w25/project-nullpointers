@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/accentColor"
+    android:background="#C2DEAE"
     android:paddingHorizontal="16dp"
     android:paddingTop="16dp"
     android:paddingBottom="16dp">
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Filter Mood Events"
-                android:textColor="@android:color/white"
+                android:textColor="@color/textColor"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -65,13 +65,13 @@
                 android:layout_margin="8dp"
                 android:layout_weight="1"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="4dp">
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:id="@+id/fromDate"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#ADCC9A"
+                    android:background="#DEEDCC"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -102,13 +102,13 @@
                 android:layout_margin="8dp"
                 android:layout_weight="1"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="4dp">
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:id="@+id/toDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#ADCC9A"
+                    android:background="#DEEDCC"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -137,14 +137,14 @@
             android:layout_height="match_parent"
             android:layout_margin="8dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="0dp">
 
             <!-- A vertical layout for TextView and Spinner -->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ADCC9A"
+                android:background="#DEEDCC"
                 android:orientation="vertical"
                 android:paddingLeft="16dp"
                 android:paddingTop="16dp"
@@ -194,14 +194,14 @@
             android:layout_height="match_parent"
             android:layout_margin="8dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="0dp">
 
             <!-- A vertical layout for TextView and Spinner -->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#ADCC9A"
+                android:background="#DEEDCC"
                 android:orientation="vertical"
                 android:paddingTop="16dp">
 
@@ -311,13 +311,13 @@
             android:layout_height="match_parent"
             android:layout_margin="8dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="0dp">
 
             <!-- A vertical layout for TextView and Spinner -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ADCC9A"
+                android:background="#DEEDCC"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -360,36 +360,39 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonApplyFilter"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginRight="8dp"
-            android:fontFamily="sans-serif"
             android:text="Apply Filters"
-            android:textAlignment="viewStart"
+            android:gravity="center"
+            android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/primary"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:backgroundTint="#6EE461" />
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonResetFilter"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginRight="8dp"
-            android:fontFamily="sans-serif"
             android:text="Reset Filters"
-            android:textAlignment="viewStart"
+            android:gravity="center"
+            android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/white"
+            android:textSize="14sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/textColor" />
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp" />
+
 
     </LinearLayout>
 
