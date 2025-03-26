@@ -92,24 +92,6 @@ public class MoodHistoryFragment extends Fragment {
         moodAdapter = new MoodAdapter(moodList, currentUserId);
         rvMoodHistory.setAdapter(moodAdapter);
 
-        rvMoodHistory.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
-            @Override
-            public void onChildViewAttachedToWindow(@NonNull View view) {
-                Button btnComment = view.findViewById(R.id.btnComment);
-                if(btnComment != null) {
-                    btnComment.setOnClickListener(v -> {
-                        int pos = rvMoodHistory.getChildAdapterPosition(view);
-                        if(pos != RecyclerView.NO_POSITION) {
-                            Mood mood = moodList.get(pos);
-                            openCommentsDialog(mood);
-                        }
-                    });
-                }
-            }
-            @Override
-            public void onChildViewDetachedFromWindow(@NonNull View view) { }
-        });
-
         firestore = FirebaseFirestore.getInstance();
 
         // Inflate and add the filter panel (initially hidden) BEFORE loading mood history.
@@ -452,15 +434,4 @@ public class MoodHistoryFragment extends Fragment {
         return mostFrequent;
     }
 
-    /**
-     * Opens a dialog for viewing and adding comments for the given mood event.
-     */
-    private void openCommentsDialog(Mood mood) {
-        if (mood.getMoodId() == null) {
-            Toast.makeText(getContext(), "Cannot load comments: mood id is missing", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
-        bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
-    }
 }
