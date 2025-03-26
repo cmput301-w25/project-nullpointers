@@ -52,12 +52,12 @@ public class ProfileFragment extends Fragment {
         usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
-        Button btnFollowing = view.findViewById(R.id.btnFollowing);
-
-        btnFollowing.setOnClickListener(v -> {
-            Navigation.findNavController(requireView())
-                    .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
-        });
+//        Button btnFollowing = view.findViewById(R.id.btnFollowing);
+//
+//        btnFollowing.setOnClickListener(v -> {
+//            Navigation.findNavController(requireView())
+//                    .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
+//        });
 
         // Retrieve FirestoreHelper and currentUserId from MainActivity.
         if (getActivity() instanceof MainActivity) {
@@ -73,7 +73,7 @@ public class ProfileFragment extends Fragment {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
-                        usernameText.setText(String.format("My Username: %s", username));
+                        usernameText.setText(username);
 
                         // Update the profile image if available
                         String base64ProfilePic = (String) userData.get("profilePicture");
