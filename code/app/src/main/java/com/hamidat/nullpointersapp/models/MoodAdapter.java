@@ -45,6 +45,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private final String currentUserId;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
     private FirestoreHelper firestoreHelper;
+    private OnProfileClickListener profileClickListener;
+
+    public interface OnProfileClickListener {
+        void onProfileClick(String userId);
+    }
 
 
     /**
@@ -199,6 +204,9 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 .inflate(R.layout.dialog_mood_details, null);
         b.setView(dialogView);
 
+        TextView tvUsername = dialogView.findViewById(R.id.tvDialogUsername);
+        tvUsername.setText("by @loading...");
+
         TextView tvMood = dialogView.findViewById(R.id.tvDialogMood);
         TextView tvDesc = dialogView.findViewById(R.id.tvDialogDescription);
         TextView tvTime = dialogView.findViewById(R.id.tvDialogTimestamp);
@@ -246,7 +254,27 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             });
         }
 
+        // showing the username
+        firestoreHelper.getUser(mood.getUserId(), new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    String username = (String) userData.get("username");
+                    if (username != null) {
+                        tvUsername.setText("@" + username);
+                    } else {
+                        tvUsername.setText("@unknown");
+                    }
+                }
+            }
 
+            @Override
+            public void onFailure(Exception e) {
+                tvUsername.setText("@unknown");
+            }
+        });
 
         //showing the location - if applicable
         double lat = mood.getLatitude();
@@ -259,18 +287,17 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         //this adds the little labels and formats neater
         String moodEmoji;
         switch (mood.getMood().toLowerCase(Locale.ROOT)) {
-            case "happy":     moodEmoji = "😊  🟡"; break;
-            case "sad":       moodEmoji = "😢  🔵"; break;
-            case "angry":     moodEmoji = "😠  🔴"; break;
-            case "confused":  moodEmoji = "😕  ⚫"; break;
-            case "disgusted": moodEmoji = "🤢  🟠"; break;
-            case "afraid":    moodEmoji = "😱  🟣"; break;
-            case "shameful":  moodEmoji = "😳  🟤"; break;
-            case "surprised": moodEmoji = "😮  🟢"; break;
+            case "happy":     moodEmoji = "😊  🟡 - Happy"; break;
+            case "sad":       moodEmoji = "😢  🔵 - Sad"; break;
+            case "angry":     moodEmoji = "😠  🔴 - Angry"; break;
+            case "confused":  moodEmoji = "😕  ⚫ - Confused"; break;
+            case "disgusted": moodEmoji = "🤢  🟠 - Disgusted"; break;
+            case "afraid":    moodEmoji = "😱  🟣 - Afraid"; break;
+            case "shameful":  moodEmoji = "😳  🟤 - Shameful"; break;
+            case "surprised": moodEmoji = "😮  🟢 - Surprised"; break;
             default:          moodEmoji = "❓  ⚪"; break;
         }
         tvMood.setText(moodEmoji);
-
 
         tvDesc.setText("Why: " + mood.getMoodDescription());
 
@@ -348,6 +375,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnComment;
         Button btnDelete;
         Button btnViewMore;
+        private OnProfileClickListener profileClickListener;
 
         ImageButton btnLike;
 
