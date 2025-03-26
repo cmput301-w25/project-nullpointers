@@ -111,6 +111,17 @@
                         android:scaleType="centerCrop"
                         tools:srcCompat="@tools:sample/avatars" />
                 </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tvPrivate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="PRIVATE"
+                    android:textColor="#4F614A"
+                    android:textStyle="italic"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
 

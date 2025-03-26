@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            app:cardElevation="0dp"
             app:cardBackgroundColor="@color/white">
 
             <LinearLayout
@@ -76,7 +76,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="8dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            app:cardElevation="0dp"
             app:cardBackgroundColor="@color/white">
 
             <androidx.recyclerview.widget.RecyclerView
