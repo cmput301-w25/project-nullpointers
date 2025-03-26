@@ -78,7 +78,7 @@
         android:background="@drawable/bg_edittext_material"
         android:drawableEnd="@drawable/ic_login_person"
         android:drawablePadding="12dp"
-        android:hint="Username"
+        android:hint="Create a unique username"
         android:paddingStart="12dp"
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
