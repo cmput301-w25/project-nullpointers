@@ -45,19 +45,38 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
 
+    <!-- Friends Count (Visible only if user is followed) -->
+
     <!-- Follow/Unfollow Button -->
-    <Button
-        android:id="@+id/btnFollowUnfollow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Follow"
-        style="@style/UserProfileButtonStyle"
-        app:layout_constraintTop_toBottomOf="@id/username_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
 
     <!-- Divider Between Button and RecyclerView -->
+    <TextView
+        android:id="@+id/tvFriendCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Friends: 0"
+        android:visibility="gone"
+        android:textColor="@color/textColor"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnFollowUnfollow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/username_text"
+        app:layout_constraintVertical_bias="0.315" />
+
+    <Button
+        android:id="@+id/btnFollowUnfollow"
+        style="@style/UserProfileButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:text="Follow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/username_text" />
+
     <View
         android:id="@+id/dividerMoodEvents"
         android:layout_width="100dp"
