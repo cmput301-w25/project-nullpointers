@@ -59,19 +59,19 @@ public class MoodClusterRenderer extends DefaultClusterRenderer<MoodClusterItem>
             case "Chill":
                 drawableId = R.drawable.ic_pin_chill;
                 break;
-            case "Fear":
+            case "Afraid":
                 drawableId = R.drawable.ic_pin_fear;
                 break;
-            case "Disgust":
+            case "Disgusted":
                 drawableId = R.drawable.ic_pin_disgust;
                 break;
-            case "Shame":
+            case "Shameful":
                 drawableId = R.drawable.ic_pin_shame;
                 break;
-            case "Surprise":
+            case "Surprised":
                 drawableId = R.drawable.ic_pin_surprise;
                 break;
-            case "Confusion":
+            case "Confused":
                 drawableId = R.drawable.ic_pin_confusion;
                 break;
             default:

@@ -331,11 +331,11 @@ public class MoodHistoryFragment extends Fragment {
             if (cbSad.isChecked()) selectedMoods.add("Sad");
             if (cbAngry.isChecked()) selectedMoods.add("Angry");
             if (cbChill.isChecked()) selectedMoods.add("Chill");
-            if (cbFear.isChecked()) selectedMoods.add("Fear");
-            if (cbDisgust.isChecked()) selectedMoods.add("Disgust");
-            if (cbShame.isChecked()) selectedMoods.add("Shame");
-            if (cbSurprise.isChecked()) selectedMoods.add("Surprise");
-            if (cbConfusion.isChecked()) selectedMoods.add("Confusion");
+            if (cbFear.isChecked()) selectedMoods.add("Afraid");
+            if (cbDisgust.isChecked()) selectedMoods.add("Disgusted");
+            if (cbShame.isChecked()) selectedMoods.add("Shameful");
+            if (cbSurprise.isChecked()) selectedMoods.add("Surprised");
+            if (cbConfusion.isChecked()) selectedMoods.add("Confused");
             if (!selectedMoods.isEmpty()) {
                 query = query.whereIn("mood", selectedMoods);
             }

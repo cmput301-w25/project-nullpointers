@@ -35,7 +35,6 @@
     </RelativeLayout>
 
     <!-- Date Selection Section -->
-    <!-- Updated Date Selection Section -->
     <LinearLayout
         android:id="@+id/date_filter_section"
         android:layout_width="match_parent"
@@ -43,7 +42,6 @@
         android:orientation="vertical"
         android:background="@color/tertiaryColor"
         android:padding="12dp">
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,14 +50,11 @@
             android:textColor="@color/textColor"
             android:textStyle="bold"
             android:paddingBottom="8dp" />
-
-        <!-- Row for Select Date and Selected Date Display -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
-
             <Button
                 android:id="@+id/select_date_button"
                 android:layout_width="wrap_content"
@@ -67,7 +62,6 @@
                 android:text="Select Date"
                 android:backgroundTint="@color/buttonColor"
                 android:textColor="@color/textColor" />
-
             <TextView
                 android:id="@+id/selected_date_display"
                 android:layout_width="0dp"
@@ -80,14 +74,11 @@
                 android:paddingTop="4dp"
                 android:visibility="visible" />
         </LinearLayout>
-
-        <!-- Row for Last 7 Days switch -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
-
             <Switch
                 android:id="@+id/showLast7DaysSwitch"
                 android:layout_width="match_parent"
@@ -100,7 +91,6 @@
                 android:checked="true" />
         </LinearLayout>
     </LinearLayout>
-
 
     <!-- Divider -->
     <View
@@ -115,7 +105,6 @@
         android:orientation="vertical"
         android:background="@color/tertiaryColor"
         android:padding="12dp">
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -124,7 +113,6 @@
             android:textColor="@color/textColor"
             android:textStyle="bold"
             android:paddingBottom="8dp" />
-
         <Switch
             android:id="@+id/showNearbySwitch"
             android:layout_width="match_parent"
@@ -134,10 +122,43 @@
             android:layout_alignParentEnd="true"
             android:thumbTint="@color/accentColor"
             android:trackTint="@color/primaryColor" />
-
     </LinearLayout>
 
     <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/buttonColor" />
+
+    <!-- Personal Filter Section -->
+
+    <!-- Divider -->
+
+    <LinearLayout
+        android:id="@+id/personal_filter_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@color/tertiaryColor"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvShowMoodHistoryLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Mood History"
+            android:textColor="@color/textColor"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchShowMoodHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:checked="false" />
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -150,11 +171,9 @@
         android:orientation="vertical"
         android:background="@color/tertiaryColor"
         android:padding="12dp">
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -162,7 +181,6 @@
                 android:textSize="16sp"
                 android:textColor="@color/textColor"
                 android:textStyle="bold" />
-
             <Switch
                 android:id="@+id/all_switch"
                 android:layout_width="wrap_content"
@@ -173,8 +191,6 @@
                 android:thumbTint="@color/accentColor"
                 android:trackTint="@color/primaryColor" />
         </RelativeLayout>
-
-        <!-- Horizontal row of mood checkboxes with spacing -->
         <LinearLayout
             android:id="@+id/mood_filter_container"
             android:layout_width="match_parent"
@@ -182,7 +198,6 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:paddingTop="8dp">
-
             <CheckBox
                 android:id="@+id/checkbox_happy"
                 android:layout_width="wrap_content"
@@ -190,9 +205,7 @@
                 android:text="Happy"
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
-
                 android:layout_marginEnd="12dp" />
-
             <CheckBox
                 android:id="@+id/checkbox_sad"
                 android:layout_width="wrap_content"
@@ -200,9 +213,7 @@
                 android:text="Sad"
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
-
                 android:layout_marginEnd="11.5dp" />
-
             <CheckBox
                 android:id="@+id/checkbox_angry"
                 android:layout_width="wrap_content"
@@ -210,16 +221,14 @@
                 android:text="Angry"
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
-
                 android:layout_marginEnd="11.5dp" />
-
-            <CheckBox
-                android:id="@+id/checkbox_chill"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chill"
-                app:buttonTint="@color/accentColor"
-                android:textColor="@color/textColor" />
+<!--            <CheckBox-->
+<!--                android:id="@+id/checkbox_chill"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Chill"-->
+<!--                app:buttonTint="@color/accentColor"-->
+<!--                android:textColor="@color/textColor" />-->
         </LinearLayout>
         <LinearLayout
             android:id="@+id/mood_filter_container_row2"
@@ -228,7 +237,6 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:paddingTop="8dp">
-
             <CheckBox
                 android:id="@+id/checkbox_fear"
                 android:layout_width="wrap_content"
@@ -237,7 +245,6 @@
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
                 android:layout_marginEnd="12dp" />
-
             <CheckBox
                 android:id="@+id/checkbox_disgust"
                 android:layout_width="wrap_content"
@@ -246,7 +253,6 @@
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
                 android:layout_marginEnd="12dp" />
-
             <CheckBox
                 android:id="@+id/checkbox_shame"
                 android:layout_width="wrap_content"
@@ -255,8 +261,6 @@
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
                 android:layout_marginEnd="12dp" />
-
-
         </LinearLayout>
         <LinearLayout
             android:id="@+id/mood_filter_container_row3"
@@ -273,7 +277,6 @@
                 android:textColor="@color/textColor"
                 app:buttonTint="@color/accentColor"
                 android:layout_marginEnd="12dp" />
-
             <CheckBox
                 android:id="@+id/checkbox_confusion"
                 android:layout_width="wrap_content"
