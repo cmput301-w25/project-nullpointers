@@ -1,3 +1,13 @@
+/**
+ * HomeFeedFragment.java
+ *
+ * Displays a scrollable list of mood posts from the current user and followed users.
+ * Allows viewing mood details, opening a comments dialog, and applying filters.
+ * Integrates with Firestore for real-time mood and comment updates.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import androidx.annotation.NonNull;

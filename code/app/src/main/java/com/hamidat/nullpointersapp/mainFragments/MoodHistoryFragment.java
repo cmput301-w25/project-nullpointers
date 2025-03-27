@@ -1,3 +1,13 @@
+/**
+ * MoodHistoryFragment.java
+ *
+ * This fragment displays a chronological list of the current user's past mood entries.
+ * It includes advanced filtering options (e.g., mood type, date range, keyword, recent 7 days)
+ * and allows users to view and comment on each mood. It also computes the most frequent mood.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.app.DatePickerDialog;

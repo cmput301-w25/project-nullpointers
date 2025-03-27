@@ -1,3 +1,13 @@
+/**
+ * MapFragment.java
+ *
+ * A fragment that displays a Google Map with mood markers using clustering.
+ * Supports filtering moods by date, emotion, and proximity. Also includes
+ * an animated info window to display mood details and user profile information.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.Manifest;

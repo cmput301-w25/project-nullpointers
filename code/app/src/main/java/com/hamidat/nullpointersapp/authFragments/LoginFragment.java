@@ -1,3 +1,12 @@
+/**
+ * LoginFragment.java
+ *
+ * Fragment responsible for handling user login interactions in the authentication flow.
+ * It supports standard login and a demo guest login used for testing purposes.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.authFragments;
 
 import static com.hamidat.nullpointersapp.utils.authUtils.AuthHelper.giveAuthNotification;

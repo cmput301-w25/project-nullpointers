@@ -1,3 +1,11 @@
+/**
+ * FirestoreUsers.java
+ * Handles Firestore operations related to user data such as adding users,
+ * retrieving user profiles, and updating profile pictures.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.DocumentSnapshot;

@@ -1,3 +1,12 @@
+/**
+ * NetworkMonitor.java
+ *
+ * Monitors the device's internet connectivity and shows periodic Toast updates about the connection status.
+ * Designed for use in background or UI-aware components to inform users of connectivity changes.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.networkUtils;
 
 import android.content.Context;

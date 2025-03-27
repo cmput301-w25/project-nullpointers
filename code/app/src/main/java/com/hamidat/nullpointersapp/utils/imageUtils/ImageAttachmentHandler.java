@@ -1,3 +1,12 @@
+/**
+ * ImageAttachmentHandler.java
+ *
+ * Handles image selection and validation from the device's storage.
+ * Validates that the image size does not exceed 64KB.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.imageUtils;
 
 import android.content.Intent;
