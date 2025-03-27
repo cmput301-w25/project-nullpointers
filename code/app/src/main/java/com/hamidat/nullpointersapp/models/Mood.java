@@ -1,3 +1,19 @@
+/**
+ * Mood.java
+ *
+ * Model representing a mood event. Contains details such as:
+ * - mood state (e.g., Happy, Sad)
+ * - optional description
+ * - location (latitude and longitude)
+ * - social situation
+ * - optional image (Base64)
+ * - timestamp and user ID
+ * - privacy settings
+ * - interaction metrics (likes and comments)
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.models;
 
 import com.google.firebase.Timestamp;

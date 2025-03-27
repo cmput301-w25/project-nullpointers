@@ -1,3 +1,16 @@
+/**
+ * SettingsFragment.java
+ *
+ * This fragment provides the user with access to various account and app settings, including:
+ * - Updating profile picture using image picker and UCrop for circular cropping
+ * - Placeholder buttons for changing themes and notification settings
+ * - Logging out and redirecting to the authentication screen
+ *
+ * Uses Firebase Authentication for logout and Firestore for profile picture storage.
+ * Cropped profile pictures are converted to Base64 and stored in the user's Firestore document.
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.content.Intent;

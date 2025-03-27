@@ -1,3 +1,12 @@
+/**
+ * MoodClusterRenderer.java
+ *
+ * Custom renderer for mood markers on the map. Converts emotion-based vector icons to bitmap markers,
+ * assigns them to individual mood events, and removes transparent padding for precise marker hitboxes.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import android.content.Context;

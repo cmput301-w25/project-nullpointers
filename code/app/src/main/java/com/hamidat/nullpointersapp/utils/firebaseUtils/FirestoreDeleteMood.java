@@ -1,3 +1,10 @@
+/**
+ * FirestoreDeleteMood.java
+ * Handles Firestore logic for deleting Mood documents and updating user mood history accordingly.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.DocumentReference;

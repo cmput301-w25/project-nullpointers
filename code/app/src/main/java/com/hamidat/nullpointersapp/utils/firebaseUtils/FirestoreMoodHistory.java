@@ -1,3 +1,10 @@
+/**
+ * FirestoreMoodHistory.java
+ * Handles Firestore operations related to retrieving and querying user mood history.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import android.util.Log;

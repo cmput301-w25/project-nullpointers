@@ -1,3 +1,18 @@
+/**
+ * SearchFragment.java
+ *
+ * This fragment allows users to search for other users in the system.
+ * Key features include:
+ * - Live filtering of usernames as the user types
+ * - Excludes the current user from search results
+ * - Tapping a result opens the selected user's profile in an overlay
+ * - Profile view shows username, profile picture, friend count, and mood previews (if followed)
+ * - Users can send or remove friend requests from the overlay
+ *
+ * Uses Firestore to retrieve and filter user data and mood events.
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.graphics.Bitmap;

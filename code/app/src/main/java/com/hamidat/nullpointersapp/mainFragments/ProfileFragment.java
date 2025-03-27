@@ -1,3 +1,21 @@
+/**
+ * ProfileFragment.java
+ *
+ * Displays the current user's profile, including:
+ * - Username
+ * - Profile picture
+ * - Friend count (users they follow)
+ *
+ * This fragment also provides navigation to:
+ * - MoodHistoryFragment
+ * - SettingsFragment
+ * - FollowingFragment (My Friends)
+ *
+ * <p>User data is fetched from Firestore using FirestoreHelper.</p>
+ * <p>Profile picture is decoded from Base64 if available.</p>
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.*;

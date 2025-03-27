@@ -1,3 +1,11 @@
+/**
+ * FirestoreFollowing.java
+ * Utility class for handling Firestore friend request and following logic, including
+ * sending, accepting, declining, and listening for friend requests.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import androidx.annotation.Nullable;

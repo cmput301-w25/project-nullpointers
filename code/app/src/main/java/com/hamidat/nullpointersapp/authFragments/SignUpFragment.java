@@ -1,3 +1,12 @@
+/**
+ * SignUpFragment.java
+ *
+ * Fragment responsible for handling user registration.
+ * Validates input fields, checks for username uniqueness, and creates a new user in Firestore.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.authFragments;
 
 import android.os.Bundle;
