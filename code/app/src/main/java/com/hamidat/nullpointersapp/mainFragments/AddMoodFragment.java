@@ -91,7 +91,6 @@ public class AddMoodFragment extends Fragment {
         Button btnCancel = view.findViewById(R.id.btnCancel);
         switchPrivacy = view.findViewById(R.id.switchPrivacy);
 
-        // New: Bind the Attach Location button
         Button btnAttachLocation = view.findViewById(R.id.btnAttachLocation);
         btnAttachLocation.setOnClickListener(v -> {
             // Toggle the attachLocation flag
@@ -138,8 +137,8 @@ public class AddMoodFragment extends Fragment {
                 int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
 
 // Validate inputs
-                if (reasonText.isEmpty()) {
-                    Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
+                if (reasonText.isEmpty() && base64Image == null) {
+                    Toast.makeText(getActivity(), "Please enter a reason or a photo", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (spinner.getSelectedItemPosition() == AdapterView.INVALID_POSITION || selectedSocialId == -1) {
@@ -159,8 +158,9 @@ public class AddMoodFragment extends Fragment {
 
                 // Read the privacy setting from the switch.
                 boolean isPrivate = switchPrivacy.isChecked();
-
-
+                if (reasonText.isEmpty()) {
+                    reasonText = "Photo Attached";
+                }
                 // Create Mood object based on whether a photo was attached
                 Mood newlyCreatedMood;
                 if (base64Image != null) {
