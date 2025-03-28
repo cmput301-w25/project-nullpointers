@@ -1,3 +1,11 @@
+/**
+ * MoodAdapter.java
+ * RecyclerView adapter for displaying a list of Mood objects with support for user interaction,
+ * liking, commenting, editing, and deleting moods.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.models;
 
 import android.app.AlertDialog;
@@ -9,6 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +53,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private final String currentUserId;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
     private FirestoreHelper firestoreHelper;
+    private OnProfileClickListener profileClickListener;
+
+    public interface OnProfileClickListener {
+        void onProfileClick(String userId);
+    }
+
 
     /**
      * Constructs a new MoodAdapter.
@@ -73,9 +89,56 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     @Override
+    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            Object payload = payloads.get(0);
+            Mood mood = moods.get(position);
+
+            if ("likeOnly".equals(payload)) {
+                holder.tvLikeCount.setText(String.valueOf(mood.getLikeCount()));
+                holder.btnLike.setImageResource(mood.isLikedBy(currentUserId)
+                        ? R.drawable.ic_heart_filled
+                        : R.drawable.ic_heart_outline);
+                return; // only update likes
+            } else if ("commentOnly".equals(payload)) {
+                holder.btnComment.setText("Comments (" + mood.getCommentCount() + ")");
+                return; // only update comments
+            }
+        }
+
+        // Fallback to full bind if no payload or unknown
+        super.onBindViewHolder(holder, position, payloads);
+    }
+
+
+    @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
         holder.bind(currentMood);
+
+        boolean isLiked = currentMood.isLikedBy(currentUserId);
+        holder.btnLike.setImageResource(isLiked ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+        holder.tvLikeCount.setText(String.valueOf(currentMood.getLikeCount()));
+        holder.btnComment.setText("Comments (" + currentMood.getCommentCount() + ")");
+
+        // Toggle like logic
+        holder.btnLike.setOnClickListener(v -> {
+            boolean currentlyLiked = currentMood.isLikedBy(currentUserId);
+            if (currentlyLiked) {
+                currentMood.getLikedByUserIds().remove(currentUserId);
+                currentMood.setLikeCount(currentMood.getLikeCount() - 1);
+            } else {
+                currentMood.getLikedByUserIds().add(currentUserId);
+                currentMood.setLikeCount(currentMood.getLikeCount() + 1);
+            }
+            notifyItemChanged(holder.getAdapterPosition(), "likeOnly");
+
+            FirebaseFirestore.getInstance()
+                    .collection("moods")
+                    .document(currentMood.getMoodId())
+                    .update("likedByUserIds", currentMood.getLikedByUserIds(),
+                            "likeCount", currentMood.getLikeCount());
+        });
 
         // Truncate the mood description to the first 15 characters and add an ellipsis if needed.
         String fullDesc = currentMood.getMoodDescription();
@@ -85,10 +148,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         holder.tvMoodDescription.setText("Why: " + truncated);
 
         holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
-
+        holder.itemView.setOnClickListener(v -> showDetailDialog(currentMood, v));
 
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
+        holder.tvPrivate.setVisibility(currentMood.isPrivate() ? View.VISIBLE : View.GONE);
 
         boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
         if (isOwnMood) {
@@ -149,6 +213,9 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 .inflate(R.layout.dialog_mood_details, null);
         b.setView(dialogView);
 
+        TextView tvUsername = dialogView.findViewById(R.id.tvDialogUsername);
+        tvUsername.setText("by @loading...");
+
         TextView tvMood = dialogView.findViewById(R.id.tvDialogMood);
         TextView tvDesc = dialogView.findViewById(R.id.tvDialogDescription);
         TextView tvTime = dialogView.findViewById(R.id.tvDialogTimestamp);
@@ -158,6 +225,65 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         ImageView iv = dialogView.findViewById(R.id.ivDialogImage);
         Button btnDelete = dialogView.findViewById(R.id.btnDialogDelete);
         Button btnEdit = dialogView.findViewById(R.id.btnDialogEdit);
+        boolean isOwnMood = mood.getUserId() != null && mood.getUserId().equals(currentUserId);
+
+
+        //only show edit and delete if it is my own mood
+        if (!isOwnMood) {
+            btnDelete.setVisibility(View.GONE);
+            btnEdit.setVisibility(View.GONE);
+        }
+
+        AlertDialog dlg = b.create();
+
+        if (isOwnMood) {//if its my own
+            btnDelete.setOnClickListener(v -> {
+                new FirestoreDeleteMood(FirebaseFirestore.getInstance())
+                        .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                            @Override public void onSuccess(Object result) {
+                                int pos = moods.indexOf(mood);
+                                if (pos != -1) {
+                                    moods.remove(pos);
+                                    notifyItemRemoved(pos);
+                                }
+                                Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
+                            }
+                            @Override public void onFailure(Exception e) {
+                                Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                dlg.dismiss();
+            });
+
+            btnEdit.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                args.putSerializable("mood", mood);
+                Navigation.findNavController(anchor).navigate(R.id.editMoodFragment, args);
+                dlg.dismiss();
+            });
+        }
+
+        // showing the username
+        firestoreHelper.getUser(mood.getUserId(), new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    String username = (String) userData.get("username");
+                    if (username != null) {
+                        tvUsername.setText("@" + username);
+                    } else {
+                        tvUsername.setText("@unknown");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                tvUsername.setText("@unknown");
+            }
+        });
 
         //showing the location - if applicable
         double lat = mood.getLatitude();
@@ -170,18 +296,17 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         //this adds the little labels and formats neater
         String moodEmoji;
         switch (mood.getMood().toLowerCase(Locale.ROOT)) {
-            case "happy":     moodEmoji = "😊  🟡"; break;
-            case "sad":       moodEmoji = "😢  🔵"; break;
-            case "angry":     moodEmoji = "😠  🔴"; break;
-            case "confused":  moodEmoji = "😕  ⚫"; break;
-            case "disgusted": moodEmoji = "🤢  🟠"; break;
-            case "afraid":    moodEmoji = "😱  🟣"; break;
-            case "shameful":  moodEmoji = "😳  🟤"; break;
-            case "surprised": moodEmoji = "😮  🟢"; break;
+            case "happy":     moodEmoji = "😊  🟡 - Happy"; break;
+            case "sad":       moodEmoji = "😢  🔵 - Sad"; break;
+            case "angry":     moodEmoji = "😠  🔴 - Angry"; break;
+            case "confused":  moodEmoji = "😕  ⚫ - Confused"; break;
+            case "disgusted": moodEmoji = "🤢  🟠 - Disgusted"; break;
+            case "afraid":    moodEmoji = "😱  🟣 - Afraid"; break;
+            case "shameful":  moodEmoji = "😳  🟤 - Shameful"; break;
+            case "surprised": moodEmoji = "😮  🟢 - Surprised"; break;
             default:          moodEmoji = "❓  ⚪"; break;
         }
         tvMood.setText(moodEmoji);
-
 
         tvDesc.setText("Why: " + mood.getMoodDescription());
 
@@ -197,7 +322,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             iv.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
         } else iv.setVisibility(View.GONE);
 
-        AlertDialog dlg = b.create();
         btnDelete.setOnClickListener(v -> {
             // Firestore delete
             new FirestoreDeleteMood(FirebaseFirestore.getInstance())
@@ -244,45 +368,42 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     /**
-     * Replaces the current list of moods with a new list.
-     */
-    public void updateMoods(List<Mood> newMoods) {
-        moods.clear();
-        moods.addAll(newMoods);
-        notifyDataSetChanged();
-    }
-
-    /**
      * ViewHolder class that binds a Mood object to its corresponding views.
      */
     static class MoodViewHolder extends RecyclerView.ViewHolder {
         TextView tvMood;
         TextView tvEdited;
+        TextView tvPrivate;
         TextView tvMoodDescription;
         TextView tvTimestamp;
         TextView tvSocialSituation;
+        TextView tvLikeCount;
+
         ShapeableImageView ivProfile;
         ImageView ivMoodImage;
         Button btnEdit;
         Button btnComment;
         Button btnDelete;
         Button btnViewMore;
+        private OnProfileClickListener profileClickListener;
 
+        ImageButton btnLike;
 
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMood = itemView.findViewById(R.id.tvMood);
             tvEdited = itemView.findViewById(R.id.tvEdited);
+            tvPrivate = itemView.findViewById(R.id.tvPrivate);
             tvMoodDescription = itemView.findViewById(R.id.tvMoodDescription);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvSocialSituation = itemView.findViewById(R.id.tvSocialSituation);
             ivProfile = itemView.findViewById(R.id.ivProfile);
             ivMoodImage = itemView.findViewById(R.id.ivMoodCardImgIfExists);
-            //btnEdit = itemView.findViewById(R.id.btnEdit);
-            //btnDelete = itemView.findViewById(R.id.btnDelete);
             btnComment = itemView.findViewById(R.id.btnComment);
             btnViewMore = itemView.findViewById(R.id.btnViewMore);
+            btnLike = itemView.findViewById(R.id.btnLike);
+            tvLikeCount = itemView.findViewById(R.id.tvLikeCount);
 
         }
 

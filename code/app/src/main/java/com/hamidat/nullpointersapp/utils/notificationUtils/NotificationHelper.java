@@ -1,3 +1,13 @@
+/**
+ * NotificationHelper.java
+ *
+ * Utility class for creating and managing friend request notifications.
+ * Provides methods for sending notifications when a friend request is received
+ * or accepted, including optional Accept/Decline actions.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.notificationUtils;
 
 import android.app.NotificationChannel;

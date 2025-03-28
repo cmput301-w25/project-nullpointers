@@ -1,3 +1,13 @@
+/**
+ * TestUsersHelper.java
+ *
+ * Utility class for managing test user relationships in Firestore.
+ * Includes methods to insert, accept, decline, and remove fake friend requests and follow relationships.
+ * Primarily used for testing social connection features in the app.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.testUtils;
 
 import android.util.Log;

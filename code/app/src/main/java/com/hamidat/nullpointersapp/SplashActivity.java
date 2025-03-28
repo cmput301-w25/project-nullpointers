@@ -1,3 +1,12 @@
+/**
+ * SplashActivity.java
+ *
+ * Initial entry point that displays the splash screen for a brief duration.
+ * Transitions to AuthActivity after a short delay.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp;
 
 import android.content.Intent;

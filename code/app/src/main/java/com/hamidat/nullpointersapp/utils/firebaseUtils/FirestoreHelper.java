@@ -1,3 +1,11 @@
+/**
+ * FirestoreHelper.java
+ * Provides a unified interface for interacting with Firestore,
+ * delegating user, mood, and following-related operations to their respective helper classes.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -117,7 +125,6 @@ public class FirestoreHelper {
         firestoreAddEditMoods.updateMood(mood, new FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
-                // You can customize the success message as desired:
                 callback.onSuccess("Mood updated successfully! " + result);
             }
 

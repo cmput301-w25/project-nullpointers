@@ -1,3 +1,13 @@
+/**
+ * HomeFeedFragment.java
+ *
+ * Displays a scrollable list of mood posts from the current user and followed users.
+ * Allows viewing mood details, opening a comments dialog, and applying filters.
+ * Integrates with Firestore for real-time mood and comment updates.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import androidx.annotation.NonNull;
@@ -28,6 +38,7 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.models.moodHistory;
+import com.hamidat.nullpointersapp.models.Comment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
@@ -147,6 +158,7 @@ public class HomeFeedFragment extends Fragment {
     }
 
     private void fetchMoodData() {
+
         if (currentUserId == null || firestoreHelper == null) return;
 
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
@@ -206,6 +218,8 @@ public class HomeFeedFragment extends Fragment {
                         }
                     });
                 }
+                Log.d("FirestoreDebug", " onSuccess: Firestore returned updated mood list");
+
             }
 
             @Override
@@ -228,6 +242,25 @@ public class HomeFeedFragment extends Fragment {
             return;
         }
         CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(mood.getMoodId(), currentUserId);
+
+        // Update just the comment count
+        bottomSheet.setOnDismissListener(() -> {
+            FirebaseFirestore.getInstance()
+                    .collection("moods")
+                    .document(mood.getMoodId())
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        Long updatedCount = doc.getLong("commentCount");
+                        if (updatedCount != null) {
+                            mood.setCommentCount(updatedCount.intValue());
+                            int index = allMoods.indexOf(mood);
+                            if (index != -1) {
+                                moodAdapter.notifyItemChanged(index, "commentOnly");
+                            }
+                        }
+                    });
+        });
+
         bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
     }
 
@@ -235,62 +268,6 @@ public class HomeFeedFragment extends Fragment {
         Activity activity = getActivity();
         if (activity != null && isAdded()) {
             activity.runOnUiThread(action);
-        }
-    }
-
-
-    // Simple Comment model.
-    public static class Comment {
-        private String userId;
-        private String commentText;
-        private Timestamp timestamp;
-
-        public Comment() { }
-
-        public Comment(String userId, String commentText, Timestamp timestamp) {
-            this.userId = userId;
-            this.commentText = commentText;
-            this.timestamp = timestamp;
-        }
-        public String getUserId() { return userId; }
-        public String getCommentText() { return commentText; }
-        public Timestamp getTimestamp() { return timestamp; }
-        public void setUserId(String userId) { this.userId = userId; }
-        public void setCommentText(String commentText) { this.commentText = commentText; }
-        public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
-    }
-
-    // Simple adapter for comments.
-    public static class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
-        private List<Comment> comments;
-        public CommentsAdapter(List<Comment> comments) {
-            this.comments = comments;
-        }
-        @NonNull
-        @Override
-        public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_2, parent, false);
-            return new CommentViewHolder(view);
-        }
-        @Override
-        public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-            Comment comment = comments.get(position);
-            holder.text1.setText(comment.getCommentText());
-            // For simplicity, display userId in text2. You might replace this with the actual username.
-            holder.text2.setText(comment.getUserId());
-        }
-        @Override
-        public int getItemCount() {
-            return comments.size();
-        }
-        public static class CommentViewHolder extends RecyclerView.ViewHolder {
-            TextView text1, text2;
-            public CommentViewHolder(@NonNull View itemView) {
-                super(itemView);
-                text1 = itemView.findViewById(android.R.id.text1);
-                text2 = itemView.findViewById(android.R.id.text2);
-            }
         }
     }
 }

@@ -55,7 +55,8 @@ public class RejectTooLargePhotographIntentTest extends BaseUITest {
             onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
             // Fill in mood fields
             onView(withId(R.id.Reason)).perform(typeText("Mood with too-large photo!"), closeSoftKeyboard());
-            onView(withId(R.id.rbHappy)).perform(click());
+            onView(withId(R.id.spinnerMood)).perform(click());
+            onView(withText("Happy")).perform(click());
             onView(withId(R.id.rbGroup)).perform(click());
             onView(withId(R.id.btnAttachLocation)).perform(click());
 

@@ -1,3 +1,11 @@
+/**
+ * UserProfile.java
+ * Represents a user's profile in the Moodify system.
+ * Handles validation and management of the username field.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.models;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.MAX_USERNAME_LENGTH;

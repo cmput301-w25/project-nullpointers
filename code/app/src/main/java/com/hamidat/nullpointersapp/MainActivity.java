@@ -1,3 +1,16 @@
+/**
+ * MainActivity.java
+ *
+ * The primary activity hosting all major app fragments and navigation.
+ * Manages:
+ * - Navigation via bottom icons
+ * - Friend request notifications
+ * - Location and notification permission handling
+ * - Mood caching for quick access
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp;
 
 import android.Manifest;

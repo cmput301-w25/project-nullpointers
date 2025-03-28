@@ -1,3 +1,12 @@
+/**
+ * DeleteMoodFragment.java
+ *
+ * Fragment that handles deleting a mood post from Firestore.
+ * Triggered via a dialog UI and used primarily for testing or user-triggered deletion.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.os.Bundle;

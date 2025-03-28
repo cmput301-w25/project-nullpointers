@@ -1,3 +1,12 @@
+/**
+ * TestMoodHelper.java
+ *
+ * Utility class for inserting, deleting, and querying test data related to Mood objects and comments.
+ * Designed for testing Firestore operations such as mood creation, deletion, and comment insertion.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.testUtils;
 
 import android.os.SystemClock;

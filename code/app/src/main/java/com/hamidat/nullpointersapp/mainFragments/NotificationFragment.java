@@ -1,3 +1,13 @@
+/**
+ * NotificationFragment.java
+ *
+ * This fragment displays incoming friend requests for the current user.
+ * Each request includes the sender's username, a timestamp ("x time ago"), and two buttons: Accept and Decline.
+ * Upon action, the request is removed and Firestore is updated accordingly.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.os.Bundle;

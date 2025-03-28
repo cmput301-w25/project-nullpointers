@@ -1,3 +1,12 @@
+/**
+ * EmotionAdapter.java
+ *
+ * RecyclerView adapter for displaying a list of emotion checkboxes used for filtering mood data.
+ * Integrates with a Switch to toggle all emotions on or off, and provides methods to access selected states.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import android.view.LayoutInflater;

@@ -1,3 +1,11 @@
+/**
+ * FirestoreAddEditMoods.java
+ * Handles operations for saving and updating Mood objects in Firebase Firestore.
+ * Supports moods with and without images, and tracks changes in user mood history.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.Timestamp;
@@ -110,7 +118,7 @@ public class FirestoreAddEditMoods {
         updatedData.put("longitude", mood.getLongitude());
         updatedData.put("socialSituation", mood.getSocialSituation());
         updatedData.put("imageBase64", mood.getImageBase64());
-        // If you wish to update the timestamp to "now," uncomment:
+        // If you want to to update the timestamp to "now," uncomment:
         // updatedData.put("timestamp", new Timestamp(new Date()));
         updatedData.put("edited", mood.isEdited());
 

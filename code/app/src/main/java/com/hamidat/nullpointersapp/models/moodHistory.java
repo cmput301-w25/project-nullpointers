@@ -1,3 +1,10 @@
+/**
+ * moodHistory.java
+ * Represents a user's mood history, allowing addition, retrieval, and filtering of mood entries.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.models;
 
 import java.util.ArrayList;

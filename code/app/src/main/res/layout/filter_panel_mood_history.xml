@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/filter_panel_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/filter_panel_background"
+    android:background="#C2DEAE"
     android:elevation="8dp"
     android:padding="0dp">
 
@@ -12,7 +13,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
         android:padding="12dp">
 
         <TextView
@@ -20,7 +20,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Filter Mood History"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:paddingTop="17dp"
+            android:layout_marginLeft="20dp"
+            android:paddingBottom="10dp"
             android:textStyle="bold"
             android:textColor="@color/textColor" />
 
@@ -28,10 +31,10 @@
             android:id="@+id/btnCloseFilter"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
             android:layout_alignParentEnd="true"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:tint="@color/textColor" />
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@color/textColor" />
     </RelativeLayout>
 
     <!-- Recent Week Filter Section -->
@@ -40,6 +43,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
+        android:radius="30dp"
         android:padding="12dp"
         android:gravity="center_vertical">
 
@@ -61,11 +70,16 @@
 
     <!-- Emotional State Filter Section -->
     <LinearLayout
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
         android:id="@+id/llMoodFilter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -82,13 +96,14 @@
                 android:textSize="16sp"
                 android:textColor="@color/textColor" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Select All"
-                android:backgroundTint="@color/buttonColor"
-                android:textColor="@color/textColor" />
+                app:backgroundTint="#A6C881"
+                app:cornerRadius="8dp"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <HorizontalScrollView
@@ -122,45 +137,38 @@
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbChill"
+                    android:id="@+id/cbAfraid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chill"
+                    android:text="@string/afraid"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbFear"
+                    android:id="@+id/cbDisgusted"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Fear"
-                    android:textColor="@color/textColor" />
-
-                <CheckBox
-                    android:id="@+id/cbDisgust"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Disgust"
+                    android:text="@string/disgusted"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
                     android:id="@+id/cbShame"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Shame"
+                    android:text="@string/shameful"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
                     android:id="@+id/cbSurprise"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Surprise"
+                    android:text="@string/surprised"
                     android:textColor="@color/textColor" />
 
                 <CheckBox
-                    android:id="@+id/cbConfusion"
+                    android:id="@+id/cbConfused"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confusion"
+                    android:text="@string/confused"
                     android:textColor="@color/textColor" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -171,17 +179,22 @@
         android:id="@+id/llDateFilter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         android:padding="12dp"
         android:gravity="center_vertical">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSelectDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Date"
-            android:backgroundTint="@color/buttonColor"
-            android:textColor="@color/textColor" />
+            app:backgroundTint="#A6C881"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/tvSelectedDate"
@@ -200,6 +213,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
         android:padding="12dp">
 
         <TextView
@@ -225,24 +243,26 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnApplyFilter"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Apply Filter"
-            android:backgroundTint="@color/accentColor"
-            android:textColor="@color/textColor" />
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnResetFilter"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Reset Filter"
             android:layout_marginStart="12dp"
-            android:backgroundTint="@color/buttonColor"
-            android:textColor="@color/textColor" />
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </LinearLayout>

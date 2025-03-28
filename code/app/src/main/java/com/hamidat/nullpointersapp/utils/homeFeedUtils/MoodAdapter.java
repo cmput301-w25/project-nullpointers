@@ -1,3 +1,12 @@
+/**
+ * MoodAdapter.java
+ *
+ * RecyclerView adapter for displaying mood entries in the home feed.
+ * Displays mood title, associated username, and the date of the mood event.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.homeFeedUtils;
 
 import android.content.Context;

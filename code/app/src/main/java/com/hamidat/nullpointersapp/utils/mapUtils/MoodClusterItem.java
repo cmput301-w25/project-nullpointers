@@ -1,3 +1,12 @@
+/**
+ * MoodClusterItem.java
+ *
+ * Represents a mood event on the map with metadata including emotion, timestamp, location,
+ * image (Base64), description, and social context. Implements ClusterItem for map clustering.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.mapUtils;
 
 import androidx.annotation.NonNull;

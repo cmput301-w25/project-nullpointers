@@ -1,3 +1,13 @@
+/**
+ * AddMoodFragment.java
+ *
+ * Fragment responsible for creating a new Mood entry.
+ * Users can attach a reason, emotion, photo, social context, and optionally their location.
+ * The mood is saved to Firestore and can be displayed in the HomeFeed.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import static android.content.ContentValues.TAG;

@@ -1,3 +1,12 @@
+/**
+ * AuthActivity.java
+ *
+ * Manages the authentication flow for the app by displaying login and registration fragments.
+ * Automatically redirects to MainActivity if running in test mode.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp;
 
 import android.content.Intent;

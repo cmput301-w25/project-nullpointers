@@ -1,5 +1,15 @@
+/**
+ * CommentsBottomSheetFragment.java
+ *
+ * Bottom sheet dialog fragment that displays and allows posting of comments on a mood.
+ * Handles displaying user avatars, posting new comments, and real-time updating of the comment list.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.homeFeedUtils;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -30,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import android.text.format.DateUtils;
 
 public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
 
@@ -42,6 +53,8 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
     private List<Comment> commentList = new ArrayList<>();
     private CommentsAdapter commentsAdapter;
     private FirebaseFirestore firestore;
+    private Runnable onDismissListener;
+
 
     // Simple Comment model.
     public static class Comment {
@@ -91,6 +104,18 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
             Comment comment = comments.get(position);
             holder.tvCommentUsername.setText(comment.getUsername());
             holder.tvCommentText.setText(comment.getCommentText());
+
+            Timestamp timestamp = comment.getTimestamp();
+            if (timestamp != null) {
+                long timeInMillis = timestamp.toDate().getTime();
+                CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(
+                        timeInMillis,
+                        System.currentTimeMillis(),
+                        DateUtils.MINUTE_IN_MILLIS
+                );
+                holder.tvCommentTimestamp.setText(relativeTime);
+            }
+
             // Load the commenter's profile picture.
             firestoreHelper.getUser(comment.getUserId(), new FirestoreHelper.FirestoreCallback() {
                 @Override
@@ -136,7 +161,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
         }
 
         public static class CommentViewHolder extends RecyclerView.ViewHolder {
-            TextView tvCommentUsername, tvCommentText;
+            TextView tvCommentUsername, tvCommentText, tvCommentTimestamp;
             ShapeableImageView ivUserAvatar;
 
             public CommentViewHolder(@NonNull View itemView) {
@@ -144,6 +169,7 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
                 tvCommentUsername = itemView.findViewById(R.id.tvCommentUsername);
                 tvCommentText = itemView.findViewById(R.id.tvCommentText);
                 ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
+                tvCommentTimestamp = itemView.findViewById(R.id.tvCommentTimestamp);
             }
         }
     }
@@ -247,7 +273,23 @@ public class CommentsBottomSheetFragment extends BottomSheetDialogFragment {
                         }
                     }
                     commentsAdapter.notifyDataSetChanged();
+
+                    firestore.collection("moods").document(moodId)
+                            .update("commentCount", commentList.size());
+
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error loading comments: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    public void setOnDismissListener(Runnable listener) {
+        this.onDismissListener = listener;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) {
+            onDismissListener.run();
+        }
     }
 }
