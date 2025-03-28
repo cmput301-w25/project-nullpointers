@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -85,6 +86,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // Filter UI
     private Switch switchShowMoodHistory;
+    private boolean showMoodHistory = false;
+
     private View filterPanelContainer;
     private Switch showNearbySwitch;
     private Switch showLast7DaysSwitch;
@@ -247,8 +250,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
 
-        switchShowMoodHistory.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // No additional UI update needed; its state will be read when fetching data.
+        switchShowMoodHistory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                showMoodHistory = isChecked;
+                Log.d("MapFragment", "switchShowMoodHistory changed to: " + isChecked);
+                // Optionally trigger filtering here if immediate response is desired
+                fetchMoodData();
+
+            }
         });
 
         // Floating Action Button to toggle filter panel
@@ -438,8 +448,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void fetchMoodData() {
         if (currentUserId == null || firestoreHelper == null) return;
 
-        // If the "Show Mood History" switch is on, directly query using the currentUserId
-        if (switchShowMoodHistory != null && switchShowMoodHistory.isChecked()) {
+        if (showMoodHistory) {
             Log.d("MapFragment", "Fetching personal mood history for " + currentUserId);
             firestoreHelper.firebaseToMoodHistory(currentUserId, new FirestoreHelper.FirestoreCallback() {
                 @Override
@@ -453,7 +462,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         } else {
-            // Otherwise, use the following list.
             firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
                 @Override
                 public void onSuccess(Object result) {
@@ -489,6 +497,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
     }
+
 
 
 
