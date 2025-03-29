@@ -145,7 +145,6 @@ public class NotificationHelper {
     public static void sendPostNotification(Context context, String currentUserId, String senderUsername, String senderUserId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Create notification channel for API 26+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("Notifications for posts from users you follow");
@@ -154,11 +153,10 @@ public class NotificationHelper {
             }
         }
 
-        // Build an intent that includes the current user's ID and the sender's details.
         Intent tapIntent = new Intent(context, MainActivity.class);
-        tapIntent.putExtra("USER_ID", currentUserId);            // Current logged-in user.
+        tapIntent.putExtra("USER_ID", currentUserId);
         tapIntent.putExtra("open_profile", true);
-        tapIntent.putExtra("profile_user_id", senderUserId);       // The sender's user ID.
+        tapIntent.putExtra("profile_user_id", senderUserId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
                 context,

@@ -38,8 +38,10 @@ import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreHelper currentUserFirestoreInstance;
     private NavController navController;
     private FirestoreHelper firestoreHelper;
+    private Set<String> processedMoodIds = new HashSet<>();
+
 
     // for in memory list of moods
     private final List<Mood> moodCache = new ArrayList<>();
@@ -66,6 +70,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 101;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.getBooleanExtra("open_profile", false)) {
+            navController.navigate(R.id.searchFragment);
+            // Clear the extras so they are not processed again.
+            intent.removeExtra("open_profile");
+            intent.removeExtra("profile_user_id");
+        }
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,6 +209,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNewPostNotificationListener() {
+        // Record login time.
+        final long loginTime = System.currentTimeMillis();
+        final com.google.firebase.Timestamp loginTimestamp = new com.google.firebase.Timestamp(new java.util.Date(loginTime));
+
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -201,9 +223,9 @@ public class MainActivity extends AppCompatActivity {
                     if (followedIds == null) {
                         followedIds = new ArrayList<>();
                     }
-                    // Remove self if present.
+                    // Remove self.
                     followedIds.remove(currentUserId);
-                    // Limit to 10 items since whereIn supports a maximum of 10.
+                    // whereIn supports max 10 items.
                     if (followedIds.size() > 10) {
                         followedIds = followedIds.subList(0, 10);
                     }
@@ -211,24 +233,30 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("moods")
                                 .whereIn("userId", followedIds)
+                                // Only process moods posted after the user logged in.
+                                .whereGreaterThan("timestamp", loginTimestamp)
                                 .addSnapshotListener((@Nullable QuerySnapshot value, @Nullable com.google.firebase.firestore.FirebaseFirestoreException error) -> {
                                     if (error != null || value == null) return;
                                     for (DocumentChange dc : value.getDocumentChanges()) {
                                         if (dc.getType() == DocumentChange.Type.ADDED) {
+                                            String moodDocId = dc.getDocument().getId();
+                                            if (processedMoodIds.contains(moodDocId)) continue;
+                                            processedMoodIds.add(moodDocId);
                                             String posterUserId = dc.getDocument().getString("userId");
                                             if (posterUserId != null && !posterUserId.equals(currentUserId)) {
                                                 String posterUsername = dc.getDocument().getString("username");
                                                 if (posterUsername == null) {
                                                     posterUsername = "Someone";
                                                 }
-                                                // Write a notification document to Firestore.
+                                                // Use a deterministic notification document ID to prevent duplicates.
+                                                String notificationId = "post_" + moodDocId + "_" + currentUserId;
                                                 java.util.Map<String, Object> notificationData = new java.util.HashMap<>();
                                                 notificationData.put("type", "post");
                                                 notificationData.put("fromUserId", posterUserId);
                                                 notificationData.put("username", posterUsername);
                                                 notificationData.put("timestamp", com.google.firebase.Timestamp.now());
                                                 notificationData.put("toUserId", currentUserId);
-                                                db.collection("notifications").add(notificationData);
+                                                db.collection("notifications").document(notificationId).set(notificationData);
 
                                                 // Send a system-level notification.
                                                 NotificationHelper.sendPostNotification(getApplicationContext(), currentUserId, posterUsername, posterUserId);
@@ -245,8 +273,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
 
     public void updateNotificationIcon(boolean hasNotifications) {
