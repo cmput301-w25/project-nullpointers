@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -100,7 +101,7 @@ public class MoodHistoryFragment extends Fragment {
             return;
         }
 
-        moodAdapter = new MoodAdapter(moodList, currentUserId);
+        moodAdapter = new MoodAdapter(moodList, currentUserId,(AppCompatActivity) getActivity());
         rvMoodHistory.setAdapter(moodAdapter);
 
         // Add the comment listener for the person mood history too

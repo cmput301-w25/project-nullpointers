@@ -30,8 +30,10 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,6 +56,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
     private FirestoreHelper firestoreHelper;
     private OnProfileClickListener profileClickListener;
+    private final AppCompatActivity activity; // Store activity reference
 
     public interface OnProfileClickListener {
         void onProfileClick(String userId);
@@ -66,11 +69,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
      * @param moods         List of Mood objects to display.
      * @param currentUserId The ID of the currently signed-in user.
      */
-    public MoodAdapter(List<Mood> moods, String currentUserId) {
+    public MoodAdapter(List<Mood> moods, String currentUserId, AppCompatActivity activity) {
         this.moods = moods;
         this.currentUserId = currentUserId;
+        this.activity = activity;
         firestoreHelper = new FirestoreHelper();
     }
+
 
     @Override
     public int getItemViewType(int position) {
@@ -209,8 +214,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             }
         } else {
             if (holder.btnComment != null) {
-                holder.btnComment.setOnClickListener(v ->
-                        Toast.makeText(v.getContext(), "Comment button clicked.", Toast.LENGTH_SHORT).show());
+                holder.btnComment.setOnClickListener(v -> {
+                    // Open the CommentsBottomSheetFragment using the stored activity.
+                    CommentsBottomSheetFragment fragment = CommentsBottomSheetFragment.newInstance(
+                            currentMood.getMoodId(), currentUserId);
+                    fragment.show(activity.getSupportFragmentManager(), "CommentsBottomSheetFragment");
+                });
             }
         }
     }

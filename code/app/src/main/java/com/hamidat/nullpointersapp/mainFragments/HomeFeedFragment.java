@@ -12,6 +12,7 @@ package com.hamidat.nullpointersapp.mainFragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -88,7 +89,7 @@ public class HomeFeedFragment extends Fragment {
         }
 
         if (currentUserId != null) {
-            moodAdapter = new MoodAdapter(allMoods, currentUserId);
+            moodAdapter = new MoodAdapter(allMoods, currentUserId,(AppCompatActivity) getActivity());
             rvMoodList.setAdapter(moodAdapter);
         } else {
             Toast.makeText(getContext(), "Error: User ID is null. Restart app.", Toast.LENGTH_SHORT).show();
