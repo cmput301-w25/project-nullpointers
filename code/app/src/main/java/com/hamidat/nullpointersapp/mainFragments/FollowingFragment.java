@@ -26,6 +26,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -357,7 +358,7 @@ public class FollowingFragment extends Fragment {
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
-        MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId);
+        MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId,(AppCompatActivity) getActivity());
 
         rvMoodEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         rvMoodEvents.setAdapter(moodAdapter);

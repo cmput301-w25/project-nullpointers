@@ -96,10 +96,10 @@ public class ProfileFragment extends Fragment {
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
                         usernameText.setText(username);
-
                         List<String> following = (List<String>) userData.get("following");
-                        int count = (following != null) ? following.size() : 0;
+                        int count = (following != null && !following.isEmpty()) ? following.size() - 1 : 0;
                         tvFriends.setText("My Friends: " + count);
+
 
                         String status = (String) userData.get("status");
                         if (status != null && !status.isEmpty()) {
