@@ -7,13 +7,14 @@
  * - Friend request notifications
  * - Location and notification permission handling
  * - Mood caching for quick access
+ * - Real-time updates to post notifications based on changes to the following list.
  *
  * Outstanding Issues: None
  */
-
 package com.hamidat.nullpointersapp;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -29,23 +30,22 @@ import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.Timestamp;  // <-- Required import
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
-import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
+import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
 import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
@@ -54,17 +54,20 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreHelper firestoreHelper;
     private Set<String> processedMoodIds = new HashSet<>();
 
+    // Listener registrations to update post notifications in real time.
+    private ListenerRegistration followingListener;
+    private ListenerRegistration moodListener;
 
-    // for in memory list of moods
+    // For in-memory list of moods.
     private final List<Mood> moodCache = new ArrayList<>();
 
     public List<Mood> getMoodCache() {
         return moodCache;
     }
 
-    // Add a helper to add a new mood to moodCache
+    // Helper method to add a new mood to moodCache.
     public void addMoodToCache(Mood newMood) {
-        // insert at the start so newest appears first
+        // Insert at the start so newest appears first.
         moodCache.add(0, newMood);
     }
 
@@ -77,28 +80,33 @@ public class MainActivity extends AppCompatActivity {
         setIntent(intent);
         if (intent.getBooleanExtra("open_profile", false)) {
             navController.navigate(R.id.searchFragment);
-            // Clear the extras so they are not processed again.
+            // Clear extras so they are not processed again.
             intent.removeExtra("open_profile");
             intent.removeExtra("profile_user_id");
         }
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        // Get the current user ID and FirestoreHelper instance.
+        // Retrieve the passed user ID.
         currentUserId = getIntent().getStringExtra("USER_ID");
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "Error: No logged in user ID provided", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Initialize FirestoreHelper instances.
         firestoreHelper = new FirestoreHelper();
+        currentUserFirestoreInstance = firestoreHelper; // Use the same instance.
 
-        // Set up the persistent listener for friend requests.
+        // Set up friend request listener.
         setupNotificationListener();
-        setupNewPostNotificationListener();
-
+        // Set up following listener to update post notifications in real time.
+        setupFollowingListener();
 
         // Request POST_NOTIFICATIONS permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -116,49 +124,34 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        // Retrieve the passed user ID
-        currentUserId = getIntent().getStringExtra("USER_ID");
-        if (currentUserId == null || currentUserId.isEmpty()) {
-            Toast.makeText(this, "Error: No logged in user ID provided", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        // Create a single FirestoreHelper instance for the logged in user
-        currentUserFirestoreInstance = new FirestoreHelper();
-
-        // Initialize NavController
+        // Initialize NavController.
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // If launched via notification, navigate directly to FollowingFragment.
-        // After initializing navController
+        // If launched via notification, navigate accordingly.
         if (getIntent() != null) {
             if (getIntent().getBooleanExtra("open_notification", false)) {
                 navController.navigate(R.id.notificationFragment);
             }
+            if (getIntent().getBooleanExtra("open_profile", false)) {
+                // Navigate to SearchFragment to load the profile overlay.
+                navController.navigate(R.id.searchFragment);
+            }
         }
 
-        if (getIntent() != null && getIntent().getBooleanExtra("open_profile", false)) {
-            // Navigate to SearchFragment so that it will load the search profile overlay.
-            navController.navigate(R.id.searchFragment);
-        }
-
-
-
+        // Set up friend request notifier listeners.
         FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
         notifier.startListeningIncomingRequests(this, currentUserId, currentUserFirestoreInstance);
         notifier.startListeningAcceptedRequests(this, currentUserId);
 
-        // Bind navigation icons
+        // Bind navigation icons.
         final ImageView ivHome = findViewById(R.id.ivHome);
         final ImageView ivAddMood = findViewById(R.id.ivAddMood);
         final ImageView ivProfile = findViewById(R.id.ivProfile);
         final ImageView ivMap = findViewById(R.id.ivMap);
         final ImageView ivSearch = findViewById(R.id.ivSearch);
         final ImageView ivNotification = findViewById(R.id.ivNotification);
-
 
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
@@ -189,10 +182,22 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Notifications Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.notificationFragment);
         });
-
-
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (followingListener != null) {
+            followingListener.remove();
+        }
+        if (moodListener != null) {
+            moodListener.remove();
+        }
+    }
+
+    /**
+     * Sets up the friend request listener (existing logic).
+     */
     private void setupNotificationListener() {
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
             @Override
@@ -202,78 +207,87 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Exception e) {
-                // Optionally, if there's an error (or if no friend request exists), hide the badge.
+                // Optionally hide the badge if there's an error.
                 runOnUiThread(() -> updateNotificationIcon(false));
             }
         });
     }
 
-    private void setupNewPostNotificationListener() {
-        // Record login time.
-        final long loginTime = System.currentTimeMillis();
-        final com.google.firebase.Timestamp loginTimestamp = new com.google.firebase.Timestamp(new java.util.Date(loginTime));
-
-        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                if (result instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> userData = (Map<String, Object>) result;
-                    List<String> followedIds = (List<String>) userData.get("following");
-                    if (followedIds == null) {
-                        followedIds = new ArrayList<>();
+    /**
+     * Listens for changes on the current user's "following" field and reinitializes
+     * the post notifications listener with the updated list.
+     */
+    private void setupFollowingListener() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        followingListener = db.collection("users").document(currentUserId)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+                    List<String> newFollowedIds = (List<String>) snapshot.get("following");
+                    if (newFollowedIds == null) {
+                        newFollowedIds = new ArrayList<>();
                     }
                     // Remove self.
-                    followedIds.remove(currentUserId);
-                    // whereIn supports max 10 items.
-                    if (followedIds.size() > 10) {
-                        followedIds = followedIds.subList(0, 10);
+                    newFollowedIds.remove(currentUserId);
+                    // Remove the existing post notifications listener if any.
+                    if (moodListener != null) {
+                        moodListener.remove();
                     }
-                    if (!followedIds.isEmpty()) {
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        db.collection("moods")
-                                .whereIn("userId", followedIds)
-                                // Only process moods posted after the user logged in.
-                                .whereGreaterThan("timestamp", loginTimestamp)
-                                .addSnapshotListener((@Nullable QuerySnapshot value, @Nullable com.google.firebase.firestore.FirebaseFirestoreException error) -> {
-                                    if (error != null || value == null) return;
-                                    for (DocumentChange dc : value.getDocumentChanges()) {
-                                        if (dc.getType() == DocumentChange.Type.ADDED) {
-                                            String moodDocId = dc.getDocument().getId();
-                                            if (processedMoodIds.contains(moodDocId)) continue;
-                                            processedMoodIds.add(moodDocId);
-                                            String posterUserId = dc.getDocument().getString("userId");
-                                            if (posterUserId != null && !posterUserId.equals(currentUserId)) {
-                                                String posterUsername = dc.getDocument().getString("username");
-                                                if (posterUsername == null) {
-                                                    posterUsername = "Someone";
-                                                }
-                                                // Use a deterministic notification document ID to prevent duplicates.
-                                                String notificationId = "post_" + moodDocId + "_" + currentUserId;
-                                                java.util.Map<String, Object> notificationData = new java.util.HashMap<>();
-                                                notificationData.put("type", "post");
-                                                notificationData.put("fromUserId", posterUserId);
-                                                notificationData.put("username", posterUsername);
-                                                notificationData.put("timestamp", com.google.firebase.Timestamp.now());
-                                                notificationData.put("toUserId", currentUserId);
-                                                db.collection("notifications").document(notificationId).set(notificationData);
-
-                                                // Send a system-level notification.
-                                                NotificationHelper.sendPostNotification(getApplicationContext(), currentUserId, posterUsername, posterUserId);
-                                            }
-                                        }
-                                    }
-                                });
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Exception e) {
-                // Log error if needed.
-            }
-        });
+                    // Clear processed mood IDs so that new moods can be processed.
+                    processedMoodIds.clear();
+                    setupNewPostNotificationListenerWithFollowedList(newFollowedIds);
+                });
     }
 
+    /**
+     * Sets up the post notification listener with the given list of followed user IDs.
+     * Only moods posted after login are processed.
+     */
+    private void setupNewPostNotificationListenerWithFollowedList(List<String> followedIds) {
+        // Limit to 10 IDs because whereIn supports a maximum of 10.
+        if (followedIds.size() > 10) {
+            followedIds = followedIds.subList(0, 10);
+        }
+        if (followedIds.isEmpty()) {
+            return;
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Record login time to filter out old moods.
+        final long loginTime = System.currentTimeMillis();
+        final Timestamp loginTimestamp = new Timestamp(new Date(loginTime));
+
+        moodListener = db.collection("moods")
+                .whereIn("userId", followedIds)
+                .whereGreaterThan("timestamp", loginTimestamp)
+                .addSnapshotListener((@Nullable QuerySnapshot value, @Nullable com.google.firebase.firestore.FirebaseFirestoreException error) -> {
+                    if (error != null || value == null) return;
+                    for (DocumentChange dc : value.getDocumentChanges()) {
+                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                            String moodDocId = dc.getDocument().getId();
+                            if (processedMoodIds.contains(moodDocId)) continue;
+                            processedMoodIds.add(moodDocId);
+                            String posterUserId = dc.getDocument().getString("userId");
+                            if (posterUserId != null && !posterUserId.equals(currentUserId)) {
+                                String posterUsername = dc.getDocument().getString("username");
+                                if (posterUsername == null) {
+                                    posterUsername = "Someone";
+                                }
+                                // Use a deterministic notification document ID.
+                                String notificationId = "post_" + moodDocId + "_" + currentUserId;
+                                java.util.Map<String, Object> notificationData = new java.util.HashMap<>();
+                                notificationData.put("type", "post");
+                                notificationData.put("fromUserId", posterUserId);
+                                notificationData.put("username", posterUsername);
+                                notificationData.put("timestamp", Timestamp.now());
+                                notificationData.put("toUserId", currentUserId);
+                                db.collection("notifications").document(notificationId).set(notificationData);
+
+                                // Send a system-level notification.
+                                NotificationHelper.sendPostNotification(getApplicationContext(), currentUserId, posterUsername, posterUserId);
+                            }
+                        }
+                    }
+                });
+    }
 
     public void updateNotificationIcon(boolean hasNotifications) {
         ImageView ivNotification = findViewById(R.id.ivNotification);
@@ -285,10 +299,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -316,7 +326,4 @@ public class MainActivity extends AppCompatActivity {
     public String getCurrentUserId() {
         return currentUserId;
     }
-
-
-
 }
