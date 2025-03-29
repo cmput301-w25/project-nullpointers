@@ -1,18 +1,3 @@
-/**
- * SearchFragment.java
- *
- * This fragment allows users to search for other users in the system.
- * Key features include:
- * - Live filtering of usernames as the user types
- * - Excludes the current user from search results
- * - Tapping a result opens the selected user's profile in an overlay
- * - Profile view shows username, profile picture, friend count, and mood previews (if followed)
- * - Users can send or remove friend requests from the overlay
- *
- * Uses Firestore to retrieve and filter user data and mood events.
- * <p><b>Outstanding issues:</b> None.</p>
- */
-
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.graphics.Bitmap;
@@ -36,10 +21,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
@@ -122,6 +108,33 @@ public class SearchFragment extends Fragment {
             searchProfileView.setVisibility(View.GONE);
             searchMainLayout.setVisibility(View.VISIBLE);
         });
+
+        // ***** NEW: Check if the Activity's intent requests opening a profile *****
+        boolean openProfileFlag = getActivity().getIntent().getBooleanExtra("open_profile", false);
+        String profileUserId = getActivity().getIntent().getStringExtra("profile_user_id");
+        if (openProfileFlag && profileUserId != null && !profileUserId.isEmpty()) {
+            // Query Firestore for the user's details and then show the profile overlay.
+            firestoreHelper.getUser(profileUserId, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    String username = "Unknown";
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> data = (Map<String, Object>) result;
+                        if(data.get("username") != null) {
+                            username = (String) data.get("username");
+                        }
+                    }
+                    // Construct a User object and call showUserProfile.
+                    User user = new User(profileUserId, username);
+                    requireActivity().runOnUiThread(() -> showUserProfile(user));
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void searchUsers(String query) {
@@ -225,7 +238,7 @@ public class SearchFragment extends Fragment {
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
 
-                        // Get their friend count to display
+                        // Get their friend count to display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
                             @Override
                             public void onSuccess(Object result) {
@@ -250,9 +263,7 @@ public class SearchFragment extends Fragment {
                 }
             }
             @Override
-            public void onFailure(Exception e) {
-                // Optionally handle error.
-            }
+            public void onFailure(Exception e) { }
         });
 
         // Set follow/unfollow button behavior.
@@ -299,9 +310,6 @@ public class SearchFragment extends Fragment {
     /**
      * Queries Firestore for the three most recent mood events of the selected user
      * and binds them to the given RecyclerView using MoodAdapter.
-     *
-     * @param user The selected user.
-     * @param rvMoodEvents The RecyclerView to bind the mood events to.
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();

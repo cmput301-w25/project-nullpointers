@@ -70,11 +70,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
-
         setContentView(R.layout.activity_main);
 
 
@@ -127,10 +122,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (getIntent().getBooleanExtra("open_profile", false)) {
-            String profileUserId = getIntent().getStringExtra("profile_user_id");
-            // Navigate to ProfileFragment and pass along the profileUserId so it can load the appropriate user.
+        if (getIntent() != null && getIntent().getBooleanExtra("open_profile", false)) {
+            // Navigate to SearchFragment so that it will load the search profile overlay.
+            navController.navigate(R.id.searchFragment);
         }
+
 
 
         FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
@@ -195,8 +191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNewPostNotificationListener() {
-        // First, fetch the current user's data to get the list of followed user IDs.
-        currentUserFirestoreInstance.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -206,11 +201,14 @@ public class MainActivity extends AppCompatActivity {
                     if (followedIds == null) {
                         followedIds = new ArrayList<>();
                     }
-                    // Remove self from followedIds if present.
+                    // Remove self if present.
                     followedIds.remove(currentUserId);
+                    // Limit to 10 items since whereIn supports a maximum of 10.
+                    if (followedIds.size() > 10) {
+                        followedIds = followedIds.subList(0, 10);
+                    }
                     if (!followedIds.isEmpty()) {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        // Listen for new mood posts from users in followedIds.
                         db.collection("moods")
                                 .whereIn("userId", followedIds)
                                 .addSnapshotListener((@Nullable QuerySnapshot value, @Nullable com.google.firebase.firestore.FirebaseFirestoreException error) -> {
@@ -218,12 +216,23 @@ public class MainActivity extends AppCompatActivity {
                                     for (DocumentChange dc : value.getDocumentChanges()) {
                                         if (dc.getType() == DocumentChange.Type.ADDED) {
                                             String posterUserId = dc.getDocument().getString("userId");
-                                            String posterUsername = dc.getDocument().getString("username");
-                                            if (posterUsername == null) {
-                                                posterUsername = "Someone";
+                                            if (posterUserId != null && !posterUserId.equals(currentUserId)) {
+                                                String posterUsername = dc.getDocument().getString("username");
+                                                if (posterUsername == null) {
+                                                    posterUsername = "Someone";
+                                                }
+                                                // Write a notification document to Firestore.
+                                                java.util.Map<String, Object> notificationData = new java.util.HashMap<>();
+                                                notificationData.put("type", "post");
+                                                notificationData.put("fromUserId", posterUserId);
+                                                notificationData.put("username", posterUsername);
+                                                notificationData.put("timestamp", com.google.firebase.Timestamp.now());
+                                                notificationData.put("toUserId", currentUserId);
+                                                db.collection("notifications").add(notificationData);
+
+                                                // Send a system-level notification.
+                                                NotificationHelper.sendPostNotification(getApplicationContext(), currentUserId, posterUsername, posterUserId);
                                             }
-                                            // Send notification on follower's device.
-                                            NotificationHelper.sendPostNotification(getApplicationContext(), posterUsername, posterUserId);
                                         }
                                     }
                                 });
@@ -236,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
 

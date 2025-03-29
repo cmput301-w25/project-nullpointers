@@ -142,7 +142,7 @@ public class NotificationHelper {
         }
     }
 
-    public static void sendPostNotification(Context context, String senderUsername, String senderUserId) {
+    public static void sendPostNotification(Context context, String currentUserId, String senderUsername, String senderUserId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Create notification channel for API 26+
@@ -154,10 +154,11 @@ public class NotificationHelper {
             }
         }
 
-        // Intent that opens MainActivity, with extras to navigate to the ProfileFragment
+        // Build an intent that includes the current user's ID and the sender's details.
         Intent tapIntent = new Intent(context, MainActivity.class);
+        tapIntent.putExtra("USER_ID", currentUserId);            // Current logged-in user.
         tapIntent.putExtra("open_profile", true);
-        tapIntent.putExtra("profile_user_id", senderUserId);
+        tapIntent.putExtra("profile_user_id", senderUserId);       // The sender's user ID.
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
                 context,
