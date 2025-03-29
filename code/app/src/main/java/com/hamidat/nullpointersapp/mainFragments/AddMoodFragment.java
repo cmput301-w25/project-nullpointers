@@ -49,11 +49,9 @@ import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
-import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Map;
 
 public class AddMoodFragment extends Fragment {
 
@@ -214,25 +212,7 @@ public class AddMoodFragment extends Fragment {
                             Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
                         }
 
-                        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
-                            @Override
-                            public void onSuccess(Object result) {
-                                String senderUsername = currentUserId;
-                                if (result instanceof Map) {
-                                    @SuppressWarnings("unchecked")
-                                    java.util.Map<String, Object> userData = (java.util.Map<String, Object>) result;
-                                    if (userData.get("username") != null) {
-                                        senderUsername = (String) userData.get("username");
-                                    }
-                                }
-                                NotificationHelper.sendPostNotification(getContext(), senderUsername, currentUserId);
-                            }
-                            @Override
-                            public void onFailure(Exception e) {
-                                // Fallback: use the user ID as the username.
-                                NotificationHelper.sendPostNotification(getContext(), currentUserId, currentUserId);
-                            }
-                        });
+
 
                         try {
                             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
