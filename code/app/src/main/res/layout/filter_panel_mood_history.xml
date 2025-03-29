@@ -19,13 +19,13 @@
             android:id="@+id/filter_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filter Mood History"
-            android:textSize="20sp"
+            android:layout_marginLeft="12dp"
             android:paddingTop="17dp"
-            android:layout_marginLeft="20dp"
             android:paddingBottom="10dp"
-            android:textStyle="bold"
-            android:textColor="@color/textColor" />
+            android:text="Filter Mood History"
+            android:textColor="@color/textColor"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <ImageButton
             android:id="@+id/btnCloseFilter"
@@ -43,8 +43,7 @@
         android:orientation="horizontal"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        android:paddingTop="8dp">
-<!--        android:paddingBottom="8dp"-->
+        >
 
 
         <!-- First CardView -->
@@ -88,7 +87,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardToDate"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="55dp"
             android:layout_margin="8dp"
             android:layout_weight="1"
             app:cardCornerRadius="8dp"
@@ -131,7 +130,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
-        android:background="#DEEDCC"
+        android:background="@drawable/rounded_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp"
@@ -143,7 +142,8 @@
             android:layout_height="wrap_content"
             android:text="Show only past 7 days"
             android:textColor="@color/textColor"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <Switch
             android:id="@+id/switchRecentWeek"
@@ -154,23 +154,27 @@
     </LinearLayout>
 
     <!-- Emotional State Filter Section -->
+
+    <!-- Date Filter Section -->
+
+    <!-- Reason Filter Section -->
     <LinearLayout
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:background="#DEEDCC"
         android:id="@+id/llMoodFilter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_background"
         android:orientation="vertical"
         android:padding="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvMoodFilterLabel"
@@ -178,22 +182,24 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Filter by Mood:"
+                android:textColor="@color/textColor"
                 android:textSize="16sp"
-                android:textColor="@color/textColor" />
+                android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Select All"
+                android:textColor="@color/white"
                 app:backgroundTint="#A6C881"
-                app:cornerRadius="8dp"
-                android:textColor="@color/white" />
+                app:cornerRadius="8dp" />
         </LinearLayout>
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <LinearLayout
                 android:id="@+id/llMoodCheckboxContainer"
                 android:layout_width="wrap_content"
@@ -259,9 +265,6 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <!-- Date Filter Section -->
-
-    <!-- Reason Filter Section -->
     <LinearLayout
         android:id="@+id/llReasonFilter"
         android:layout_width="match_parent"
@@ -271,7 +274,7 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
-        android:background="#DEEDCC"
+        android:background="@drawable/rounded_background"
         android:padding="12dp">
 
         <TextView
@@ -279,8 +282,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Filter by Reason contains:"
+            android:textColor="@color/textColor"
             android:textSize="16sp"
-            android:textColor="@color/textColor" />
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etReasonFilter"
@@ -300,23 +304,23 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnApplyFilter"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Apply Filter"
+            android:layout_weight="1"
+            android:text="Apply Filters"
+            android:textColor="@color/white"
             app:backgroundTint="#405F12"
-            app:cornerRadius="8dp"
-            android:textColor="@color/white" />
+            app:cornerRadius="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnResetFilter"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Reset Filter"
             android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="Reset Filters"
+            android:textColor="@color/white"
             app:backgroundTint="#405F12"
-            app:cornerRadius="8dp"
-            android:textColor="@color/white" />
+            app:cornerRadius="8dp" />
     </LinearLayout>
 
 </LinearLayout>
