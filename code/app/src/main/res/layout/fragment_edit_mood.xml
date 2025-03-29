@@ -45,15 +45,31 @@ android:background="@color/white">
             android:paddingVertical="10dp"
             android:layout_marginBottom="16dp"/>
 
-        <Switch
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/textPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Private Mood"
+            android:textColor="@color/textColor"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp" />
+
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchPrivacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColor"
-            android:text="Private Mood"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            app:thumbTint="@drawable/switch_thumb_tint"
+            app:trackTint="@drawable/switch_track_tint" />
+    </LinearLayout>
+
 
         <!-- "What mood are you feeling?" section -->
         <!-- Updated Mood Selection Section in fragment_add_mood.xml -->
