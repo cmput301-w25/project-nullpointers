@@ -11,6 +11,8 @@ package com.hamidat.nullpointersapp.models;
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -306,8 +308,23 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         double lat = mood.getLatitude();
         double lng = mood.getLongitude();
         if (lat != 0 && lng != 0) {
-            tvLocation.setText(String.format("Location: %.4f, %.4f", lat, lng));
-        } else {
+            new Thread(() -> {
+                try {
+                    Geocoder geocoder = new Geocoder(anchor.getContext(), Locale.getDefault());
+                    // Limit to 1 result.
+                    java.util.List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+                    String addressStr = "Unknown location";
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Address address = addresses.get(0);
+                        addressStr = address.getAddressLine(0); // Full address line.
+                    }
+                    final String finalAddressStr = "Location: " + addressStr;
+                    anchor.post(() -> tvLocation.setText(finalAddressStr));
+                } catch (Exception e) {
+                    anchor.post(() -> tvLocation.setText("Location: N/A"));
+                }
+            }).start();
+        }else {
             tvLocation.setText("Location: N/A");
         }
         //this adds the little labels and formats neater
