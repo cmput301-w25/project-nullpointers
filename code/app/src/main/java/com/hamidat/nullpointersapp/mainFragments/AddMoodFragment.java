@@ -147,7 +147,7 @@ public class AddMoodFragment extends Fragment {
                 String reasonText = etReason.getText().toString().trim();
                 int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
 
-// Validate inputs
+                // Validate inputs
                 if (reasonText.isEmpty()) {
                     Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
                     return;
@@ -159,7 +159,7 @@ public class AddMoodFragment extends Fragment {
 
                 String moodType = spinner.getSelectedItem().toString();
 
-                // Get selected values
+                // Get selected social situation
                 MaterialRadioButton socialButton = view.findViewById(selectedSocialId);
                 String socialSituation = socialButton.getText().toString();
 
@@ -170,16 +170,15 @@ public class AddMoodFragment extends Fragment {
                 // Read the privacy setting from the switch.
                 boolean isPrivate = switchPrivacy.isChecked();
 
-
-                // Create Mood object based on whether a photo was attached
+                // Create Mood object based on whether a photo was attached, using finalLat and finalLng
                 Mood newlyCreatedMood;
                 if (base64Image != null) {
                     newlyCreatedMood = new Mood(
                             moodType,
                             reasonText,
                             base64Image,
-                            latitude,
-                            longitude,
+                            finalLat,
+                            finalLng,
                             socialSituation,
                             currentUserId,  // Pass current user's ID
                             isPrivate
@@ -188,16 +187,14 @@ public class AddMoodFragment extends Fragment {
                     newlyCreatedMood = new Mood(
                             moodType,
                             reasonText,
-                            latitude,
-                            longitude,
+                            finalLat,
+                            finalLng,
                             socialSituation,
                             currentUserId,  // Pass current user's ID
                             isPrivate
                     );
                 }
-                Log.d(TAG, "ADD MOOD: Mood object created successfully ");
-
-
+                Log.d(TAG, "ADD MOOD: Mood object created successfully");
 
                 // Save to Firestore
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
@@ -209,35 +206,26 @@ public class AddMoodFragment extends Fragment {
                             AppEventBus.getInstance().post(new AppEventBus.MoodAddedEvent());
                         });
 
-                        // Don’t skip these in tests or fast UI transitions
                         if (getActivity() instanceof MainActivity) {
                             MainActivity mainActivity = (MainActivity) getActivity();
                             mainActivity.addMoodToCache(newlyCreatedMood);
                             Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
                         }
 
+
+
                         try {
                             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                             Log.d(TAG, "ADD MOOD: NavController was created");
-
                             navController.navigate(R.id.homeFeedFragment);
-
                         } catch (Exception e) {
                             Log.e(TAG, "ADD MOOD: Navigation failed", e);
                         }
-
-//                        if (!isAdded()) return;
-//                        Toast.makeText(requireContext(), "Mood saved!", Toast.LENGTH_SHORT).show();
-//                        mainActivity.addMoodToCache(newlyCreatedMood);
-//                        Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
-//
-//                        Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         Log.e(TAG, "ADD MOOD: Firestore exception: " + e.getMessage(), e);
-
                         if (!isAdded()) return;
                         Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -249,6 +237,7 @@ public class AddMoodFragment extends Fragment {
                     firestoreHelper.addMood(currentUserId, newlyCreatedMood, moodCallback);
                 }
             });
+
 
             btnCancel.setOnClickListener(v -> getActivity().onBackPressed());
         }
