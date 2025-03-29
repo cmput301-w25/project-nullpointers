@@ -148,7 +148,7 @@ public class EditMoodFragment extends Fragment {
         String socialStr = moodToEdit.getSocialSituation();
         if (socialStr != null && !socialStr.trim().isEmpty()) {
             for (int i = 0; i < rgSocialSituation.getChildCount(); i++) {
-                MaterialRadioButton rb = (MaterialRadioButton) rgSocialSituation.getChildAt(i);
+                RadioButton rb = (MaterialRadioButton) rgSocialSituation.getChildAt(i);
                 if (rb.getText().toString().equalsIgnoreCase(socialStr.trim())) {
                     rb.setChecked(true);
                     break;
