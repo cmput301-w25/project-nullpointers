@@ -56,10 +56,21 @@ public class FirestoreDeleteMood {
         moodRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     updateUserMoodHistoryForDeletion(userID, mood.getMoodId(), new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when the user's mood history is successfully updated.
+                         *
+                         * @param result The result of the operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             callback.onSuccess("Mood deletion complete. Mood ID: " + mood.getMoodId());
                         }
+
+                        /**
+                         * Called when the user's mood history update fails.
+                         *
+                         * @param e The exception that occurred during the operation.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             callback.onFailure(e);

@@ -9,7 +9,10 @@
 
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,6 +59,13 @@ public class FollowingFragment extends Fragment {
         public String userId;
         public String username;
 
+        /**
+         * Constructs a new User object.
+         *
+         * @param userId   The unique identifier of the user.
+         * @param username The username of the user.
+         * @throws NullPointerException if userId or username is null.
+         */
         public User(String userId, String username) {
             if (userId == null || username == null)
                 throw new NullPointerException("userId and username cannot be null");
@@ -62,11 +73,22 @@ public class FollowingFragment extends Fragment {
             this.username = username;
         }
 
+        /**
+         * Returns the username of the user.
+         *
+         * @return The username.
+         */
         @Override
         public String toString() {
             return username;
         }
 
+        /**
+         * Checks if this User is equal to another object.
+         *
+         * @param obj The object to compare.
+         * @return True if the objects are equal, false otherwise.
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof User) {
@@ -87,6 +109,14 @@ public class FollowingFragment extends Fragment {
 
     private FirestoreHelper firestoreHelper;
 
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater object that can be used to inflate views.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The root View for the fragment's UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -96,6 +126,12 @@ public class FollowingFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_following, container, false);
     }
 
+    /**
+     * Called immediately after {@link #onCreateView}.
+     *
+     * @param view               The View returned by {@link #onCreateView}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -107,6 +143,11 @@ public class FollowingFragment extends Fragment {
 
         // Fetch current user's username.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (isAdded() && result instanceof Map) {
@@ -117,6 +158,12 @@ public class FollowingFragment extends Fragment {
                             tvCurrentUser.setText("Current User: " + currentUsername));
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (isAdded()) {
@@ -138,12 +185,19 @@ public class FollowingFragment extends Fragment {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
-                    requireActivity().runOnUiThread(() -> {
-                        acceptedList.clear();
-                        acceptedAdapter.notifyDataSetChanged();
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            acceptedList.clear();
+                            acceptedAdapter.notifyDataSetChanged();
+                        });
+                    }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (!isAdded()) return;
@@ -160,6 +214,12 @@ public class FollowingFragment extends Fragment {
                                     });
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) { }
                         });
@@ -201,6 +261,8 @@ public class FollowingFragment extends Fragment {
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
         TextView tvFriendCount = profileView.findViewById(R.id.tvFriendCount);
+        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
+        ImageView ivProfilePicture = profileView.findViewById(R.id.profile_icon);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -208,46 +270,147 @@ public class FollowingFragment extends Fragment {
         // Initially hide mood events.
         rvMoodEvents.setVisibility(View.GONE);
 
-        // Check follow status and show mood events only if followed.
-        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+        // Load profile picture
+        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> userData = (Map<String, Object>) result;
-                    List<String> following = (List<String>) userData.get("following");
+                    String profilePicBase64 = (String) userData.get("profilePicture");
+                    if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                        try {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageBitmap(bitmap));
+                        } catch (Exception e) {
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                        }
+                    } else {
+                        ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                    }
+                }
+            }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
+            @Override
+            public void onFailure(Exception e) {
+                ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+            }
+        });
+
+        // Check if the current user follows the target user.
+        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> currentUserData = (Map<String, Object>) result;
+                    List<String> following = (List<String>) currentUserData.get("following");
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
-                        // Since user is followed, show and load mood events.
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
 
-                        // Get their friend count to display
+                        // Also load the target user's status for display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
+                            @Override
+                            public void onSuccess(Object result) {
+                                if (result instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> targetUserData = (Map<String, Object>) result;
+                                    String targetStatus = (String) targetUserData.get("status");
+                                    if (targetStatus != null && !targetStatus.trim().isEmpty()) {
+                                        statusBubble.setText(targetStatus);
+                                        statusBubble.setVisibility(View.VISIBLE);
+                                    } else {
+                                        statusBubble.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
+                            @Override
+                            public void onFailure(Exception e) {
+                                statusBubble.setVisibility(View.GONE);
+                            }
+                        });
+
+                        // Get their friend count to display.
+                        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
                                     Map<String, Object> theirData = (Map<String, Object>) result;
                                     List<String> theirFollowing = (List<String>) theirData.get("following");
-                                    int friendCount = theirFollowing != null ? theirFollowing.size() : 0;
-                                    tvFriendCount.setText("Friends: " + friendCount);
-                                    tvFriendCount.setVisibility(View.VISIBLE);
+                                    int friendCount = theirFollowing != null ? theirFollowing.size()-1 : 0;
+                                    if (theirFollowing.size() ==1 ){
+                                        friendCount = 1;
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }else{
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }
+
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 tvFriendCount.setVisibility(View.GONE);
                             }
                         });
+
                     } else {
+                        // If not following, hide target's status and mood events.
+                        statusBubble.setVisibility(View.GONE);
                         btnFollowUnfollow.setText("Follow");
                         rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
-            public void onFailure(Exception e) {
-                // Optionally handle error.
-            }
+            public void onFailure(Exception e) { }
         });
 
         // Set follow/unfollow button behavior.
@@ -256,11 +419,22 @@ public class FollowingFragment extends Fragment {
             FirestoreHelper helper = new FirestoreHelper();
             if (currentText.equalsIgnoreCase("Follow")) {
                 helper.sendFriendRequest(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Pending");
                         Toast.makeText(getContext(), "Follow request sent", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -268,6 +442,11 @@ public class FollowingFragment extends Fragment {
                 });
             } else if (currentText.equalsIgnoreCase("Unfollow")) {
                 helper.removeFollowing(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
@@ -275,6 +454,12 @@ public class FollowingFragment extends Fragment {
                         rvMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -295,10 +480,13 @@ public class FollowingFragment extends Fragment {
     /**
      * Queries Firestore for the three most recent mood events of the selected user
      * and binds them to the given RecyclerView using MoodAdapter.
+     *
+     * @param user        The selected user.
+     * @param rvMoodEvents The RecyclerView to bind the mood events to.
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
-        MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId);
+        MoodAdapter moodAdapter = new MoodAdapter(moodList, currentUserId,(AppCompatActivity) getActivity());
 
         rvMoodEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         rvMoodEvents.setAdapter(moodAdapter);
@@ -322,5 +510,4 @@ public class FollowingFragment extends Fragment {
                     Toast.makeText(getContext(), "Error loading mood events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

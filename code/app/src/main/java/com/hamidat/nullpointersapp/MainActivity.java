@@ -14,12 +14,10 @@
 package com.hamidat.nullpointersapp;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -34,7 +32,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.Timestamp;  // <-- Required import
+import com.google.firebase.Timestamp;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
@@ -47,6 +45,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The main activity of the NullPointers app. Manages navigation, friend request
+ * notifications, location and notification permissions, mood caching, and real-time
+ * post notifications.
+ */
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
     private FirestoreHelper currentUserFirestoreInstance;
@@ -61,11 +64,18 @@ public class MainActivity extends AppCompatActivity {
     // For in-memory list of moods.
     private final List<Mood> moodCache = new ArrayList<>();
 
+    /**
+     * Retrieves the mood cache.
+     * @return List<Mood> moodCache
+     */
     public List<Mood> getMoodCache() {
         return moodCache;
     }
 
-    // Helper method to add a new mood to moodCache.
+    /**
+     * Adds a new mood to the mood cache.
+     * @param newMood the mood to add to the cache
+     */
     public void addMoodToCache(Mood newMood) {
         // Insert at the start so newest appears first.
         moodCache.add(0, newMood);
@@ -74,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 101;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
 
+    /**
+     * Handles new intents received by the activity.
+     * @param intent the new intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -86,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called when the activity is first created.
+     * @param savedInstanceState the saved instance state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,6 +202,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Called when the activity is no longer visible.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -200,11 +221,23 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupNotificationListener() {
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when a friend request is received successfully.
+             * Updates the notification icon to display a badge.
+             *
+             * @param result The result of the operation (not used in this case).
+             */
             @Override
             public void onSuccess(Object result) {
                 // When a friend request is received, update the icon to show the badge.
                 runOnUiThread(() -> updateNotificationIcon(true));
             }
+            /**
+             * Called when listening for friend requests fails.
+             * Optionally hides the badge if an error occurs.
+             *
+             * @param e The exception that occurred during the failure.
+             */
             @Override
             public void onFailure(Exception e) {
                 // Optionally hide the badge if there's an error.
@@ -241,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Sets up the post notification listener with the given list of followed user IDs.
      * Only moods posted after login are processed.
+     * @param followedIds list of user IDs to follow
      */
     private void setupNewPostNotificationListenerWithFollowedList(List<String> followedIds) {
         // Limit to 10 IDs because whereIn supports a maximum of 10.
@@ -289,6 +323,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Updates the notification icon based on whether there are new notifications.
+     * @param hasNotifications true if there are new notifications, false otherwise
+     */
     public void updateNotificationIcon(boolean hasNotifications) {
         ImageView ivNotification = findViewById(R.id.ivNotification);
         if (ivNotification != null) {
@@ -300,6 +338,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handles permission request results.
+     * @param requestCode the request code
+     * @param permissions the requested permissions
+     * @param grantResults the grant results for the corresponding permissions
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
@@ -319,10 +363,18 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /**
+     * Gets the FirestoreHelper instance.
+     * @return FirestoreHelper instance
+     */
     public FirestoreHelper getFirestoreHelper() {
         return currentUserFirestoreInstance;
     }
 
+    /**
+     * Gets the current user ID.
+     * @return current user ID
+     */
     public String getCurrentUserId() {
         return currentUserId;
     }

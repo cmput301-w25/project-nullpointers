@@ -47,7 +47,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * A bottom sheet dialog fragment that allows users to filter mood history based on various criteria.
+ * Users can filter by emotion, date range, description keywords, and sort order.
+ * The filtered mood list is returned to the HomeFeedFragment using a callback interface.
+ */
 public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
     private String currentUserId;
@@ -66,6 +70,19 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private Switch toggleSevenDays, toggleAscendingOrder;
     private Boolean setToggleWeek, setOrder;
 
+    /**
+     * Constructs a new HomeFilterHistoryFragment with the specified parameters.
+     *
+     * @param UserID                 The ID of the current user.
+     * @param firestoreHelperInstance The FirestoreHelper instance for database interactions.
+     * @param savedToTimestamp       The saved "to" timestamp for date range filtering.
+     * @param savedFromTimestamp     The saved "from" timestamp for date range filtering.
+     * @param savedFilterDescription The saved description keyword for filtering.
+     * @param savedCheckedEmotions   The list of saved checked emotions for filtering.
+     * @param savedToggleWeek        The saved state of the "recent 7 days" toggle.
+     * @param savedToggleAscending   The saved state of the ascending order toggle.
+     * @param moodCallback           The callback interface for returning filtered moods.
+     */
     public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp,
                                       String savedFilterDescription, List<String> savedCheckedEmotions, boolean savedToggleWeek, boolean savedToggleAscending, MoodFilterCallback moodCallback) {
         currentUserId = UserID;
@@ -83,12 +100,43 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
         callback = moodCallback;
     }
 
+    /**
+     * Interface for providing filtered mood data back to the HomeFeedFragment.
+     */
     public interface MoodFilterCallback {
+        /**
+         * Called when mood filters are applied and the filtered list is ready.
+         *
+         * @param filteredMoods   The list of moods filtered based on user criteria.
+         * @param savingTo        The "to" timestamp used in the filter.
+         * @param savingFrom      The "from" timestamp used in the filter.
+         * @param savingDescription The description keyword used in the filter.
+         * @param savingEmotions    The list of emotions used in the filter.
+         * @param setToggleWeek     The state of the "recent 7 days" toggle.
+         * @param setOrder          The state of the ascending order toggle.
+         */
         void onMoodFilterApplied(List<Mood> filteredMoods, Timestamp savingTo, Timestamp savingFrom, String savingDescription,
                                  List<String> savingEmotions, boolean setToggleWeek, boolean setOrder);
+        /**
+         * Called to display a toast message to the user.
+         *
+         * @param message The message to be displayed.
+         */
         void onShowToast(String message);
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -227,6 +275,11 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
         // 1. Get the current firebase instance.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the user data is successfully retrieved from Firestore.
+             *
+             * @param result The user data retrieved from Firestore as an Object.
+             */
             @Override
             public void onSuccess(Object result) {
 
@@ -247,6 +300,11 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
                 // Apply the filters, the callback goes back to the button to be displayed onto HomeFragment.
                 applyFilters(followingList, callback);
             }
+            /**
+             * Called when the retrieval of user data from Firestore fails.
+             *
+             * @param e The exception that occurred during the failure.
+             */
             @Override
             public void onFailure(Exception e) {
                 Log.d("FirestoreFail", "Failed:");
