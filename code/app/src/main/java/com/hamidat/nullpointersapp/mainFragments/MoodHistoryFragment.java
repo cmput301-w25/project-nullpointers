@@ -11,6 +11,7 @@
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,11 +27,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -57,12 +60,15 @@ import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragme
 public class MoodHistoryFragment extends Fragment {
 
     private RecyclerView rvMoodHistory;
-    private TextView tvMoodHistoryTitle, tvMoodSubtitle, tvMostFrequentMood, tvNoMoodEntries;
+    private TextView tvMostFrequentMood, tvNoMoodEntries;
     private MoodAdapter moodAdapter;
     private List<Mood> moodList = new ArrayList<>();
     private FirebaseFirestore firestore;
     private String currentUserId;
     private Button btnMoodHistoryFilter;
+    private CardView cardFromDate, cardToDate;
+    private TextView tvFromDate, tvToDate;
+    private Timestamp fromTimestamp, toTimestamp;
 
     // Filter state variables (default: show all events)
     private boolean recentWeekFilter = false;
@@ -75,7 +81,6 @@ public class MoodHistoryFragment extends Fragment {
     private boolean surpriseChecked = false;
     private boolean confusionChecked = false;
     private String reasonKeyword = "";
-    private Date selectedDateFilter = null;
 
     // Reference to our sliding filter panel
     private View filterPanel;
@@ -110,8 +115,6 @@ public class MoodHistoryFragment extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        tvMoodHistoryTitle = view.findViewById(R.id.tvMoodHistoryTitle);
-        tvMoodSubtitle = view.findViewById(R.id.tvMoodSubtitle);
         tvMostFrequentMood = view.findViewById(R.id.tvMostFrequentMood);
         tvNoMoodEntries = view.findViewById(R.id.tvNoMoodEntries);
         rvMoodHistory = view.findViewById(R.id.rvMoodHistory);
@@ -195,13 +198,16 @@ public class MoodHistoryFragment extends Fragment {
         Button btnSelectAll = filterPanel.findViewById(R.id.btnSelectAll);
         // Reason filter text
         EditText etReasonFilter = filterPanel.findViewById(R.id.etReasonFilter);
-        // Date filter controls
-        Button btnSelectDate = filterPanel.findViewById(R.id.btnSelectDate);
-        TextView tvSelectedDate = filterPanel.findViewById(R.id.tvSelectedDate);
         // Close, Apply, and Reset buttons
         ImageButton btnCloseFilter = filterPanel.findViewById(R.id.btnCloseFilter);
         Button btnApplyFilter = filterPanel.findViewById(R.id.btnApplyFilter);
         Button btnResetFilter = filterPanel.findViewById(R.id.btnResetFilter);
+
+        // Date controls
+        cardFromDate = filterPanel.findViewById(R.id.cardFromDate);
+        cardToDate = filterPanel.findViewById(R.id.cardToDate);
+        tvToDate = filterPanel.findViewById(R.id.textToDate);
+        tvFromDate = filterPanel.findViewById(R.id.textFromDate);
 
         // Restore previous selections
         switchRecentWeek.setChecked(recentWeekFilter);
@@ -214,32 +220,8 @@ public class MoodHistoryFragment extends Fragment {
         cbSurprise.setChecked(surpriseChecked);
         cbConfusion.setChecked(confusionChecked);
         etReasonFilter.setText(reasonKeyword);
-        if (selectedDateFilter != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            tvSelectedDate.setText(sdf.format(selectedDateFilter));
-        } else {
-            tvSelectedDate.setText("Any Date");
-        }
         // Set initial text for Select All button
         btnSelectAll.setText("Select All");
-
-        // When the recent week switch is toggled, override the date filter.
-        switchRecentWeek.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            recentWeekFilter = isChecked;
-            if (isChecked) {
-                // Disable date selection if 7-day filter is active.
-                btnSelectDate.setEnabled(false);
-                tvSelectedDate.setText("Last 7 Days");
-            } else {
-                btnSelectDate.setEnabled(true);
-                if (selectedDateFilter != null) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    tvSelectedDate.setText(sdf.format(selectedDateFilter));
-                } else {
-                    tvSelectedDate.setText("Any Date");
-                }
-            }
-        });
 
         // Select All button toggles between selecting and deselecting all mood checkboxes.
         btnSelectAll.setOnClickListener(v -> {
@@ -270,24 +252,27 @@ public class MoodHistoryFragment extends Fragment {
             }
         });
 
-        // Date filter: open DatePickerDialog when Select Date is clicked.
-        btnSelectDate.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            if (selectedDateFilter != null) {
-                calendar.setTime(selectedDateFilter);
+        // Card Date filtering.
+        updateDateText(tvFromDate, fromTimestamp);
+        updateDateText(tvToDate, toTimestamp);
+
+        cardFromDate.setOnClickListener(v -> openDatePicker(tvFromDate, true));
+        cardToDate.setOnClickListener(v -> openDatePicker(tvToDate, false));
+
+        switchRecentWeek.setChecked(recentWeekFilter);
+        if (recentWeekFilter) {
+            applySevenDayToggleState(recentWeekFilter);
+        }
+
+        switchRecentWeek.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                recentWeekFilter = true;
+                applySevenDayToggleState(recentWeekFilter);
+
+            } else {
+                recentWeekFilter = false;
+                applySevenDayToggleState(recentWeekFilter);
             }
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (DatePicker view1, int year1, int month1, int dayOfMonth) -> {
-                Calendar selectedCal = Calendar.getInstance();
-                selectedCal.set(year1, month1, dayOfMonth, 0, 0, 0);
-                selectedCal.set(Calendar.MILLISECOND, 0);
-                selectedDateFilter = selectedCal.getTime();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                tvSelectedDate.setText(sdf.format(selectedDateFilter));
-            }, year, month, day);
-            datePickerDialog.show();
         });
 
         // Close filter panel button (animate down and hide)
@@ -323,9 +308,8 @@ public class MoodHistoryFragment extends Fragment {
             surpriseChecked = false;
             confusionChecked = false;
             reasonKeyword = "";
-            selectedDateFilter = null;
 
-            switchRecentWeek.setChecked(recentWeekFilter);
+            switchRecentWeek.setChecked(false);
             cbHappy.setChecked(happyChecked);
             cbSad.setChecked(sadChecked);
             cbAngry.setChecked(angryChecked);
@@ -335,9 +319,11 @@ public class MoodHistoryFragment extends Fragment {
             cbSurprise.setChecked(surpriseChecked);
             cbConfusion.setChecked(confusionChecked);
             etReasonFilter.setText(reasonKeyword);
-            tvSelectedDate.setText("Any Date");
-            btnSelectDate.setEnabled(true);
             btnSelectAll.setText("Select All");
+            fromTimestamp = null;
+            toTimestamp = null;
+            updateDateText(tvFromDate, fromTimestamp);
+            updateDateText(tvToDate, toTimestamp);
 
             Toast.makeText(getContext(), "Filters Reset", Toast.LENGTH_SHORT).show();
             hideFilterPanel();
@@ -352,26 +338,15 @@ public class MoodHistoryFragment extends Fragment {
         Query query = firestore.collection("moods")
                 .whereEqualTo("userId", currentUserId);
 
-        // If recent week filter is on, use it exclusively.
-        if (recentWeekFilter) {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, -7);
-            Date sevenDaysAgo = cal.getTime();
-            query = query.whereGreaterThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(sevenDaysAgo));
-        }
-        // Otherwise, if a specific date is selected, use that.
-        else if (selectedDateFilter != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(selectedDateFilter);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date startOfDay = cal.getTime();
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            Date endOfDay = cal.getTime();
-            query = query.whereGreaterThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(startOfDay))
-                    .whereLessThan("timestamp", new com.google.firebase.Timestamp(endOfDay));
+
+        if (fromTimestamp != null && toTimestamp != null) {
+            if (fromTimestamp.compareTo(toTimestamp) > 0) {
+                Toast.makeText(getContext(), "Cannot filter with 'From Date' after 'To Date'!", Toast.LENGTH_SHORT).show();
+            }
+            query = query.whereGreaterThanOrEqualTo("timestamp", fromTimestamp)
+                    .whereLessThanOrEqualTo("timestamp", toTimestamp);
+        } else if ((fromTimestamp == null) ^ (toTimestamp == null)) {
+            Toast.makeText(getContext(), "To filter by time, please have both date ranges selected!", Toast.LENGTH_SHORT).show();
         }
 
         // Apply mood filter only if not all moods are selected.
@@ -533,4 +508,112 @@ public class MoodHistoryFragment extends Fragment {
 
         bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
     }
+
+    /**
+     * Takes in a textView and timestamp, converts timestamp to sdf format and into textView for displaying inside of fragment.
+     *
+     * @param textView the textview (which should hold the time)
+     * @param timestamp the timestamp we are displaying to a textView.
+     *
+     */
+    private void updateDateText(TextView textView, Timestamp timestamp) {
+        if (timestamp == null) {
+            textView.setText("Select Date");
+            return;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+        textView.setText(sdf.format(timestamp.toDate()));
+    }
+
+    /**
+     * Takes in a textView and timestamp, converts timestamp to sdf format and into textView for displaying inside of fragment.
+     *
+     * @param textView the textview (which should hold the time)
+     * @param isFromDate a boolean value which indicates if it is we are picking the too value or the from value.
+     *
+     */
+    private void openDatePicker(TextView textView, boolean isFromDate) {
+        Calendar calendar = Calendar.getInstance();
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth, 0, 0, 0);
+
+                    Timestamp selectedTimestamp = new Timestamp(selectedCalendar.getTime());
+
+                    // Getting today's timestamp
+                    Calendar today = Calendar.getInstance();
+                    Timestamp todayTimestamp = new Timestamp(today.getTime());
+
+                    if (isFromDate) {
+                        if (selectedTimestamp.compareTo(todayTimestamp) > 0) {
+                            Toast.makeText(getContext(), "End date cannot be in the future!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        fromTimestamp = selectedTimestamp;
+                    } else {
+                        // For toTimestamp ensure that it goes to end of the day.
+                        selectedCalendar.set(Calendar.HOUR_OF_DAY, 23);
+                        selectedCalendar.set(Calendar.MINUTE, 59);
+                        selectedCalendar.set(Calendar.SECOND, 59);
+                        selectedCalendar.set(Calendar.MILLISECOND, 999);
+
+                        // Checking if toDate was set into future (not allowed)
+                        if (selectedTimestamp.compareTo(todayTimestamp) > 0) {
+                            Toast.makeText(getContext(), "End date cannot be in the future!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        toTimestamp = new Timestamp(selectedCalendar.getTime());
+                    }
+                    updateDateText(textView, selectedTimestamp);
+
+                },calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        datePickerDialog.show();
+    }
+
+
+    /**
+     * applySevenDayToggleState is a function which checks if setToggleWeek is true, accordingly updates the
+     * usability of the calendar.
+     *
+     * @param isEnabled the boolean value to determine if calendar functionality should be set.
+     */
+    private void applySevenDayToggleState(boolean isEnabled) {
+        if (isEnabled) {
+            cardFromDate.setEnabled(false);
+            cardToDate.setEnabled(false);
+            tvFromDate.setTextColor(Color.GRAY);
+            tvToDate.setTextColor(Color.GRAY);
+
+            Calendar sevenDays = Calendar.getInstance();
+            sevenDays.add(Calendar.DAY_OF_YEAR, -7);
+            fromTimestamp = new Timestamp(sevenDays.getTime());
+
+            Calendar today = Calendar.getInstance();
+            toTimestamp = new Timestamp(today.getTime());
+
+            updateDateText(tvFromDate, fromTimestamp);
+            updateDateText(tvToDate, toTimestamp);
+        } else {
+            cardFromDate.setEnabled(true);
+            cardToDate.setEnabled(true);
+            tvFromDate.setTextColor(Color.BLACK);
+            tvToDate.setTextColor(Color.BLACK);
+
+            fromTimestamp = null;
+            toTimestamp = null;
+
+            updateDateText(tvFromDate, null);
+            updateDateText(tvToDate, null);
+        }
+    }
 }
+
+
