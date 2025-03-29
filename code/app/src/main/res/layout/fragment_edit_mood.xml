@@ -162,7 +162,7 @@ android:background="@color/white">
                 android:layout_marginBottom="24dp"
                 android:weightSum="4">
 
-                <RadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rbAlone"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -170,9 +170,10 @@ android:background="@color/white">
                     android:text="@string/alone"
                     android:textSize="10sp"
                     android:textColor="@color/textColor"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    app:buttonTint="@drawable/radio_button_tint"/>
 
-                <RadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rbOneOnOne"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -180,9 +181,10 @@ android:background="@color/white">
                     android:text="@string/one_on_one"
                     android:textSize="10sp"
                     android:textColor="@color/textColor"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    app:buttonTint="@drawable/radio_button_tint"/>
 
-                <RadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rbGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -190,9 +192,10 @@ android:background="@color/white">
                     android:text="@string/group"
                     android:textSize="10sp"
                     android:textColor="@color/textColor"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    app:buttonTint="@drawable/radio_button_tint"/>
 
-                <RadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rbCrowd"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -200,7 +203,9 @@ android:background="@color/white">
                     android:text="@string/crowd"
                     android:textColor="@color/textColor"
                     android:textSize="10sp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    app:buttonTint="@drawable/radio_button_tint"/>
+
             </RadioGroup>
 
             <LinearLayout
