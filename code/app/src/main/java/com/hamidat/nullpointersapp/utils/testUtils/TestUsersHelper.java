@@ -148,4 +148,34 @@ public class TestUsersHelper {
         });
     }
 
+    /**
+     * Deletes a user document from the "users" collection by username.
+     *
+     * @param username The username of the user to delete.
+     */
+    public static void deleteUserByUsername(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Log.d(TAG, "Attempting to delete user with username: " + username);
+
+        db.collection("users")
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        querySnapshot.getDocuments().forEach(doc -> {
+                            db.collection("users").document(doc.getId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid ->
+                                            Log.d(TAG, "Successfully deleted user: " + username))
+                                    .addOnFailureListener(e ->
+                                            Log.e(TAG, "Failed to delete user: " + e.getMessage()));
+                        });
+                    } else {
+                        Log.w(TAG, "No user found with username: " + username);
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "Failed to fetch user by username: " + e.getMessage()));
+    }
+
 }

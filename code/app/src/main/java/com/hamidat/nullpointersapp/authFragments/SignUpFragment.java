@@ -66,7 +66,7 @@ public class SignUpFragment extends Fragment {
                 return;
             }
 
-            // Check that the username is unique
+            // Check that the username is unique (case sensitive)
             AuthHelper.validateUniqueUsername(requireContext(), signupUsername, new UniqueUsernameCallback() {
                 @Override
                 public void onResult(boolean isUnique) {
