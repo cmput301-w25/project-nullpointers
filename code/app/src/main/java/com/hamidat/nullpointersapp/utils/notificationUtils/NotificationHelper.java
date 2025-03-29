@@ -1,3 +1,13 @@
+/**
+ * NotificationHelper.java
+ *
+ * Utility class for creating and managing friend request notifications.
+ * Provides methods for sending notifications when a friend request is received
+ * or accepted, including optional Accept/Decline actions.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.notificationUtils;
 
 import android.app.NotificationChannel;
@@ -39,9 +49,9 @@ public class NotificationHelper {
             }
         }
 
-        // Intent for tapping the notification (opens MainActivity, which will navigate to FollowingFragment)
+        // Intent for tapping the notification: now it redirects to NotificationFragment.
         Intent tapIntent = new Intent(context, MainActivity.class);
-        tapIntent.putExtra("open_following", true);
+        tapIntent.putExtra("open_notification", true);
         tapIntent.putExtra("USER_ID", currentUserId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
@@ -51,7 +61,7 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // Create action intents for Accept and Decline
+        // Create action intents for Accept and Decline (if used)
         Intent acceptIntent = new Intent(context, FriendRequestActionReceiver.class);
         acceptIntent.setAction(ACTION_ACCEPT);
         acceptIntent.putExtra("request_id", requestId);
@@ -81,7 +91,7 @@ public class NotificationHelper {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(tapPendingIntent);
-        // Actions for Accept and Decline are commented out.
+
 
         if (notificationManager != null) {
             notificationManager.notify(1001, builder.build());
@@ -106,9 +116,9 @@ public class NotificationHelper {
             }
         }
 
-        // Create an intent that opens MainActivity and navigates to FollowingFragment.
+        // Create an intent that opens MainActivity and navigates to NotificationFragment.
         Intent tapIntent = new Intent(context, MainActivity.class);
-        tapIntent.putExtra("open_following", true);
+        tapIntent.putExtra("open_notification", true);
         tapIntent.putExtra("USER_ID", senderUserId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent tapPendingIntent = PendingIntent.getActivity(
@@ -119,17 +129,53 @@ public class NotificationHelper {
         );
 
         String contentTitle = accepterUsername + " has accepted your request!";
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(contentTitle)
-                .setContentText("Tap to view your following list.")
+                .setContentText("Tap to view notifications.")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(tapPendingIntent);
 
         if (notificationManager != null) {
             notificationManager.notify(1002, builder.build());
+        }
+    }
+
+    public static void sendPostNotification(Context context, String currentUserId, String senderUsername, String senderUserId) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Notifications for posts from users you follow");
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        Intent tapIntent = new Intent(context, MainActivity.class);
+        tapIntent.putExtra("USER_ID", currentUserId);
+        tapIntent.putExtra("open_profile", true);
+        tapIntent.putExtra("profile_user_id", senderUserId);
+        tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent tapPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                tapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        String contentTitle = senderUsername + " has posted a new mood!";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(contentTitle)
+                .setContentText("Tap to view profile.")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(tapPendingIntent);
+
+        if (notificationManager != null) {
+            notificationManager.notify(2001, builder.build());
         }
     }
 }

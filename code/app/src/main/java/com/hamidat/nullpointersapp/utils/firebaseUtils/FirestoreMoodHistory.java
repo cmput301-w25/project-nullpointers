@@ -1,3 +1,10 @@
+/**
+ * FirestoreMoodHistory.java
+ * Handles Firestore operations related to retrieving and querying user mood history.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import android.util.Log;
@@ -11,7 +18,6 @@ import com.hamidat.nullpointersapp.models.moodHistory;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * Handles Firestore operations related to retrieving mood history.
@@ -52,7 +58,7 @@ public class FirestoreMoodHistory {
                 for (QueryDocumentSnapshot doc : value) {
                     try {
                         Mood mood = doc.toObject(Mood.class);
-
+                        mood.setMoodId(doc.getId()); //NO NULLs
                         // Manually set coordinates from document
                         Double lat = doc.getDouble("latitude");
                         Double lng = doc.getDouble("longitude");
@@ -86,7 +92,7 @@ public class FirestoreMoodHistory {
     public void firebaseToMoodHistory(String userID, FirestoreHelper.FirestoreCallback callback) {
         CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
         Query query = moodsRef.whereEqualTo("userId", userID);
-        attachSnapshotListener(query, userID, callback);
+        fetchMoods(query, null, callback);
     }
 
     /**
@@ -97,10 +103,10 @@ public class FirestoreMoodHistory {
      */
     public void firebaseToMoodHistory(ArrayList<String> userIds, FirestoreHelper.FirestoreCallback callback) {
         CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
-        // Note: whereIn supports up to 10 items; for more, you may need to split the query.
+        // Note: whereIn supports up to 10 items;
         Query query = moodsRef.whereIn("userId", userIds);
         // We pass null for the userID since we have multiple users.
-        attachSnapshotListener(query, null, callback);
+        fetchMoods(query, null, callback);
     }
 
     /**
@@ -114,7 +120,7 @@ public class FirestoreMoodHistory {
         CollectionReference moodsRef = firestore.collection(MOODS_COLLECTION);
         Query query = moodsRef.whereEqualTo("userId", userID)
                 .whereEqualTo("mood", moodType);
-        attachSnapshotListener(query, userID, callback);
+        fetchMoods(query, userID, callback);
     }
 
     /**
@@ -142,7 +148,7 @@ public class FirestoreMoodHistory {
                     .whereLessThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(now));
         }
         query = toggleOrder(query, ascending);
-        attachSnapshotListener(query, userID, callback);
+        fetchMoods(query, userID, callback);
     }
 
     /**
@@ -159,4 +165,42 @@ public class FirestoreMoodHistory {
             return query.orderBy("timestamp", Query.Direction.DESCENDING);
         }
     }
+
+    private void fetchMoods(Query query, String userID, FirestoreHelper.FirestoreCallback callback) {
+        query.get().addOnSuccessListener(value -> {
+            moodHistory filteredMoodHistory = new moodHistory();
+            if (userID != null) {
+                filteredMoodHistory.setUserID(userID);
+            }
+            if (!value.isEmpty()) {
+                for (QueryDocumentSnapshot doc : value) {
+                    try {
+                        Mood mood = doc.toObject(Mood.class);
+                        mood.setMoodId(doc.getId());
+
+                        // Ensure coordinates
+                        Double lat = doc.getDouble("latitude");
+                        Double lng = doc.getDouble("longitude");
+                        if (lat != null && lng != null) {
+                            mood.setLatitude(lat);
+                            mood.setLongitude(lng);
+                        }
+
+                        // Ensure timestamp
+                        Timestamp timestamp = doc.getTimestamp("timestamp");
+                        if (timestamp != null) {
+                            mood.setTimestamp(timestamp);
+                        }
+
+                        filteredMoodHistory.addMood(mood);
+                    } catch (Exception e) {
+                        Log.e("Firestore", "Error parsing mood document", e);
+                    }
+                }
+            }
+            callback.onSuccess(filteredMoodHistory);
+        }).addOnFailureListener(callback::onFailure);
+    }
+
+
 }

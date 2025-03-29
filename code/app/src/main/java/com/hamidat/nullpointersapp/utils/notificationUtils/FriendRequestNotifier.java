@@ -1,3 +1,13 @@
+/**
+ * FriendRequestNotifier.java
+ *
+ * Singleton class that listens for new and accepted friend requests in Firestore.
+ * Prevents duplicate notifications and provides real-time updates using listeners.
+ * Notifies users via system notifications when requests are received or accepted.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.notificationUtils;
 
 import android.content.Context;

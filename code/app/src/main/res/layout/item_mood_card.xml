@@ -2,61 +2,173 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="4dp"
     app:cardCornerRadius="8dp"
-    app:cardUseCompatPadding="true">
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/ivProfile"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="10dp"
-            android:padding="8dp"
-            android:src="@drawable/ic_profile"
-            app:tint="@color/textColor" />
+        android:layout_height="191dp"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Existing mood event content in a horizontal layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:orientation="horizontal">
 
-            <!-- For displaying mood (e.g. "Happiness", "Sadness", etc.) -->
-            <TextView
-                android:id="@+id/tvMood"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="10dp"
+                android:padding="8dp"
+                android:src="@drawable/default_user_icon"
+                app:shapeAppearanceOverlay="@style/CircularImageView" />
 
-            <!-- For displaying the mood description -->
-            <TextView
-                android:id="@+id/tvMoodDescription"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="14sp"/>
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <!-- For displaying a formatted Timestamp (date/time) -->
-            <TextView
-                android:id="@+id/tvTimestamp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="14sp"/>
+                <!-- Horizontal container for "Mood: X" + "edited" tag -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvSocialSituation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="14sp"/>
+                    <TextView
+                        android:id="@+id/tvMood"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEdited"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="(edited)"
+                        android:textColor="@android:color/holo_red_dark"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Text & Image Container -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:orientation="vertical">
+
+                        <!-- Mood Description -->
+                        <TextView
+                            android:id="@+id/tvMoodDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvSocialSituation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
+
+                        <TextView
+                            android:id="@+id/tvTimestamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
+                    </LinearLayout>
+
+                    <!-- Image on the far right within container -->
+                    <ImageView
+                        android:id="@+id/ivMoodCardImgIfExists"
+                        android:layout_width="64dp"
+                        android:layout_height="57dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="-2dp"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/rounded_mood_image"
+                        android:clipToOutline="true"
+                        android:scaleType="centerCrop"
+                        tools:srcCompat="@tools:sample/avatars" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tvPrivate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PRIVATE"
+                    android:textColor="#4F614A"
+                    android:textStyle="italic"
+                    android:textSize="10sp"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
+        <!-- Buttons: Comments, Edit, Delete -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
+
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginLeft="20dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Like button"
+                android:src="@drawable/ic_heart_outline" />
+
+            <TextView
+                android:id="@+id/tvLikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical"
+                android:layout_marginStart="3dp"
+                android:text="0"
+                android:textColor="@color/buttonColor" />
+
+            <Button
+                android:id="@+id/btnComment"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/white"
+                android:text="Comments (0)"
+                android:textColor="@color/buttonColor" />
+
+            <Button
+                android:id="@+id/btnViewMore"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/white"
+                android:text="View More"
+                android:textColor="@color/buttonColor" />
+        </LinearLayout>
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

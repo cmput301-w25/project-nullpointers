@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/filter_panel_container"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/filter_panel_background"
+    android:elevation="8dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primaryColor"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/filter_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter Mood Events"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColor" />
+
+        <ImageButton
+            android:id="@+id/close_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:layout_alignParentEnd="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:tint="@color/textColor" />
+    </RelativeLayout>
+
+    <!-- Date Selection Section -->
+    <LinearLayout
+        android:id="@+id/date_filter_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/tertiaryColor"
+        android:padding="12dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date Filter"
+            android:textSize="16sp"
+            android:textColor="@color/textColor"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+        <!-- Date Range Selection Section -->
+        <LinearLayout
+            android:id="@+id/date_range_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@color/tertiaryColor">
+
+            <Button
+                android:id="@+id/buttonFromDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="From: Select Date"
+                android:backgroundTint="@color/buttonColor"
+                android:textColor="@color/textColor" />
+
+            <Button
+                android:id="@+id/buttonToDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="To: Select Date"
+                android:backgroundTint="@color/buttonColor"
+                android:textColor="@color/textColor"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            <Switch
+                android:id="@+id/showLast7DaysSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Last 7 Days"
+                android:textColor="@color/textColor"
+                android:layout_alignParentEnd="true"
+                android:thumbTint="@color/accentColor"
+                android:trackTint="@color/primaryColor"
+                android:checked="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/buttonColor" />
+
+    <!-- Location Filter Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/tertiaryColor"
+        android:padding="12dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Location Filter"
+            android:textSize="16sp"
+            android:textColor="@color/textColor"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+        <Switch
+            android:id="@+id/showNearbySwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Nearby"
+            android:textColor="@color/textColor"
+            android:layout_alignParentEnd="true"
+            android:thumbTint="@color/accentColor"
+            android:trackTint="@color/primaryColor" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/buttonColor" />
+
+    <!-- Personal Filter Section -->
+
+    <!-- Divider -->
+
+    <LinearLayout
+        android:id="@+id/personal_filter_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@color/tertiaryColor"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvShowMoodHistoryLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Mood History"
+            android:textColor="@color/textColor"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchShowMoodHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/buttonColor" />
+
+    <!-- Mood Selection Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/tertiaryColor"
+        android:padding="12dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mood Filter"
+                android:textSize="16sp"
+                android:textColor="@color/textColor"
+                android:textStyle="bold" />
+            <Switch
+                android:id="@+id/all_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:textColor="@color/textColor"
+                android:layout_alignParentEnd="true"
+                android:thumbTint="@color/accentColor"
+                android:trackTint="@color/primaryColor" />
+        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/mood_filter_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="8dp">
+            <CheckBox
+                android:id="@+id/checkbox_happy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Happy"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+            <CheckBox
+                android:id="@+id/checkbox_sad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sad"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="11.5dp" />
+            <CheckBox
+                android:id="@+id/checkbox_angry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Angry"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="11.5dp" />
+<!--            <CheckBox-->
+<!--                android:id="@+id/checkbox_chill"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Chill"-->
+<!--                app:buttonTint="@color/accentColor"-->
+<!--                android:textColor="@color/textColor" />-->
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/mood_filter_container_row2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="8dp">
+            <CheckBox
+                android:id="@+id/checkbox_fear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fear"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+            <CheckBox
+                android:id="@+id/checkbox_disgust"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disgust"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+            <CheckBox
+                android:id="@+id/checkbox_shame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shame"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/mood_filter_container_row3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="8dp">
+            <CheckBox
+                android:id="@+id/checkbox_surprise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Surprise"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor"
+                android:layout_marginEnd="12dp" />
+            <CheckBox
+                android:id="@+id/checkbox_confusion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confusion"
+                android:textColor="@color/textColor"
+                app:buttonTint="@color/accentColor" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Apply Button -->
+    <Button
+        android:id="@+id/apply_filters_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply Filters"
+        android:textColor="@color/textColor"
+        android:backgroundTint="@color/accentColor"
+        android:layout_margin="12dp" />
+
+</LinearLayout>

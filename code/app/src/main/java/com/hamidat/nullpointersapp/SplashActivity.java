@@ -1,4 +1,13 @@
-package com.hamidat.nullpointersapp.mainFragments;
+/**
+ * SplashActivity.java
+ *
+ * Initial entry point that displays the splash screen for a brief duration.
+ * Transitions to AuthActivity after a short delay.
+ *
+ * Outstanding Issues: None
+ */
+
+package com.hamidat.nullpointersapp;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,14 +15,11 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.hamidat.nullpointersapp.AuthActivity;
-import com.hamidat.nullpointersapp.R;
-
 /**
  * Displays a splash screen for a short duration when the app is launched.
  * After the delay, this activity transitions to the authentication screen.
  */
-public class SplashFragment extends AppCompatActivity{
+public class SplashActivity extends AppCompatActivity{
     // Delay in milliseconds (2000ms = 2 seconds)
     private static final long SPLASH_DELAY = 2000;
 
@@ -36,7 +42,7 @@ public class SplashFragment extends AppCompatActivity{
         // Post a delayed task to navigate to the next screen after SPLASH_DELAY
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             // Start AuthActivity
-            startActivity(new Intent(SplashFragment.this, AuthActivity.class));
+            startActivity(new Intent(SplashActivity.this, AuthActivity.class));
             // Finish the SplashActivity so the user can't go back to it
             finish();
         }, SPLASH_DELAY);

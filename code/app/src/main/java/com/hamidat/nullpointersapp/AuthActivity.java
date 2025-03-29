@@ -1,5 +1,15 @@
+/**
+ * AuthActivity.java
+ *
+ * Manages the authentication flow for the app by displaying login and registration fragments.
+ * Automatically redirects to MainActivity if running in test mode.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -21,6 +31,14 @@ public class AuthActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // If in test mode, skip login and go straight to MainActivity
+        if (getIntent().getBooleanExtra("TEST_MODE", false)) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish(); // Close AuthActivity
+            return;
+        }
+
         setContentView(R.layout.activity_auth);
 
         // Load the LoginFragment by default if not already restored

@@ -1,8 +1,29 @@
+/**
+ * ProfileFragment.java
+ *
+ * Displays the current user's profile, including:
+ * - Username
+ * - Profile picture
+ * - Friend count (users they follow)
+ *
+ * This fragment also provides navigation to:
+ * - MoodHistoryFragment
+ * - SettingsFragment
+ * - FollowingFragment (My Friends)
+ *
+ * <p>User data is fetched from Firestore using FirestoreHelper.</p>
+ * <p>Profile picture is decoded from Base64 if available.</p>
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import static com.hamidat.nullpointersapp.utils.AppConstants.*;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,29 +31,29 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.hamidat.nullpointersapp.MainActivity;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.models.UserProfile;
+import com.hamidat.nullpointersapp.models.Mood;
+import com.hamidat.nullpointersapp.models.MoodAdapter;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
+
+import java.util.List;
 import java.util.Map;
 
-/**
- * Displays the user's profile information.
- */
 public class ProfileFragment extends Fragment {
-    /**
-     * Inflates the fragment layout.
-     *
-     * @param inflater           LayoutInflater to inflate the view.
-     * @param container          The parent view.
-     * @param savedInstanceState Saved state data.
-     * @return The inflated view.
-     */
+
+    private ImageView profileIcon;
+    private TextView usernameText;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -47,28 +68,26 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Bind UI elements
-        ImageView profileIcon = view.findViewById(R.id.profile_icon);
-        final TextView usernameText = view.findViewById(R.id.username_text);
+        profileIcon = view.findViewById(R.id.profile_icon);
+        usernameText = view.findViewById(R.id.username_text);
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
-        Button btnFollowing = view.findViewById(R.id.btnFollowing);
+        Button tvFriends = view.findViewById(R.id.btnFollowing);
+        TextView statusBubble = view.findViewById(R.id.user_status_bubble);
 
-
-
-        btnFollowing.setOnClickListener(v -> {
+        tvFriends.setOnClickListener(v -> {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
         });
 
 
-
-        // Retrieve the shared FirestoreHelper and currentUserId from MainActivity
+        // Retrieve FirestoreHelper and currentUserId from MainActivity.
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             FirestoreHelper firestoreHelper = mainActivity.getFirestoreHelper();
             String currentUserId = mainActivity.getCurrentUserId();
 
-            // Fetch the user data from Firestore using the current user ID
+            // Fetch user data from Firestore
             firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
                 @Override
                 public void onSuccess(Object result) {
@@ -76,37 +95,60 @@ public class ProfileFragment extends Fragment {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> userData = (Map<String, Object>) result;
                         String username = (String) userData.get("username");
-                        // Update the UI with the fetched username
-                        usernameText.setText(String.format("My Username: %s", username));
+                        usernameText.setText(username);
+                        List<String> following = (List<String>) userData.get("following");
+                        int count = (following != null && !following.isEmpty()) ? following.size() - 1 : 0;
+                        if (following.size() == 1){
+                            count = 1;
+                            tvFriends.setText("My Friends: " + count);
+
+                        }else{
+                            tvFriends.setText("My Friends: " + count);
+                        }
+
+
+
+
+                        String status = (String) userData.get("status");
+                        if (status != null && !status.isEmpty()) {
+                            statusBubble.setText(status);
+                            statusBubble.setVisibility(View.VISIBLE);
+                        } else {
+                            statusBubble.setVisibility(View.GONE);
+                        }
+
+                        // Update the profile image if available
+                        String base64ProfilePic = (String) userData.get("profilePicture");
+                        if (base64ProfilePic != null && !base64ProfilePic.isEmpty()) {
+                            byte[] decodedBytes = Base64.decode(base64ProfilePic, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            profileIcon.setImageBitmap(bitmap);
+                        } else {
+                            // Optionally, set a default profile image.
+                            profileIcon.setImageResource(R.drawable.default_user_icon);
+                        }
                     }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(getActivity(), "Failed to fetch user data: "
-                            + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Failed to fetch user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            Toast.makeText(getActivity(), "Error retrieving Firestore instance",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Error retrieving Firestore instance", Toast.LENGTH_SHORT).show();
         }
 
-        // if we want to test without auth, initialize a default UserProfile if needed)
-        // UserProfile userProfile = new UserProfile(DEFAULT_USERNAME);
-        // usernameText.setText(String.format("My Username: %s", userProfile.getUsername()));
+        // Navigate to MoodHistoryFragment when "View My Mood History" is clicked.
+        viewMoodHistoryButton.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profileNavGraphFragment_to_moodHistoryFragment);
+        });
 
-        // Set button listeners with Toast feedback
-        viewMoodHistoryButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "View Mood History clicked",
-                        Toast.LENGTH_SHORT).show());
-
-        settingsButton.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Settings clicked",
-                        Toast.LENGTH_SHORT).show());
-
+        // Navigate to the SettingsFragment when the settings button is clicked.
+        settingsButton.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profileNavGraphFragment_to_settingsFragment);
+        });
     }
-
-
-
 }

@@ -3,20 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/backgroundColor">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Show mood events on selected date"
+        android:text="Select Date"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/textColor"
         android:paddingBottom="8dp" />
 
     <CalendarView
         android:id="@+id/dialog_calendar_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:maxDate="@{System.currentTimeMillis()}"
-        android:shownWeekCount="4" />
+        android:background="@color/tertiaryColor"
+        android:dateTextAppearance="@style/CalendarDateTextAppearance"
+        android:weekDayTextAppearance="@style/CalendarWeekTextAppearance" />
 </LinearLayout>

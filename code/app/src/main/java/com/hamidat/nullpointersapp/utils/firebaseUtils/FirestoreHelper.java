@@ -1,7 +1,18 @@
+/**
+ * FirestoreHelper.java
+ * Provides a unified interface for interacting with Firestore,
+ * delegating user, mood, and following-related operations to their respective helper classes.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.models.Mood;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * FirestoreHelper provides a unified interface for interacting with Firestore.
@@ -56,7 +67,23 @@ public class FirestoreHelper {
     }
 
     public void getUserByUsername(String username, FirestoreCallback callback) {
-        firestoreUsers.getUserByUsername(username, callback);
+        firestore.collection("users")
+                .whereEqualTo("username", username)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // User exists → not unique
+                        var doc = querySnapshot.getDocuments().get(0);
+                        Map<String, Object> userData = doc.getData();
+                        userData.put("userId", doc.getId());
+                        callback.onSuccess(userData);
+                    } else {
+                        // Username is unique
+                        callback.onFailure(new Exception("Username not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
     // ======= ADD/EDIT MOOD FUNCTIONS =======
@@ -87,6 +114,26 @@ public class FirestoreHelper {
         });
     }
 
+    /**
+     * Updates an existing Mood in Firestore based on mood.getMoodId().
+     *
+     * @param mood     The Mood object to update (must have moodId set).
+     * @param callback Callback for success/failure.
+     */
+    public void updateMood(Mood mood, FirestoreCallback callback) {
+        firestoreAddEditMoods.updateMood(mood, new FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                callback.onSuccess("Mood updated successfully! " + result);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(new Exception("Something went wrong while updating your mood. Try again!"));
+            }
+        });
+    }
+
     // ======= MOOD HISTORY FUNCTIONS =======
     public void firebaseToMoodHistory(String userID, FirestoreCallback callback) {
         firestoreMoodHistory.firebaseToMoodHistory(userID, callback);
@@ -104,6 +151,7 @@ public class FirestoreHelper {
     public void firebaseQueryTime(String userID, boolean sevenDays, boolean ascending, FirestoreCallback callback) {
         firestoreMoodHistory.firebaseQueryTime(userID, sevenDays, ascending, callback);
     }
+
 
     // ======= FOLLOWING FUNCTIONS =======
     public void sendFriendRequest(String fromUserId, String toUserId, FirestoreFollowing.FollowingCallback callback) {
@@ -129,4 +177,13 @@ public class FirestoreHelper {
     public void getAllUsers(FirestoreCallback callback) {
         firestoreUsers.getAllUsers(callback);
     }
+
+    public void updateUserProfilePicture(String userId, String base64Image, FirestoreCallback callback) {
+        firestoreUsers.updateUserProfilePicture(userId, base64Image, callback);
+    }
+
+    public void updateUserStatus(String userId, String status, FirestoreCallback callback) {
+        firestoreUsers.updateUserStatus(userId, status, callback);
+    }
+
 }

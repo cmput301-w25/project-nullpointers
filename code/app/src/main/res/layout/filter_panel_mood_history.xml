@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/filter_panel_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#C2DEAE"
+    android:elevation="8dp"
+    android:padding="0dp">
+
+    <!-- Header Section -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/filter_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter Mood History"
+            android:textSize="20sp"
+            android:paddingTop="17dp"
+            android:layout_marginLeft="20dp"
+            android:paddingBottom="10dp"
+            android:textStyle="bold"
+            android:textColor="@color/textColor" />
+
+        <ImageButton
+            android:id="@+id/btnCloseFilter"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@color/textColor" />
+    </RelativeLayout>
+
+    <!-- Recent Week Filter Section -->
+    <LinearLayout
+        android:id="@+id/llRecentWeekFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
+        android:radius="30dp"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvRecentWeekLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show only past 7 days"
+            android:textSize="16sp"
+            android:textColor="@color/textColor" />
+
+        <Switch
+            android:id="@+id/switchRecentWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:checked="false" />
+    </LinearLayout>
+
+    <!-- Emotional State Filter Section -->
+    <LinearLayout
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
+        android:id="@+id/llMoodFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvMoodFilterLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Filter by Mood:"
+                android:textSize="16sp"
+                android:textColor="@color/textColor" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSelectAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select All"
+                app:backgroundTint="#A6C881"
+                app:cornerRadius="8dp"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/llMoodCheckboxContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbHappy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Happy"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbSad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sad"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbAngry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Angry"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbAfraid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/afraid"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbDisgusted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/disgusted"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbShame"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/shameful"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbSurprise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/surprised"
+                    android:textColor="@color/textColor" />
+
+                <CheckBox
+                    android:id="@+id/cbConfused"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/confused"
+                    android:textColor="@color/textColor" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Date Filter Section -->
+    <LinearLayout
+        android:id="@+id/llDateFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelectDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Date"
+            app:backgroundTint="#A6C881"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tvSelectedDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Any Date"
+            android:textColor="@color/textColor"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp" />
+    </LinearLayout>
+
+    <!-- Reason Filter Section -->
+    <LinearLayout
+        android:id="@+id/llReasonFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#DEEDCC"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvReasonFilterLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Reason contains:"
+            android:textSize="16sp"
+            android:textColor="@color/textColor" />
+
+        <EditText
+            android:id="@+id/etReasonFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter keyword" />
+    </LinearLayout>
+
+    <!-- Apply and Reset Buttons Section -->
+    <LinearLayout
+        android:id="@+id/llButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplyFilter"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Apply Filter"
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnResetFilter"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Reset Filter"
+            android:layout_marginStart="12dp"
+            app:backgroundTint="#405F12"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

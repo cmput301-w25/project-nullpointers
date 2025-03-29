@@ -17,14 +17,14 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="0dp"
         app:cardBackgroundColor="@color/fadedGreen"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
-            android:layout_width="436dp"
+            android:layout_width="match_parent"
             android:layout_height="670dp"
             android:orientation="vertical"
             android:padding="12dp">
@@ -35,14 +35,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/accentColor"
-                app:cardCornerRadius="30dp">
+                app:cardCornerRadius="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="15dp">
 
                     <TextView
                         android:id="@+id/tvMoodEvents"
@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="(Most Recent First)"
+                        android:text="See what your friends are feeling"
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:textStyle="italic" /> <!-- Added spacing -->
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="16dp" />
+                android:paddingHorizontal="0dp" />
 
         </LinearLayout>
 
@@ -94,43 +94,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Filter Label -->
-        <TextView
-            android:id="@+id/tvFilter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Filter:"
-            android:textSize="14sp"
-            android:textColor="@android:color/black" />
-
-        <!-- Following -->
         <Button
             android:id="@+id/tvFollowing"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:text=" Following"
-            android:textSize="12sp"
-            android:padding="2dp"
             android:layout_marginStart="4dp"
+            android:background="@drawable/demo_login_button"
+            android:padding="2dp"
+            android:text="Filter"
             android:textColor="@color/white"
-            android:backgroundTint="@color/buttonColor"
-            app:backgroundTint="@null"
-            android:textStyle="bold" />
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
 
-        <!-- Spacer -->
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
-
-        <!-- You Are Offline -->
-        <TextView
-            android:id="@+id/tvOffline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="You Are Offline"
-            android:textSize="14sp"
-            android:textColor="@android:color/holo_red_dark" />
 
     </LinearLayout>
 

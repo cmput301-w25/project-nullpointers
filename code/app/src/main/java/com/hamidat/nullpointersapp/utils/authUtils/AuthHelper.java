@@ -1,3 +1,11 @@
+/**
+ * AuthHelper.java
+ * Utility class providing authentication-related helper methods,
+ * including input validation, unique username checking, and user registration.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.authUtils;
 
 import android.content.Context;

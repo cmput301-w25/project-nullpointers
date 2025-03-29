@@ -10,4 +10,22 @@
         <item name="android:paddingRight">16dp</item>
     </style>
 
+    <style name="CalendarDateTextAppearance" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <style name="CalendarWeekTextAppearance" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+    <style name="CircularImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="CustomDialogStyle" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+    </style>
+
+
 </resources>

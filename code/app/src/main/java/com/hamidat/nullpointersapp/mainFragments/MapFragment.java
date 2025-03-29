@@ -1,45 +1,54 @@
+/**
+ * MapFragment.java
+ *
+ * A fragment that displays a Google Map with mood markers using clustering.
+ * Supports filtering moods by date, emotion, and proximity. Also includes
+ * an animated info window to display mood details and user profile information.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
+
 package com.hamidat.nullpointersapp.mainFragments;
 
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.hamidat.nullpointersapp.MainActivity;
-import com.hamidat.nullpointersapp.R;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-
-import android.animation.AnimatorListenerAdapter;
-import android.location.Location;
-import android.widget.ImageView;
-import android.animation.ValueAnimator;
 import android.Manifest;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,14 +57,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.ClusterManager;
+import com.hamidat.nullpointersapp.MainActivity;
+import com.hamidat.nullpointersapp.R;
 import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.models.moodHistory;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
-import com.hamidat.nullpointersapp.utils.mapUtils.EmotionAdapter;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterItem;
 import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterRenderer;
 import com.hamidat.nullpointersapp.utils.networkUtils.NetworkMonitor;
@@ -64,7 +73,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,52 +84,67 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * A Fragment that displays a map with mood markers and allows filtering of mood events.
- */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    // Map and location
     private GoogleMap mMap;
     private LatLng currentLocation;
     private ClusterManager<MoodClusterItem> clusterManager;
+    private boolean isFirstLoad = true;
+    private Date fromDate = null;
+    private Date toDate = null;
+
+    // Mood data
     private List<MoodClusterItem> allDummyItems = new ArrayList<>();
-    private RecyclerView emotionListView;
-    private SwitchMaterial showNearbySwitch;
-    private SwitchMaterial showLast7DaysSwitch;
-    private boolean isLast7DaysFilter;
-    private View infoWindow;
-    private boolean isInfoWindowVisible = false;
-    private View emotionListContainer;
-    private Set<String> selectedMoods = new HashSet<>();
+
+    // Filter UI
+    private Switch switchShowMoodHistory;
+    private boolean showMoodHistory = false;
+
+    private View filterPanelContainer;
+    private Switch showNearbySwitch;
+    private Switch showLast7DaysSwitch;
+    private Button selectDateButton;
+    private Button applyFiltersButton;
+    private TextView selectedDateDisplay;
+
+    // Mood checkboxes
+    private CheckBox cbHappy, cbSad, cbAngry, cbChill, cbFear, cbDisgust, cbShame, cbSurprise, cbConfusion;
     private Switch allSwitch;
-    private EmotionAdapter adapter;
-    private boolean isEventRegistered = false;
+    private Set<String> selectedMoods = new HashSet<>();
 
-    // Executors for filtering and geocoding.
-    private final ExecutorService filterExecutor = Executors.newCachedThreadPool();
-    private final ExecutorService geocodeExecutor = Executors.newFixedThreadPool(2);
-
-    // Cache for geocoding results.
-    private final Map<String, String> geocodeCache = new HashMap<>();
-
-    // Date filter: only events on the selected day are shown.
+    // Date filter
+    private boolean isLast7DaysFilter = true;
     private Date selectedDate = null;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-    // Handler and Runnable for debouncing filtering tasks.
-    private final Handler filterHandler = new Handler(Looper.getMainLooper());
-    private Runnable pendingFilterRunnable;
+    // Info window
+    private View infoWindow;
+    private boolean isInfoWindowVisible = false;
+    private Button buttonFromDate;
+    private Button buttonToDate;
+
+    // Firestore / network
     private NetworkMonitor networkMonitor;
     public FirestoreHelper firestoreHelper;
     public String currentUserId;
-    private boolean isFirstLoad = true;
 
+    // Executors for filtering & geocoding
+    private final ExecutorService filterExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService geocodeExecutor = Executors.newFixedThreadPool(2);
 
-    /**
-     * Called when the fragment resumes.
-     * Checks for location permissions and retrieves the last known location.
-     */
+    // Geocoding cache
+    private final Map<String, String> geocodeCache = new HashMap<>();
+
+    // Handler & runnable for debouncing filter tasks
+    private final Handler filterHandler = new Handler(Looper.getMainLooper());
+    private Runnable pendingFilterRunnable;
+
+    // EventBus
+    private boolean isEventRegistered = false;
+
     @Override
     public void onResume() {
         super.onResume();
@@ -134,10 +157,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    /**
-     * Called when the fragment starts.
-     * Registers the event bus if not already registered.
-     */
     @Override
     public void onStart() {
         super.onStart();
@@ -147,20 +166,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    /**
-     * Handles MoodAddedEvent from the event bus.
-     *
-     * @param event The MoodAddedEvent.
-     */
-    @Subscribe
-    public void onMoodAddedEvent(AppEventBus.MoodAddedEvent event) {
-        fetchMoodData();
-    }
-
-    /**
-     * Called when the fragment stops.
-     * Unregisters the event bus.
-     */
     @Override
     public void onStop() {
         super.onStop();
@@ -170,159 +175,327 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    /**
-     * Inflates the fragment layout.
-     *
-     * @param inflater           The LayoutInflater.
-     * @param container          The parent view group.
-     * @param savedInstanceState Saved instance state bundle.
-     * @return The root view of the fragment.
-     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        filterExecutor.shutdown();
+        geocodeExecutor.shutdown();
+        filterHandler.removeCallbacksAndMessages(null);
+        if (networkMonitor != null) {
+            networkMonitor.stopMonitoring();
+        }
+    }
+
+    @Subscribe
+    public void onMoodAddedEvent(AppEventBus.MoodAddedEvent event) {
+        fetchMoodData();
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
-    /**
-     * Initializes UI components, permissions, and event listeners after the view is created.
-     *
-     * @param view               The root view of the fragment.
-     * @param savedInstanceState Saved instance state bundle.
-     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        // Access Firestore from MainActivity
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             this.firestoreHelper = mainActivity.getFirestoreHelper();
             this.currentUserId = mainActivity.getCurrentUserId();
         }
 
-        showNearbySwitch = view.findViewById(R.id.showNearbySwitch);
-        showLast7DaysSwitch = view.findViewById(R.id.showLast7DaysSwitch);
+        // Info window
+        infoWindow = LayoutInflater.from(getContext()).inflate(R.layout.info_window, (ViewGroup) view, false);
+        ((ViewGroup) view).addView(infoWindow);
+        infoWindow.setVisibility(View.GONE);
+
+        // Filter panel (assumed to be included in fragment_map.xml)
+        filterPanelContainer = view.findViewById(R.id.filter_panel_container);
+        if (filterPanelContainer == null) {
+            // If it's null, manually inflate the filter panel layout.
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            filterPanelContainer = (LinearLayout) inflater.inflate(R.layout.filter_panel, (ViewGroup) view, false);
+            // Add the filter panel to the root view.
+            ((ViewGroup) view).addView(filterPanelContainer);
+        }
+
+
+        filterPanelContainer.setVisibility(View.GONE);
+
+        // Initialize controls inside filter panel
+        showNearbySwitch    = filterPanelContainer.findViewById(R.id.showNearbySwitch);
+        showLast7DaysSwitch = filterPanelContainer.findViewById(R.id.showLast7DaysSwitch);
+        buttonFromDate = filterPanelContainer.findViewById(R.id.buttonFromDate);
+        buttonToDate = filterPanelContainer.findViewById(R.id.buttonToDate);
+
+
+        applyFiltersButton  = filterPanelContainer.findViewById(R.id.apply_filters_button);
+        allSwitch           = filterPanelContainer.findViewById(R.id.all_switch);
+        switchShowMoodHistory = filterPanelContainer.findViewById(R.id.switchShowMoodHistory);
+
+        // Mood checkboxes
+        cbHappy    = filterPanelContainer.findViewById(R.id.checkbox_happy);
+        cbSad      = filterPanelContainer.findViewById(R.id.checkbox_sad);
+        cbAngry    = filterPanelContainer.findViewById(R.id.checkbox_angry);
+        //cbChill    = filterPanelContainer.findViewById(R.id.checkbox_chill);
+        cbFear     = filterPanelContainer.findViewById(R.id.checkbox_fear);
+        cbDisgust  = filterPanelContainer.findViewById(R.id.checkbox_disgust);
+        cbShame    = filterPanelContainer.findViewById(R.id.checkbox_shame);
+        cbSurprise = filterPanelContainer.findViewById(R.id.checkbox_surprise);
+        cbConfusion= filterPanelContainer.findViewById(R.id.checkbox_confusion);
+
+        // Setup mood checkboxes
+        setupMoodCheckboxes();
+
+        // Listen for Last 7 Days switch
         showLast7DaysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isLast7DaysFilter = isChecked;
-            selectedDate = null;
+            applyLast7DaysToggle(isChecked);
+            // Trigger filtering if needed:
             filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
         });
 
-        networkMonitor = new NetworkMonitor(requireContext());
-        networkMonitor.startMonitoring();
 
-        FloatingActionButton fab = view.findViewById(R.id.fab_filter);
-        emotionListContainer = view.findViewById(R.id.emotion_list_container);
-        emotionListContainer.setVisibility(View.GONE);
-        emotionListView = emotionListContainer.findViewById(R.id.emotion_list);
-
-        LinearLayout headerContainer = emotionListContainer.findViewById(R.id.header_container);
-        headerContainer.setOnClickListener(v -> showCalendarDialog());
-
-        ImageButton closeButton = emotionListContainer.findViewById(R.id.close_button);
-        closeButton.setOnClickListener(v -> emotionListContainer.setVisibility(View.GONE));
-
-        ViewGroup rootView = (ViewGroup) view.findViewById(android.R.id.content);
-        if (rootView == null) {
-            rootView = (ViewGroup) view;
+        if (buttonFromDate != null && buttonToDate != null) {
+            buttonFromDate.setOnClickListener(v -> openDatePicker(true, buttonFromDate));
+            buttonToDate.setOnClickListener(v -> openDatePicker(false, buttonToDate));
+        } else {
+            // If still null, log an error and disable date-range filtering to avoid a crash.
+            Log.e("MapFragment", "Date range buttons not found. Check that filter_panel.xml includes buttonFromDate and buttonToDate with the correct IDs.");
         }
-        infoWindow = LayoutInflater.from(getContext()).inflate(R.layout.info_window, rootView, false);
-        infoWindow.setVisibility(View.GONE);
-        rootView.addView(infoWindow);
 
-        fab.setOnClickListener(v -> {
-            if (emotionListContainer.getVisibility() == View.VISIBLE) {
-                emotionListContainer.setVisibility(View.GONE);
-            } else {
-                if (isInfoWindowVisible) {
-                    infoWindow.setVisibility(View.GONE);
-                    isInfoWindowVisible = false;
-                }
-                emotionListContainer.setVisibility(View.VISIBLE);
+        // Select date button
+        //selectDateButton.setOnClickListener(v -> showCalendarDialog());
+
+        // "Show Mood History" switch listener is not used for UI change; its state is read in fetchMoodData().
+
+        // Close button on the filter panel
+        ImageButton closeButton = filterPanelContainer.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> hideFilterPanel());
+
+        // Apply filters button
+        applyFiltersButton.setOnClickListener(v -> {
+            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+            hideFilterPanel();
+        });
+
+
+        switchShowMoodHistory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                showMoodHistory = isChecked;
+                Log.d("MapFragment", "switchShowMoodHistory changed to: " + isChecked);
+                // Optionally trigger filtering here if immediate response is desired
+                fetchMoodData();
+
             }
         });
 
+        // Floating Action Button to toggle filter panel
+        FloatingActionButton fab = view.findViewById(R.id.fab_filter);
+        fab.setOnClickListener(v -> {
+            if (filterPanelContainer.getVisibility() == View.VISIBLE) {
+                hideFilterPanel();
+            } else {
+                if (isInfoWindowVisible) {
+                    slideDownInfoWindow();
+                }
+                showFilterPanel();
+            }
+        });
+
+        // Network monitor
+        networkMonitor = new NetworkMonitor(requireContext());
+        networkMonitor.startMonitoring();
+
+        // Request or check location permission
         if (checkLocationPermission()) {
             getLastLocation();
         } else {
             requestLocationPermission();
         }
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
+        // Set up the map fragment
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
-        showNearbySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (currentLocation != null) {
-                filterAndDisplayMoodEventsAsync(isChecked, currentLocation);
-            }
-        });
-
-        setupEmotionList();
+        // Default date display to "Last 7 Days" on initial load
+        //selectedDateDisplay.setText("Last 7 Days");
     }
 
-    /**
-     * Sets up the emotion filter list with checkboxes and switches.
-     */
-    private void setupEmotionList() {
-        List<String> emotions = Arrays.asList("Happy", "Sad", "Angry", "Chill");
-        allSwitch = emotionListContainer.findViewById(R.id.all_switch);
-        Button doneButton = emotionListContainer.findViewById(R.id.done_button);
 
-        adapter = new EmotionAdapter(emotions, allSwitch);
+    private void applyLast7DaysToggle(boolean isEnabled) {
+        if (isEnabled) {
+            // Calculate 7 days ago:
+            Calendar cal = Calendar.getInstance();
+            toDate = cal.getTime(); // today
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            fromDate = cal.getTime();
+
+            // Update buttons text:
+            buttonFromDate.setText("From: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(fromDate));
+            buttonToDate.setText("To: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(toDate));
+
+            // Disable the buttons.
+            buttonFromDate.setEnabled(false);
+            buttonToDate.setEnabled(false);
+        } else {
+            // Enable buttons for user selection.
+            buttonFromDate.setEnabled(true);
+            buttonToDate.setEnabled(true);
+            // Optionally, set the button text to prompt user to select.
+            buttonFromDate.setText("From: Select Date");
+            buttonToDate.setText("To: Select Date");
+            // Reset the custom dates.
+            fromDate = null;
+            toDate = null;
+        }
+    }
+
+
+
+
+
+    private void openDatePicker(boolean isFromDate, Button dateButton) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth, 0, 0, 0);
+                    if (isFromDate) {
+                        fromDate = selectedCalendar.getTime();
+                        dateButton.setText("From: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(fromDate));
+                    } else {
+                        // Set to end of day for To Date.
+                        selectedCalendar.set(Calendar.HOUR_OF_DAY, 23);
+                        selectedCalendar.set(Calendar.MINUTE, 59);
+                        selectedCalendar.set(Calendar.SECOND, 59);
+                        selectedCalendar.set(Calendar.MILLISECOND, 999);
+                        toDate = selectedCalendar.getTime();
+                        dateButton.setText("To: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(toDate));
+                    }
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+
+
+
+
+    private void setupMoodCheckboxes() {
+        cbHappy.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Happy");
+            else selectedMoods.remove("Happy");
+            updateAllSwitchState();
+        });
+        cbSad.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Sad");
+            else selectedMoods.remove("Sad");
+            updateAllSwitchState();
+        });
+        cbAngry.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Angry");
+            else selectedMoods.remove("Angry");
+            updateAllSwitchState();
+        });
+//        cbChill.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//            if (isChecked) selectedMoods.add("Chill");
+//            else selectedMoods.remove("Chill");
+//            updateAllSwitchState();
+//        });
+        cbFear.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Afraid");
+            else selectedMoods.remove("Afraid");
+            updateAllSwitchState();
+        });
+        cbDisgust.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Disgusted");
+            else selectedMoods.remove("Disgusted");
+            updateAllSwitchState();
+        });
+        cbShame.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Shameful");
+            else selectedMoods.remove("Shameful");
+            updateAllSwitchState();
+        });
+        cbSurprise.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Surprised");
+            else selectedMoods.remove("Surprised");
+            updateAllSwitchState();
+        });
+        cbConfusion.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) selectedMoods.add("Confused");
+            else selectedMoods.remove("Confused");
+            updateAllSwitchState();
+        });
 
         allSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (buttonView.isPressed()) {
-                if (isChecked) {
-                    adapter.updateCheckboxesState(true);
-                    selectedMoods.clear();
-                    selectedMoods.addAll(adapter.getSelectedEmotions());
-                } else {
-                    adapter.clearSelections();
-                    selectedMoods.clear();
-                }
-                filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
+                cbHappy.setChecked(isChecked);
+                cbSad.setChecked(isChecked);
+                cbAngry.setChecked(isChecked);
+                //cbChill.setChecked(isChecked);
+                cbFear.setChecked(isChecked);
+                cbDisgust.setChecked(isChecked);
+                cbShame.setChecked(isChecked);
+                cbSurprise.setChecked(isChecked);
+                cbConfusion.setChecked(isChecked);
             }
         });
-
-        doneButton.setOnClickListener(v -> {
-            selectedMoods = adapter.getSelectedEmotions();
-            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
-            emotionListContainer.setVisibility(View.GONE);
-        });
-
-        emotionListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        emotionListView.setAdapter(adapter);
     }
 
-    /**
-     * Checks if location permissions are granted.
-     *
-     * @return True if permissions are granted, false otherwise.
-     */
+    private void updateAllSwitchState() {
+        boolean allSelected = selectedMoods.size() == 9;
+        if (allSwitch.isChecked() != allSelected) {
+            allSwitch.setChecked(allSelected);
+        }
+    }
+
+    private void showFilterPanel() {
+        filterPanelContainer.setVisibility(View.VISIBLE);
+        filterPanelContainer.post(() -> {
+            float panelHeight = filterPanelContainer.getHeight();
+            filterPanelContainer.setTranslationY(-panelHeight);
+            filterPanelContainer.animate()
+                    .translationY(0)
+                    .setDuration(300)
+                    .start();
+        });
+    }
+
+    private void hideFilterPanel() {
+        filterPanelContainer.post(() -> {
+            float panelHeight = filterPanelContainer.getHeight();
+            filterPanelContainer.animate()
+                    .translationY(-panelHeight)
+                    .setDuration(300)
+                    .withEndAction(() -> filterPanelContainer.setVisibility(View.GONE))
+                    .start();
+        });
+    }
+
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED;
+                == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
-    /**
-     * Requests fine location permission from the user.
-     */
     private void requestLocationPermission() {
         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
 
-    /**
-     * Handles the result of the location permission request.
-     *
-     * @param requestCode  Request code identifier.
-     * @param permissions  Requested permissions.
-     * @param grantResults Permission grant results.
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -335,34 +508,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Retrieves the device's last known location.
-     */
-//    private void getLastLocation() {
-//        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-//        if (checkLocationPermission()) {
-//            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
-//                if (location != null) {
-//                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                    fetchMoodData();
-//                    setupMap();
-//                }
-//            });
-//        }
-//    }
-
     private void getLastLocation() {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        FusedLocationProviderClient fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(requireActivity());
         if (checkLocationPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
                 if (location != null) {
@@ -370,24 +518,78 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     fetchMoodData();
                     setupMap();
                 } else {
-                    // Request a fresh location update if last location is null
                     LocationRequest locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                     locationRequest.setInterval(1000);
                     locationRequest.setFastestInterval(500);
                     locationRequest.setNumUpdates(1);
+                    fusedLocationClient.requestLocationUpdates(locationRequest,
+                            new LocationCallback() {
+                                @Override
+                                public void onLocationResult(LocationResult locationResult) {
+                                    if (locationResult != null && !locationResult.getLocations().isEmpty()) {
+                                        Location freshLocation = locationResult.getLastLocation();
+                                        currentLocation = new LatLng(freshLocation.getLatitude(),
+                                                freshLocation.getLongitude());
+                                        fetchMoodData();
+                                        setupMap();
+                                    }
+                                }
+                            },
+                            Looper.getMainLooper());
+                }
+            });
+        }
+    }
 
-                    fusedLocationClient.requestLocationUpdates(locationRequest, new LocationCallback() {
-                        @Override
-                        public void onLocationResult(LocationResult locationResult) {
-                            if (locationResult != null && !locationResult.getLocations().isEmpty()) {
-                                Location freshLocation = locationResult.getLastLocation();
-                                currentLocation = new LatLng(freshLocation.getLatitude(), freshLocation.getLongitude());
-                                fetchMoodData();
-                                setupMap();
-                            }
+    private void fetchMoodData() {
+        if (currentUserId == null || firestoreHelper == null) return;
+
+        if (showMoodHistory) {
+            Log.d("MapFragment", "Fetching personal mood history for " + currentUserId);
+            firestoreHelper.firebaseToMoodHistory(currentUserId, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    moodHistory history = (moodHistory) result;
+                    updateMapData(history);
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to load moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
+                        if (followingIds == null) {
+                            followingIds = new ArrayList<>();
                         }
-                    }, Looper.getMainLooper());
+                        // Ensure the current user is included.
+                        if (!followingIds.contains(currentUserId)) {
+                            followingIds.add(currentUserId);
+                        }
+                        Log.d("MapFragment", "Fetching moods for following: " + followingIds.toString());
+                        firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                moodHistory history = (moodHistory) result;
+                                updateMapData(history);
+                            }
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "Failed to load moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -395,79 +597,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
 
-    /**
-     * Fetches mood data for the current user and their following list.
-     */
-    private void fetchMoodData() {
-        if (currentUserId == null || firestoreHelper == null) return;
 
-        firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
-            /**
-             * Called when user data is successfully fetched.
-             *
-             * @param result A map containing user data.
-             */
-            @Override
-            public void onSuccess(Object result) {
-                if (result instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> userData = (Map<String, Object>) result;
-                    ArrayList<String> followingIds = (ArrayList<String>) userData.get("following");
-                    if (followingIds == null) {
-                        followingIds = new ArrayList<>();
-                    }
-                    if (!followingIds.contains(currentUserId)) {
-                        followingIds.add(currentUserId);
-                    }
-                    firestoreHelper.firebaseToMoodHistory(followingIds, new FirestoreHelper.FirestoreCallback() {
-                        /**
-                         * Called when mood history is successfully fetched.
-                         *
-                         * @param result The moodHistory object.
-                         */
-                        @Override
-                        public void onSuccess(Object result) {
-                            moodHistory history = (moodHistory) result;
-                            updateMapData(history);
-                        }
-                        /**
-                         * Called when there is an error fetching mood history.
-                         *
-                         * @param e The exception encountered.
-                         */
-                        @Override
-                        public void onFailure(Exception e) {
-                            Toast.makeText(getContext(), "Failed to load moods: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-            /**
-             * Called when there is an error fetching user data.
-             *
-             * @param e The exception encountered.
-             */
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(getContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
-    /**
-     * Updates the map with mood data by creating and clustering mood markers.
-     *
-     * @param history The moodHistory object containing mood events.
-     */
     private void updateMapData(moodHistory history) {
         allDummyItems.clear();
         List<LatLng> usedPositions = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -7);
+        Date sevenDaysAgo = cal.getTime();
         for (Mood mood : history.getMoodArray()) {
             if (mood.getLatitude() == 0.0 && mood.getLongitude() == 0.0) continue;
-            double lat = mood.getLatitude();
-            double lng = mood.getLongitude();
-            LatLng originalPos = new LatLng(lat, lng);
-
+            if (isLast7DaysFilter && mood.getTimestamp() != null) {
+                Date moodDate = mood.getTimestamp().toDate();
+                if (moodDate.before(sevenDaysAgo)) {
+                    continue;
+                }
+            }
             String dateString = "Unknown Date";
             String timeString = "Unknown Time";
             if (mood.getTimestamp() != null) {
@@ -475,7 +620,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dateObj);
                 timeString = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(dateObj);
             }
-
+            double lat = mood.getLatitude();
+            double lng = mood.getLongitude();
+            LatLng originalPos = new LatLng(lat, lng);
             boolean duplicate = false;
             for (LatLng pos : usedPositions) {
                 if (Math.abs(pos.latitude - originalPos.latitude) < 1e-6 &&
@@ -492,13 +639,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             LatLng position = new LatLng(lat, lng);
             usedPositions.add(position);
-
-//            String dateString = "Unknown Date";
-//            if (mood.getTimestamp() != null) {
-//                dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-//                        .format(mood.getTimestamp().toDate());
-//            }
-
             allDummyItems.add(new MoodClusterItem(
                     position,
                     mood.getMood(),
@@ -506,10 +646,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     timeString,
                     mood.getMoodDescription(),
                     mood.getSocialSituation(),
-                    mood.getImageBase64(), // assuming mood always has an image (it should)
+                    mood.getImageBase64(),
                     mood.getUserId()
             ));
-
         }
         new Handler(Looper.getMainLooper()).post(() -> {
             if (clusterManager != null) {
@@ -518,26 +657,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 clusterManager.cluster();
                 if (isFirstLoad && !allDummyItems.isEmpty()) {
                     isFirstLoad = false;
-                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                    for (MoodClusterItem item : allDummyItems) {
-                        builder.include(item.getPosition());
-                    }
-                    try {
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         });
     }
 
-    /**
-     * Filters and displays mood events based on selected criteria asynchronously.
-     *
-     * @param showNearby      True to filter events within 5km.
-     * @param currentLocation The reference location for proximity filtering.
-     */
     private void filterAndDisplayMoodEventsAsync(boolean showNearby, LatLng currentLocation) {
         if (pendingFilterRunnable != null) {
             filterHandler.removeCallbacks(pendingFilterRunnable);
@@ -546,30 +670,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             filterExecutor.execute(() -> {
                 List<MoodClusterItem> filteredItems = new ArrayList<>();
                 for (MoodClusterItem item : allDummyItems) {
-                    double distance = SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition());
+                    double distance = (currentLocation == null)
+                            ? Double.MAX_VALUE
+                            : SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition());
                     boolean proximityMatch = !showNearby || distance <= 5000;
-                    boolean emotionMatch = selectedMoods.isEmpty() || allSwitch.isChecked() || selectedMoods.contains(item.getEmotion());
+                    boolean emotionMatch = selectedMoods.contains(item.getEmotion());
                     boolean dateMatch = true;
                     try {
                         Date itemDate = dateFormat.parse(item.getDate());
-                        if (isLast7DaysFilter) {
+                        if (fromDate != null && toDate != null) {
+                            // Use custom date range filtering.
+                            if (itemDate.before(fromDate) || itemDate.after(toDate)) {
+                                dateMatch = false;
+                            }
+                        } else if (isLast7DaysFilter) {
                             Date today = new Date();
                             Calendar cal = Calendar.getInstance();
                             cal.setTime(today);
                             cal.add(Calendar.DAY_OF_YEAR, -7);
                             Date sevenDaysAgo = cal.getTime();
-                            dateMatch = (itemDate.equals(sevenDaysAgo) || itemDate.after(sevenDaysAgo)) &&
-                                    (itemDate.equals(today) || itemDate.before(today));
-                        } else if (selectedDate != null) {
-                            dateMatch = dateFormat.format(itemDate).equals(dateFormat.format(selectedDate));
+                            dateMatch = !itemDate.before(sevenDaysAgo) && !itemDate.after(today);
                         } else {
-                            Date today = new Date();
-                            dateMatch = dateFormat.format(itemDate).equals(dateFormat.format(today));
+                            // If no date filter is set, default to matching.
+                            dateMatch = true;
                         }
                     } catch (Exception e) {
                         dateMatch = false;
                     }
-                    if (emotionMatch && proximityMatch && dateMatch) {
+                    if (proximityMatch && emotionMatch && dateMatch) {
                         filteredItems.add(item);
                     }
                 }
@@ -585,24 +713,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         filterHandler.postDelayed(pendingFilterRunnable, 300);
     }
 
-    /**
-     * Called when the map is ready.
-     *
-     * @param googleMap The initialized GoogleMap instance.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         if (currentLocation != null) {
             setupMap();
-
         }
-
     }
 
-    /**
-     * Configures the map settings and cluster manager.
-     */
     private void setupMap() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation)
@@ -615,8 +733,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(clusterManager);
         clusterManager.setRenderer(new MoodClusterRenderer(requireContext(), mMap, clusterManager));
         clusterManager.setOnClusterItemClickListener(item -> {
-            if (emotionListContainer.getVisibility() == View.VISIBLE) {
-                emotionListContainer.setVisibility(View.GONE);
+            if (filterPanelContainer.getVisibility() == View.VISIBLE) {
+                hideFilterPanel();
             }
             showInfoWindow(item);
             return true;
@@ -626,23 +744,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 slideDownInfoWindow();
             }
         });
-
         mMap.setOnCameraMoveStartedListener(reason -> {
             if (isInfoWindowVisible) {
                 slideDownInfoWindow();
             }
         });
-
     }
 
-    /**
-     * Displays an info window with details of the selected mood event.
-     *
-     * @param item The MoodClusterItem to display.
-     */
     private void showInfoWindow(MoodClusterItem item) {
-        // Bind views using the new IDs from your info window layout
-        // Inside showInfoWindow(MoodClusterItem item)
         TextView tvUsername = infoWindow.findViewById(R.id.tvUsername);
         TextView tvDate = infoWindow.findViewById(R.id.tvDate);
         TextView tvTime = infoWindow.findViewById(R.id.tvTime);
@@ -651,8 +760,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView tvDescription = infoWindow.findViewById(R.id.tvDescription);
         TextView tvLocation = infoWindow.findViewById(R.id.tvLocation);
         ImageView ivImage = infoWindow.findViewById(R.id.ivImage);
-
-// Username fetching remains the same...
         if (tvUsername != null) {
             tvUsername.setText("Loading...");
             firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
@@ -673,29 +780,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         }
-
-// Set date and time
-        if (tvDate != null) {
-            tvDate.setText(item.getDate());
-        }
-        if (tvTime != null) {
-            tvTime.setText(item.getTime());
-        }
-
-// Set emotion and social situation with new labels
+        if (tvDate != null) tvDate.setText(item.getDate());
+        if (tvTime != null) tvTime.setText(item.getTime());
         if (tvEmotion != null) {
             tvEmotion.setText("is feeling: " + item.getEmotion());
         }
         if (tvSocialSituation != null) {
             tvSocialSituation.setText("Social Situation: " + item.getSocialSituation());
         }
-
-// Set description
         if (tvDescription != null) {
             tvDescription.setText(item.getDescription());
         }
-
-// Set location via geocoding (same as before)
         if (tvLocation != null) {
             tvLocation.setText("Loading...");
             String cacheKey = item.getPosition().latitude + "," + item.getPosition().longitude;
@@ -714,21 +809,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             String street = address.getThoroughfare();
                             final String result = (street != null ? street : "Nearby area");
                             geocodeCache.put(cacheKey, result);
-                            new Handler(Looper.getMainLooper()).post(() ->
-                                    tvLocation.setText(result));
+                            new Handler(Looper.getMainLooper()).post(() -> tvLocation.setText(result));
                         } else {
-                            new Handler(Looper.getMainLooper()).post(() ->
-                                    tvLocation.setText("Unknown"));
+                            new Handler(Looper.getMainLooper()).post(() -> tvLocation.setText("Unknown"));
                         }
                     } catch (Exception e) {
-                        new Handler(Looper.getMainLooper()).post(() ->
-                                tvLocation.setText("Unavailable"));
+                        new Handler(Looper.getMainLooper()).post(() -> tvLocation.setText("Unavailable"));
                     }
                 });
             }
         }
-
-// Decode and set the image
         if (ivImage != null) {
             if (item.getImageBase64() != null) {
                 try {
@@ -736,14 +826,38 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                     ivImage.setImageBitmap(bitmap);
                 } catch (Exception e) {
-                   ivImage.setImageResource(R.drawable.ic_default_image);
+                    ivImage.setImageResource(R.drawable.ic_default_image);
                 }
             } else {
                 ivImage.setImageResource(R.drawable.ic_default_image);
             }
         }
-
-// Animate the info window sliding up from the bottom (as before)
+        ImageView ivProfilePic = infoWindow.findViewById(R.id.ivProfile);
+        if (ivProfilePic != null) {
+            firestoreHelper.getUser(item.getUserId(), new FirestoreHelper.FirestoreCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    if (result instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> userData = (Map<String, Object>) result;
+                        String profilePicBase64 = (String) userData.get("profilePicture");
+                        if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            ivProfilePic.post(() -> ivProfilePic.setImageBitmap(bitmap));
+                        } else {
+                            ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                        }
+                    } else {
+                        ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                    }
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    ivProfilePic.post(() -> ivProfilePic.setImageResource(R.drawable.default_user_icon));
+                }
+            });
+        }
         infoWindow.setVisibility(View.VISIBLE);
         infoWindow.post(() -> {
             View parent = (View) infoWindow.getParent();
@@ -754,18 +868,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             infoWindow.animate().translationY(finalY).setDuration(300).start();
         });
         isInfoWindowVisible = true;
-
     }
 
-
-
-    /**
-     * Animates the info window sliding down off the screen and then hides it.
-     */
     private void slideDownInfoWindow() {
         View parent = (View) infoWindow.getParent();
         final int parentHeight = parent.getHeight();
-        // Get current translationY (should be at the bottom position)
         final float startY = infoWindow.getTranslationY();
         ValueAnimator animator = ValueAnimator.ofFloat(startY, parentHeight);
         animator.setDuration(300);
@@ -783,23 +890,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         animator.start();
     }
 
-    /**
-     * Cleans up resources when the fragment is destroyed.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        filterExecutor.shutdown();
-        geocodeExecutor.shutdown();
-        filterHandler.removeCallbacksAndMessages(null);
-        if (networkMonitor != null) {
-            networkMonitor.stopMonitoring();
-        }
-    }
-
-    /**
-     * Shows a calendar dialog for date filtering.
-     */
     private void showCalendarDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View calendarDialogView = LayoutInflater.from(getContext()).inflate(R.layout.calendar_dialog, null);
@@ -812,17 +902,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Calendar cal = Calendar.getInstance();
             cal.set(year, month, dayOfMonth, 23, 59, 59);
             selectedDate = cal.getTime();
+            SimpleDateFormat displayFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            selectedDateDisplay.setText(displayFormat.format(selectedDate));
             if (isLast7DaysFilter) {
                 isLast7DaysFilter = false;
                 showLast7DaysSwitch.setChecked(false);
             }
         });
         builder.setView(calendarDialogView);
-        builder.setPositiveButton("Apply", (dialog, which) -> {
-            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
-        });
+        builder.setPositiveButton("Apply", (dialog, which) ->
+                filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation));
         builder.setNegativeButton("Cancel", null);
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 }
+
+
+//ignore this lol

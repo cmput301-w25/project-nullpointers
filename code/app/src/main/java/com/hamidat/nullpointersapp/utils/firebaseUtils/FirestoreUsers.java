@@ -1,3 +1,11 @@
+/**
+ * FirestoreUsers.java
+ * Handles Firestore operations related to user data such as adding users,
+ * retrieving user profiles, and updating profile pictures.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -105,5 +113,22 @@ public class FirestoreUsers {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
+
+    public void updateUserProfilePicture(String userId, String base64Image, FirestoreHelper.FirestoreCallback callback) {
+        firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .update("profilePicture", base64Image)
+                .addOnSuccessListener(aVoid -> callback.onSuccess("Profile picture updated"))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void updateUserStatus(String userId, String status, FirestoreHelper.FirestoreCallback callback) {
+        firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .update("status", status)
+                .addOnSuccessListener(aVoid -> callback.onSuccess("Status updated"))
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
 }
