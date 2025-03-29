@@ -51,7 +51,6 @@ import java.util.Map;
 public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
     private String currentUserId;
-
     private FirebaseFirestore firestore;
     private FirestoreHelper firestoreHelper;
     private View filterView;
@@ -65,7 +64,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
     private List<String> checkedEmotions;
     private String filterDescriptionText;
     private Switch toggleSevenDays, toggleAscendingOrder;
-
     private Boolean setToggleWeek, setOrder;
 
     public HomeFilterHistoryFragment (String UserID, FirestoreHelper firestoreHelperInstance, Timestamp savedToTimestamp, Timestamp savedFromTimestamp,
@@ -295,6 +293,9 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
         // Get the timestamps in the range. initially null
         if (fromTimestamp != null && toTimestamp != null) {
+            if (fromTimestamp.compareTo(toTimestamp) > 0) {
+                Toast.makeText(getContext(), "Cannot filter with 'From Date' after 'To Date'!", Toast.LENGTH_SHORT).show();
+            }
             filterQuery = filterQuery
                     .whereGreaterThanOrEqualTo("timestamp", fromTimestamp)
                     .whereLessThanOrEqualTo("timestamp", toTimestamp);

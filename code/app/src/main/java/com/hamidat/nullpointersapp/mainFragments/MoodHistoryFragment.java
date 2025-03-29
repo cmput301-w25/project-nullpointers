@@ -55,7 +55,7 @@ import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragme
 public class MoodHistoryFragment extends Fragment {
 
     private RecyclerView rvMoodHistory;
-    private TextView tvMoodHistoryTitle, tvMoodSubtitle, tvMostFrequentMood, tvNoMoodEntries;
+    private TextView tvMostFrequentMood, tvNoMoodEntries;
     private MoodAdapter moodAdapter;
     private List<Mood> moodList = new ArrayList<>();
     private FirebaseFirestore firestore;
@@ -90,8 +90,6 @@ public class MoodHistoryFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        tvMoodHistoryTitle = view.findViewById(R.id.tvMoodHistoryTitle);
-        tvMoodSubtitle = view.findViewById(R.id.tvMoodSubtitle);
         tvMostFrequentMood = view.findViewById(R.id.tvMostFrequentMood);
         tvNoMoodEntries = view.findViewById(R.id.tvNoMoodEntries);
         rvMoodHistory = view.findViewById(R.id.rvMoodHistory);
@@ -288,6 +286,8 @@ public class MoodHistoryFragment extends Fragment {
             btnSelectAll.setText("Select All");
             fromTimestamp = null;
             toTimestamp = null;
+            updateDateText(tvFromDate, fromTimestamp);
+            updateDateText(tvToDate, toTimestamp);
 
             Toast.makeText(getContext(), "Filters Reset", Toast.LENGTH_SHORT).show();
             hideFilterPanel();
@@ -304,6 +304,9 @@ public class MoodHistoryFragment extends Fragment {
 
 
         if (fromTimestamp != null && toTimestamp != null) {
+            if (fromTimestamp.compareTo(toTimestamp) > 0) {
+                Toast.makeText(getContext(), "Cannot filter with 'From Date' after 'To Date'!", Toast.LENGTH_SHORT).show();
+            }
             query = query.whereGreaterThanOrEqualTo("timestamp", fromTimestamp)
                     .whereLessThanOrEqualTo("timestamp", toTimestamp);
         } else if ((fromTimestamp == null) ^ (toTimestamp == null)) {
@@ -569,7 +572,5 @@ public class MoodHistoryFragment extends Fragment {
             updateDateText(tvFromDate, null);
             updateDateText(tvToDate, null);
         }
-
-        // Also update the variable so it's passed back in the callback
     }
 }
