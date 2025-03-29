@@ -68,6 +68,11 @@ public class SignUpFragment extends Fragment {
 
             // Check that the username is unique (case sensitive)
             AuthHelper.validateUniqueUsername(requireContext(), signupUsername, new UniqueUsernameCallback() {
+                /**
+                 * Called when the unique username check is complete.
+                 *
+                 * @param isUnique true if the username is unique, false otherwise.
+                 */
                 @Override
                 public void onResult(boolean isUnique) {
                     if (!isUnique) {
@@ -77,6 +82,11 @@ public class SignUpFragment extends Fragment {
                     }
                     // If unique, add the new user to Firestore via AuthHelper
                     AuthHelper.addNewUserToDB(requireContext(), signupUsername, signUpPassword, new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when the user registration is successful.
+                         *
+                         * @param result The result of the registration operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             // If signup was successful, notify the user
@@ -84,6 +94,12 @@ public class SignUpFragment extends Fragment {
                             // Move to the loginFragment so the newly signedUp user can login
                             ((AuthActivity) requireActivity()).switchToFragment(new LoginFragment());
                         }
+
+                        /**
+                         * Called when the user registration fails.
+                         *
+                         * @param e The exception that occurred during the registration.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             // If the user signUp wasn't successful, then tell the user

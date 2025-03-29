@@ -59,6 +59,13 @@ public class FollowingFragment extends Fragment {
         public String userId;
         public String username;
 
+        /**
+         * Constructs a new User object.
+         *
+         * @param userId   The unique identifier of the user.
+         * @param username The username of the user.
+         * @throws NullPointerException if userId or username is null.
+         */
         public User(String userId, String username) {
             if (userId == null || username == null)
                 throw new NullPointerException("userId and username cannot be null");
@@ -66,11 +73,22 @@ public class FollowingFragment extends Fragment {
             this.username = username;
         }
 
+        /**
+         * Returns the username of the user.
+         *
+         * @return The username.
+         */
         @Override
         public String toString() {
             return username;
         }
 
+        /**
+         * Checks if this User is equal to another object.
+         *
+         * @param obj The object to compare.
+         * @return True if the objects are equal, false otherwise.
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof User) {
@@ -91,6 +109,14 @@ public class FollowingFragment extends Fragment {
 
     private FirestoreHelper firestoreHelper;
 
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater object that can be used to inflate views.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The root View for the fragment's UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -100,6 +126,12 @@ public class FollowingFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_following, container, false);
     }
 
+    /**
+     * Called immediately after {@link #onCreateView}.
+     *
+     * @param view               The View returned by {@link #onCreateView}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -111,6 +143,11 @@ public class FollowingFragment extends Fragment {
 
         // Fetch current user's username.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (isAdded() && result instanceof Map) {
@@ -121,6 +158,12 @@ public class FollowingFragment extends Fragment {
                             tvCurrentUser.setText("Current User: " + currentUsername));
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (isAdded()) {
@@ -150,6 +193,11 @@ public class FollowingFragment extends Fragment {
                     }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (!isAdded()) return;
@@ -166,6 +214,12 @@ public class FollowingFragment extends Fragment {
                                     });
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) { }
                         });
@@ -218,6 +272,11 @@ public class FollowingFragment extends Fragment {
 
         // Load profile picture
         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -238,6 +297,11 @@ public class FollowingFragment extends Fragment {
                 }
             }
 
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
@@ -246,6 +310,11 @@ public class FollowingFragment extends Fragment {
 
         // Check if the current user follows the target user.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -259,6 +328,11 @@ public class FollowingFragment extends Fragment {
 
                         // Also load the target user's status for display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
@@ -273,6 +347,12 @@ public class FollowingFragment extends Fragment {
                                     }
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 statusBubble.setVisibility(View.GONE);
@@ -281,6 +361,11 @@ public class FollowingFragment extends Fragment {
 
                         // Get their friend count to display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
@@ -298,6 +383,12 @@ public class FollowingFragment extends Fragment {
 
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 tvFriendCount.setVisibility(View.GONE);
@@ -312,10 +403,15 @@ public class FollowingFragment extends Fragment {
                     }
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) { }
         });
-
 
         // Set follow/unfollow button behavior.
         btnFollowUnfollow.setOnClickListener(v -> {
@@ -323,11 +419,22 @@ public class FollowingFragment extends Fragment {
             FirestoreHelper helper = new FirestoreHelper();
             if (currentText.equalsIgnoreCase("Follow")) {
                 helper.sendFriendRequest(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Pending");
                         Toast.makeText(getContext(), "Follow request sent", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -335,6 +442,11 @@ public class FollowingFragment extends Fragment {
                 });
             } else if (currentText.equalsIgnoreCase("Unfollow")) {
                 helper.removeFollowing(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
@@ -342,6 +454,12 @@ public class FollowingFragment extends Fragment {
                         rvMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -362,6 +480,9 @@ public class FollowingFragment extends Fragment {
     /**
      * Queries Firestore for the three most recent mood events of the selected user
      * and binds them to the given RecyclerView using MoodAdapter.
+     *
+     * @param user        The selected user.
+     * @param rvMoodEvents The RecyclerView to bind the mood events to.
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
@@ -389,5 +510,4 @@ public class FollowingFragment extends Fragment {
                     Toast.makeText(getContext(), "Error loading mood events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

@@ -18,8 +18,22 @@ import com.hamidat.nullpointersapp.models.Mood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
+/**
+ * Utility class for inserting, deleting, and querying test data related to Mood objects and comments.
+ */
 public class TestMoodHelper {
 
+    /**
+     * Inserts a test Mood object into Firestore.
+     *
+     * @param userId          The user ID of the mood owner.
+     * @param moodType        The type of mood.
+     * @param moodDescription The description of the mood.
+     * @param latitude        The latitude of the mood location.
+     * @param longitude       The longitude of the mood location.
+     * @param socialSituation The social situation associated with the mood.
+     * @param isPrivate       Whether the mood is private.
+     */
     public static void insertTestMood(String userId,
                                       String moodType,
                                       String moodDescription,
@@ -41,11 +55,21 @@ public class TestMoodHelper {
         );
 
         firestoreHelper.addMood(userId, mood, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the mood is successfully added.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 Log.d("TestMoodHelper", "Test mood added: " + moodDescription);
             }
 
+            /**
+             * Called when adding the mood fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 Log.e("TestMoodHelper", "Failed to add test mood: " + e.getMessage());
@@ -55,6 +79,12 @@ public class TestMoodHelper {
         SystemClock.sleep(2000); // crude wait for async Firestore op
     }
 
+    /**
+     * Deletes a Mood object from Firestore based on the mood description.
+     *
+     * @param userId    The user ID of the mood owner.
+     * @param moodDesc  The description of the mood to delete.
+     */
     public static void deleteMoodByDescription(String userId, String moodDesc) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -84,6 +114,14 @@ public class TestMoodHelper {
                         Log.e("TestDataUtil", "Failed to query mood for deletion: " + e.getMessage()));
     }
 
+    /**
+     * Inserts a comment for a Mood object in Firestore.
+     *
+     * @param moodId      The ID of the mood to add the comment to.
+     * @param userId      The user ID of the comment author.
+     * @param username    The username of the comment author.
+     * @param commentText The text of the comment.
+     */
     public static void insertComment(String moodId,
                                      String userId,
                                      String username,
@@ -111,11 +149,32 @@ public class TestMoodHelper {
         SystemClock.sleep(1500); // crude wait for sync if needed
     }
 
+    /**
+     * Callback interface for retrieving a Mood ID.
+     */
     public interface MoodIdCallback {
+        /**
+         * Called when the Mood ID is found.
+         *
+         * @param moodId The ID of the Mood object.
+         */
         void onMoodIdFound(String moodId);
+
+        /**
+         * Called when an error occurs.
+         *
+         * @param e The exception that occurred.
+         */
         void onError(Exception e);
     }
 
+    /**
+     * Retrieves the Mood ID based on the mood description.
+     *
+     * @param userId          The user ID of the mood owner.
+     * @param moodDescription The description of the mood.
+     * @param callback        The callback to handle the result.
+     */
     public static void getMoodIdByDescription(String userId, String moodDescription, MoodIdCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -133,5 +192,4 @@ public class TestMoodHelper {
                 })
                 .addOnFailureListener(callback::onError);
     }
-
 }

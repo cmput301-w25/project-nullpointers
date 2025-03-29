@@ -48,12 +48,26 @@ import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Fragment that displays the user's profile information and provides navigation to other user-related fragments.
+ */
 public class ProfileFragment extends Fragment {
 
     private ImageView profileIcon;
     private TextView usernameText;
 
-
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -62,6 +76,14 @@ public class ProfileFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    /**
+     * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned,
+     * but before any saved state has been restored in to the view.
+     *
+     * @param view               The View returned by onCreateView(LayoutInflater, ViewGroup, Bundle).
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -80,7 +102,6 @@ public class ProfileFragment extends Fragment {
                     .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
         });
 
-
         // Retrieve FirestoreHelper and currentUserId from MainActivity.
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -89,6 +110,11 @@ public class ProfileFragment extends Fragment {
 
             // Fetch user data from Firestore
             firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the operation succeeds.
+                 *
+                 * @param result The result of the operation.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     if (result instanceof Map) {
@@ -98,16 +124,15 @@ public class ProfileFragment extends Fragment {
                         usernameText.setText(username);
                         List<String> following = (List<String>) userData.get("following");
                         int count = (following != null && !following.isEmpty()) ? following.size() - 1 : 0;
-                        if (following.size() == 1){
+                        if (following != null && following.size() == 1){
                             count = 1;
                             tvFriends.setText("My Friends: " + count);
 
-                        }else{
+                        }else if (following != null){
                             tvFriends.setText("My Friends: " + count);
+                        } else{
+                            tvFriends.setText("My Friends: " + 0);
                         }
-
-
-
 
                         String status = (String) userData.get("status");
                         if (status != null && !status.isEmpty()) {
@@ -130,6 +155,11 @@ public class ProfileFragment extends Fragment {
                     }
                 }
 
+                /**
+                 * Called when the operation fails.
+                 *
+                 * @param e The exception that occurred.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     Toast.makeText(getActivity(), "Failed to fetch user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();

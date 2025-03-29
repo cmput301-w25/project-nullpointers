@@ -1,3 +1,12 @@
+/**
+ * SearchFragment.java
+ *
+ * Allows users to search for other users and view their profiles.
+ * Provides functionality to follow/unfollow users and view their recent mood events.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.graphics.Bitmap;
@@ -38,6 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Fragment that allows users to search for other users and view their profiles.
+ * It provides functionality to follow/unfollow users and view their recent mood events.
+ */
 public class SearchFragment extends Fragment {
     private FirestoreHelper firestoreHelper;
     private EditText etSearch;
@@ -57,7 +70,7 @@ public class SearchFragment extends Fragment {
     private String currentUserId;
 
     /**
-     * Simple model for a user.
+     * Simple model for a user, containing their ID and username.
      */
     public static class User {
         public String userId;
@@ -68,6 +81,18 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -75,6 +100,14 @@ public class SearchFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
+    /**
+     * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned,
+     * but before any saved state has been restored in to the view.
+     *
+     * @param view               The View returned by onCreateView(LayoutInflater, ViewGroup, Bundle).
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         etSearch = view.findViewById(R.id.etSearch);
@@ -95,11 +128,42 @@ public class SearchFragment extends Fragment {
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            /**
+             * This method is called before the text is changed.
+             *
+             * @param s     The character sequence about to be changed.
+             * @param start The index within s where the change is about to start.
+             * @param count The number of characters about to be replaced.
+             * @param after The number of characters that will replace the removed characters.
+             */
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed before text change.
+            }
+
+            /**
+             * This method is called during the text change. It triggers the searchUsers method
+             * with the current text from the EditText.
+             *
+             * @param s      The character sequence that has been changed.
+             * @param start  The index within s where the change started.
+             * @param before The number of characters that were replaced.
+             * @param count  The number of characters that were added.
+             */
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchUsers(s.toString());
             }
-            @Override public void afterTextChanged(Editable s) { }
+
+            /**
+             * This method is called after the text has been changed.
+             *
+             * @param s The editable character sequence after the change.
+             */
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No action needed after text change.
+            }
         });
 
         adapter.setOnItemClickListener(user -> showUserProfile(user));
@@ -116,6 +180,11 @@ public class SearchFragment extends Fragment {
         if (openProfileFlag && profileUserId != null && !profileUserId.isEmpty()) {
             // Query Firestore for the user's details and then show the profile overlay.
             firestoreHelper.getUser(profileUserId, new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the operation succeeds.
+                 *
+                 * @param result The result of the operation.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     String username = "Unknown";
@@ -130,6 +199,12 @@ public class SearchFragment extends Fragment {
                     User user = new User(profileUserId, username);
                     requireActivity().runOnUiThread(() -> showUserProfile(user));
                 }
+
+                /**
+                 * Called when the operation fails.
+                 *
+                 * @param e The exception that occurred.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
@@ -138,6 +213,11 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    /**
+     * Searches for users whose usernames contain the given query string.
+     *
+     * @param query The search query string.
+     */
     private void searchUsers(String query) {
         if(query.isEmpty()){
             userList.clear();
@@ -172,6 +252,8 @@ public class SearchFragment extends Fragment {
 
     /**
      * Displays the selected user's profile as an overlay using layout_search_profile.xml.
+     *
+     * @param user The User object representing the selected user.
      */
     private void showUserProfile(User user) {
         // Hide the main search layout and inflate the profile view.
@@ -212,6 +294,11 @@ public class SearchFragment extends Fragment {
 
         // Load the selected user's profile picture.
         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -231,6 +318,12 @@ public class SearchFragment extends Fragment {
                     }
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
@@ -239,6 +332,11 @@ public class SearchFragment extends Fragment {
 
         // Check follow status and show mood events only if the selected user is followed.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -264,6 +362,11 @@ public class SearchFragment extends Fragment {
 
                         // Also load the target user's status for display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
@@ -278,6 +381,12 @@ public class SearchFragment extends Fragment {
                                     }
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 statusBubble.setVisibility(View.GONE);
@@ -286,6 +395,11 @@ public class SearchFragment extends Fragment {
 
                         // Get their friend count to display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
@@ -302,6 +416,12 @@ public class SearchFragment extends Fragment {
                                     }
                                 }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 tvFriendCount.setVisibility(View.GONE);
@@ -316,6 +436,12 @@ public class SearchFragment extends Fragment {
                     }
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) { }
         });
@@ -326,11 +452,22 @@ public class SearchFragment extends Fragment {
             FirestoreHelper helper = new FirestoreHelper();
             if (currentText.equalsIgnoreCase("Follow")) {
                 helper.sendFriendRequest(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Pending");
                         Toast.makeText(getContext(), "Follow request sent", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -338,12 +475,23 @@ public class SearchFragment extends Fragment {
                 });
             } else if (currentText.equalsIgnoreCase("Unfollow")) {
                 helper.removeFollowing(currentUserId, user.userId, new FirestoreFollowing.FollowingCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         btnFollowUnfollow.setText("Follow");
                         rvMoodEvents.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                     }
+
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -370,6 +518,9 @@ public class SearchFragment extends Fragment {
     /**
      * Queries Firestore for the three most recent mood events of the selected user
      * and binds them to the given RecyclerView using MoodAdapter.
+     *
+     * @param user         The User object representing the selected user.
+     * @param rvMoodEvents The RecyclerView to display the mood events.
      */
     private void loadRecentMoodEvents(User user, RecyclerView rvMoodEvents) {
         List<Mood> moodList = new ArrayList<>();
@@ -399,19 +550,45 @@ public class SearchFragment extends Fragment {
                 });
     }
 
-    // Adapter for search results.
+    /**
+     * Adapter for search results.
+     */
     private static class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
         private final List<User> users;
         private OnItemClickListener listener;
+
+        /**
+         * Interface for handling item click events.
+         */
         interface OnItemClickListener {
             void onItemClick(User user);
         }
+
+        /**
+         * Sets the item click listener.
+         *
+         * @param listener The OnItemClickListener to set.
+         */
         public void setOnItemClickListener(OnItemClickListener listener) {
             this.listener = listener;
         }
+
+        /**
+         * Constructs a new SearchAdapter.
+         *
+         * @param users The list of User objects to display.
+         */
         SearchAdapter(List<User> users) {
             this.users = users;
         }
+
+        /**
+         * Called when RecyclerView needs a new RecyclerView.ViewHolder of the given type to represent an item.
+         *
+         * @param parent   The ViewGroup into which the new View will be added after it is bound to an adapter position.
+         * @param viewType The view type of the new View.
+         * @return A new ViewHolder that holds a View of the given view type.
+         */
         @NonNull
         @Override
         public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -419,6 +596,13 @@ public class SearchFragment extends Fragment {
                     .inflate(android.R.layout.simple_list_item_1, parent, false);
             return new SearchViewHolder(view);
         }
+
+        /**
+         * Called by RecyclerView to display the data at the specified position.
+         *
+         * @param holder   The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+         * @param position The position of the item within the adapter's data set.
+         */
         @Override
         public void onBindViewHolder(@NonNull SearchViewHolder holder, int position) {
             User user = users.get(position);
@@ -429,12 +613,28 @@ public class SearchFragment extends Fragment {
                 }
             });
         }
+
+        /**
+         * Returns the total number of items in the data set held by the adapter.
+         *
+         * @return The total number of items in this adapter.
+         */
         @Override
         public int getItemCount() {
             return users.size();
         }
+
+        /**
+         * ViewHolder for displaying a User object in the search results.
+         */
         static class SearchViewHolder extends RecyclerView.ViewHolder {
             private final TextView textView;
+
+            /**
+             * Constructs a new SearchViewHolder.
+             *
+             * @param itemView The View to display the User object.
+             */
             SearchViewHolder(View itemView) {
                 super(itemView);
                 textView = itemView.findViewById(android.R.id.text1);

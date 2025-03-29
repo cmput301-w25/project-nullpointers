@@ -98,6 +98,7 @@ public class FriendRequestNotifier {
                             }
                             NotificationHelper.sendFriendRequestNotification(context, senderUsername, currentUserId, requestId);
                         }
+
                         /**
                          * Called when there is an error fetching the sender's user data.
                          *
@@ -110,6 +111,7 @@ public class FriendRequestNotifier {
                     });
                 }
             }
+
             /**
              * Called when there is an error listening for friend requests.
              *
