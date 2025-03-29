@@ -1,3 +1,11 @@
+/**
+ * FirestoreAddEditMoods.java
+ * Handles operations for saving and updating Mood objects in Firebase Firestore.
+ * Supports moods with and without images, and tracks changes in user mood history.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.Timestamp;

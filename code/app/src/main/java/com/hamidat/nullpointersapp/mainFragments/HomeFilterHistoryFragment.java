@@ -1,3 +1,13 @@
+/**
+ * HomeFilterHistoryFragment.java
+ *
+ * A bottom sheet dialog fragment that filters mood history based on user-defined criteria
+ * such as emotion, date range, description keywords, and sort order.
+ * Returns the filtered mood list to the HomeFeedFragment using a callback interface.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.app.DatePickerDialog;

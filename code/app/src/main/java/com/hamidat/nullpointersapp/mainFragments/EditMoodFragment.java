@@ -1,3 +1,13 @@
+/**
+ * EditMoodFragment.java
+ *
+ * Fragment for editing an existing Mood post.
+ * Reuses the AddMoodFragment layout and functionality, but pre-fills data and updates
+ * the existing document in Firestore instead of creating a new one.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.Manifest;

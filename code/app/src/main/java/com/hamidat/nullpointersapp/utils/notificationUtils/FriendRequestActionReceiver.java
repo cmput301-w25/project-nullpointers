@@ -1,3 +1,12 @@
+/**
+ * FriendRequestActionReceiver.java
+ *
+ * BroadcastReceiver to process friend request actions (Accept/Decline) triggered from system-level or notification actions.
+ * It uses FirestoreHelper to update the friend request status in Firestore and provides user feedback via Toasts.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.notificationUtils;
 
 import android.content.BroadcastReceiver;

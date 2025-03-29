@@ -1,3 +1,11 @@
+/**
+ * FirestoreHelper.java
+ * Provides a unified interface for interacting with Firestore,
+ * delegating user, mood, and following-related operations to their respective helper classes.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.firebaseUtils;
 
 import com.google.firebase.firestore.FirebaseFirestore;

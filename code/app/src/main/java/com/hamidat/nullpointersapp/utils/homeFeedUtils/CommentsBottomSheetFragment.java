@@ -1,3 +1,12 @@
+/**
+ * CommentsBottomSheetFragment.java
+ *
+ * Bottom sheet dialog fragment that displays and allows posting of comments on a mood.
+ * Handles displaying user avatars, posting new comments, and real-time updating of the comment list.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils.homeFeedUtils;
 
 import android.content.DialogInterface;

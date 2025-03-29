@@ -1,3 +1,11 @@
+/**
+ * MoodAdapter.java
+ * RecyclerView adapter for displaying a list of Mood objects with support for user interaction,
+ * liking, commenting, editing, and deleting moods.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.models;
 
 import android.app.AlertDialog;

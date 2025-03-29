@@ -1,3 +1,12 @@
+/**
+ * FollowingFragment.java
+ *
+ * Handles the UI and logic for managing followed users.
+ * Includes real-time updates to following list and overlay profile view of selected users.
+ *
+ * <p><b>Outstanding issues:</b> None.</p>
+ */
+
 package com.hamidat.nullpointersapp.mainFragments;
 
 import android.os.Bundle;

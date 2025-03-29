@@ -1,3 +1,13 @@
+/**
+ * AppConstants.java
+ *
+ * Defines application-wide constants used across the app.
+ * Prefer using AppConstants for non-UI related values.
+ * For UI values, use colors.xml or strings.xml.
+ *
+ * Outstanding Issues: None
+ */
+
 package com.hamidat.nullpointersapp.utils;
 
 /**
