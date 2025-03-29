@@ -26,7 +26,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class CommentOnMoodEventIntentTest extends BaseUITest{
+public class CommentOnMoodEventIntentTestMainActivity extends BaseMainActivityUITest {
     @Before
     public void setUpMood() {
         TestMoodHelper.insertTestMood(

@@ -8,7 +8,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Rule;
 
-public abstract class BaseUITest {
+public abstract class BaseMainActivityUITest {
 
     protected final String TEST_USER_ID = "EHxg6TEtQFWHaqbnkt5H";
     protected final String TEST_USER_2_ID = "IDoB3Z7dsQmHtgHSW9Oc";
