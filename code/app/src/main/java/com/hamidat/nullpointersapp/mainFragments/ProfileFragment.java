@@ -98,7 +98,15 @@ public class ProfileFragment extends Fragment {
                         usernameText.setText(username);
                         List<String> following = (List<String>) userData.get("following");
                         int count = (following != null && !following.isEmpty()) ? following.size() - 1 : 0;
-                        tvFriends.setText("My Friends: " + count);
+                        if (following.size() == 1){
+                            count = 1;
+                            tvFriends.setText("My Friends: " + count);
+
+                        }else{
+                            tvFriends.setText("My Friends: " + count);
+                        }
+
+
 
 
                         String status = (String) userData.get("status");

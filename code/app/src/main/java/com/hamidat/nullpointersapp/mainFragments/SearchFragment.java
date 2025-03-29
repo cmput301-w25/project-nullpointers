@@ -174,14 +174,12 @@ public class SearchFragment extends Fragment {
      * Displays the selected user's profile as an overlay using layout_search_profile.xml.
      */
     private void showUserProfile(User user) {
-        // Get the root view (which contains both the search list and the profile overlay).
-        final ViewGroup root = (ViewGroup) getView();
+        // Hide the main search layout and inflate the profile view.
+        ViewGroup root = (ViewGroup) getView();
         if (root == null) return;
 
-        // Inflate the profile overlay.
         final View profileView = LayoutInflater.from(getContext())
                 .inflate(R.layout.layout_search_profile, root, false);
-        // Make the overlay fill the parent.
         profileView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -204,9 +202,11 @@ public class SearchFragment extends Fragment {
         ImageView ivProfilePicture = profileView.findViewById(R.id.profile_icon);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
         TextView tvFriendCount = profileView.findViewById(R.id.tvFriendCount);
+        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
+
         // Initially hide mood events.
         rvMoodEvents.setVisibility(View.GONE);
 
@@ -237,7 +237,7 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        // Check follow status and update UI.
+        // Check follow status and show mood events only if the selected user is followed.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -246,21 +246,60 @@ public class SearchFragment extends Fragment {
                     Map<String, Object> userData = (Map<String, Object>) result;
                     List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
+
+                        // Show the users status as well if they have one
+                        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
+                        String status = (String) userData.get("status");
+
+                        if (status != null && !status.isEmpty()) {
+                            statusBubble.setText(status);
+                            statusBubble.setVisibility(View.VISIBLE);
+                        } else {
+                            statusBubble.setVisibility(View.GONE);
+                        }
+
                         btnFollowUnfollow.setText("Unfollow");
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
 
-                        // Update friend count (subtract self).
+                        // Also load the target user's status for display.
+                        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                if (result instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> targetUserData = (Map<String, Object>) result;
+                                    String targetStatus = (String) targetUserData.get("status");
+                                    if (targetStatus != null && !targetStatus.trim().isEmpty()) {
+                                        statusBubble.setText(targetStatus);
+                                        statusBubble.setVisibility(View.VISIBLE);
+                                    } else {
+                                        statusBubble.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                            @Override
+                            public void onFailure(Exception e) {
+                                statusBubble.setVisibility(View.GONE);
+                            }
+                        });
+
+                        // Get their friend count to display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
                             @Override
                             public void onSuccess(Object result) {
                                 if (result instanceof Map) {
                                     Map<String, Object> theirData = (Map<String, Object>) result;
                                     List<String> theirFollowing = (List<String>) theirData.get("following");
-                                    int friendCount = (theirFollowing != null && theirFollowing.size() > 0)
-                                            ? theirFollowing.size() - 1 : 0;
-                                    tvFriendCount.setText("Friends: " + friendCount);
-                                    tvFriendCount.setVisibility(View.VISIBLE);
+                                    int friendCount = theirFollowing != null ? theirFollowing.size()-1 : 0;
+                                    if (theirFollowing.size() ==1 ){
+                                        friendCount = 1;
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }else{
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
                             @Override
@@ -268,7 +307,10 @@ public class SearchFragment extends Fragment {
                                 tvFriendCount.setVisibility(View.GONE);
                             }
                         });
+
                     } else {
+                        // If not following, hide target's status and mood events.
+                        statusBubble.setVisibility(View.GONE);
                         btnFollowUnfollow.setText("Follow");
                         rvMoodEvents.setVisibility(View.GONE);
                     }
@@ -319,12 +361,11 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        // Add the overlay to the root.
+        // Add the profile view as an overlay.
         root.addView(profileView);
         profileView.bringToFront();
         profileView.invalidate();
     }
-
 
     /**
      * Queries Firestore for the three most recent mood events of the selected user
