@@ -10,6 +10,15 @@
 
 package com.hamidat.nullpointersapp.mainFragments;
 
+import static com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper.CHANNEL_ID;
+import static com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper.CHANNEL_NAME;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -21,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -124,12 +134,15 @@ public class NotificationFragment extends Fragment {
                                     ((MainActivity) getActivity()).updateNotificationIcon(!notifications.isEmpty());
                                 });
                             }
+
                             @Override
-                            public void onFailure(Exception e) { }
+                            public void onFailure(Exception e) {
+                            }
                         });
                     }
                 }
             }
+
             @Override
             public void onFailure(Exception e) {
                 // Optionally log error.
@@ -139,28 +152,34 @@ public class NotificationFragment extends Fragment {
 
     private class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
         private final List<NotificationItem> items;
+
         NotificationAdapter(List<NotificationItem> items) {
             this.items = items;
         }
+
         @NonNull
         @Override
         public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
             return new NotificationViewHolder(view);
         }
+
         @Override
         public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
             NotificationItem item = items.get(position);
             holder.bind(item);
         }
+
         @Override
         public int getItemCount() {
             return items.size();
         }
+
         class NotificationViewHolder extends RecyclerView.ViewHolder {
             TextView tvMessage;
             TextView tvTimestamp;
             Button btnDecline, btnAccept;
+
             public NotificationViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvMessage = itemView.findViewById(R.id.tvNotificationMessage);
@@ -168,6 +187,7 @@ public class NotificationFragment extends Fragment {
                 btnDecline = itemView.findViewById(R.id.btnDecline);
                 btnAccept = itemView.findViewById(R.id.btnAccept);
             }
+
             void bind(NotificationItem item) {
                 tvMessage.setText(item.username + " has sent you a friend request");
                 tvTimestamp.setText(getTimeAgo(item.timestamp));
@@ -178,6 +198,7 @@ public class NotificationFragment extends Fragment {
                             Toast.makeText(getContext(), "Friend request declined", Toast.LENGTH_SHORT).show();
                             removeNotification(item);
                         }
+
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -191,6 +212,7 @@ public class NotificationFragment extends Fragment {
                             Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
                             removeNotification(item);
                         }
+
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -236,4 +258,6 @@ public class NotificationFragment extends Fragment {
             return weeks + " week" + (weeks == 1 ? "" : "s") + " ago";
         }
     }
+
+
 }

@@ -63,6 +63,8 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:4.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation("org.robolectric:robolectric:4.8.1")
+    testImplementation("org.robolectric:shadows-webkit:4.8.2")
 
     // Android test dependencies
     androidTestImplementation("androidx.test:core:1.5.0")
@@ -73,6 +75,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
     androidTestImplementation("org.mockito:mockito-android:4.11.0")
+
 
     // Debug dependencies
     debugImplementation("androidx.fragment:fragment-testing:1.5.5")

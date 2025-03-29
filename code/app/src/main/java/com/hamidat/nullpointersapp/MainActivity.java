@@ -119,6 +119,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        if (getIntent().getBooleanExtra("open_profile", false)) {
+            String profileUserId = getIntent().getStringExtra("profile_user_id");
+            // Navigate to ProfileFragment and pass along the profileUserId so it can load the appropriate user.
+        }
 
 
         FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
