@@ -9,7 +9,10 @@
 
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -138,10 +141,12 @@ public class FollowingFragment extends Fragment {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
-                    requireActivity().runOnUiThread(() -> {
-                        acceptedList.clear();
-                        acceptedAdapter.notifyDataSetChanged();
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            acceptedList.clear();
+                            acceptedAdapter.notifyDataSetChanged();
+                        });
+                    }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
@@ -201,6 +206,8 @@ public class FollowingFragment extends Fragment {
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
         RecyclerView rvMoodEvents = profileView.findViewById(R.id.rvMoodEvents);
         TextView tvFriendCount = profileView.findViewById(R.id.tvFriendCount);
+        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
+        ImageView ivProfilePicture = profileView.findViewById(R.id.profile_icon);
 
         // Set the username.
         tvProfileUsername.setText(user.username);
@@ -208,20 +215,70 @@ public class FollowingFragment extends Fragment {
         // Initially hide mood events.
         rvMoodEvents.setVisibility(View.GONE);
 
-        // Check follow status and show mood events only if followed.
+        // Load profile picture
+        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    String profilePicBase64 = (String) userData.get("profilePicture");
+                    if (profilePicBase64 != null && !profilePicBase64.isEmpty()) {
+                        try {
+                            byte[] decodedBytes = Base64.decode(profilePicBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageBitmap(bitmap));
+                        } catch (Exception e) {
+                            ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                        }
+                    } else {
+                        ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                ivProfilePicture.post(() -> ivProfilePicture.setImageResource(R.drawable.default_user_icon));
+            }
+        });
+
+        // Check if the current user follows the target user.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
-                    Map<String, Object> userData = (Map<String, Object>) result;
-                    List<String> following = (List<String>) userData.get("following");
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> currentUserData = (Map<String, Object>) result;
+                    List<String> following = (List<String>) currentUserData.get("following");
                     if (following != null && following.contains(user.userId)) {
                         btnFollowUnfollow.setText("Unfollow");
-                        // Since user is followed, show and load mood events.
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
 
-                        // Get their friend count to display
+                        // Also load the target user's status for display.
+                        firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                if (result instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> targetUserData = (Map<String, Object>) result;
+                                    String targetStatus = (String) targetUserData.get("status");
+                                    if (targetStatus != null && !targetStatus.trim().isEmpty()) {
+                                        statusBubble.setText(targetStatus);
+                                        statusBubble.setVisibility(View.VISIBLE);
+                                    } else {
+                                        statusBubble.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                            @Override
+                            public void onFailure(Exception e) {
+                                statusBubble.setVisibility(View.GONE);
+                            }
+                        });
+
+                        // Get their friend count to display.
                         firestoreHelper.getUser(user.userId, new FirestoreHelper.FirestoreCallback() {
                             @Override
                             public void onSuccess(Object result) {
@@ -238,17 +295,19 @@ public class FollowingFragment extends Fragment {
                                 tvFriendCount.setVisibility(View.GONE);
                             }
                         });
+
                     } else {
+                        // If not following, hide target's status and mood events.
+                        statusBubble.setVisibility(View.GONE);
                         btnFollowUnfollow.setText("Follow");
                         rvMoodEvents.setVisibility(View.GONE);
                     }
                 }
             }
             @Override
-            public void onFailure(Exception e) {
-                // Optionally handle error.
-            }
+            public void onFailure(Exception e) { }
         });
+
 
         // Set follow/unfollow button behavior.
         btnFollowUnfollow.setOnClickListener(v -> {
