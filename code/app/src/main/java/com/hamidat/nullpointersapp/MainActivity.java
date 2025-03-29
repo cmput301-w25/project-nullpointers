@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the persistent listener for friend requests.
         setupNotificationListener();
+        setupNewPostNotificationListener();
 
 
         // Request POST_NOTIFICATIONS permission on Android 13+
