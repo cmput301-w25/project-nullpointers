@@ -18,10 +18,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
+import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTestMainActivity.withIndex;
 
 @LargeTest
-public class AddMoodReasonIntentTest extends BaseUITest {
+public class AddMoodReasonIntentTestMainActivity extends BaseMainActivityUITest {
 
     private static final String TEST_REASON = "Just needed to write this down.";
     private static final String TAG = "AddMoodReasonIntentTest";

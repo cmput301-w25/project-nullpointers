@@ -31,12 +31,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -68,7 +71,8 @@ public class AddMoodFragment extends Fragment {
     private double latitude;
     private double longitude;
     private boolean attachLocation = true;
-    private Switch switchPrivacy;
+    private SwitchCompat switchPrivacy;
+    private TextView textPrivacy;
 
 
 
@@ -100,6 +104,7 @@ public class AddMoodFragment extends Fragment {
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
         Button btnCancel = view.findViewById(R.id.btnCancel);
         switchPrivacy = view.findViewById(R.id.switchPrivacy);
+        textPrivacy = view.findViewById(R.id.textPrivacy);
 
         // New: Bind the Attach Location button
         Button btnAttachLocation = view.findViewById(R.id.btnAttachLocation);
@@ -148,8 +153,8 @@ public class AddMoodFragment extends Fragment {
                 int selectedSocialId = rgSocialSituation.getCheckedRadioButtonId();
 
                 // Validate inputs
-                if (reasonText.isEmpty()) {
-                    Toast.makeText(getActivity(), "Please enter a reason", Toast.LENGTH_SHORT).show();
+                if (reasonText.isEmpty() && base64Image == null) {
+                    Toast.makeText(getActivity(), "Please enter a reason or photo", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (spinner.getSelectedItemPosition() == AdapterView.INVALID_POSITION || selectedSocialId == -1) {
@@ -160,7 +165,7 @@ public class AddMoodFragment extends Fragment {
                 String moodType = spinner.getSelectedItem().toString();
 
                 // Get selected social situation
-                MaterialRadioButton socialButton = view.findViewById(selectedSocialId);
+                RadioButton socialButton = view.findViewById(selectedSocialId);
                 String socialSituation = socialButton.getText().toString();
 
                 // If attachLocation is false, set lat and lng to 0.0 so that it won't be displayed on the map
@@ -172,7 +177,19 @@ public class AddMoodFragment extends Fragment {
 
                 // Create Mood object based on whether a photo was attached, using finalLat and finalLng
                 Mood newlyCreatedMood;
-                if (base64Image != null) {
+                if (reasonText.isEmpty() && base64Image != null ){
+                    newlyCreatedMood = new Mood(
+                            moodType,
+                            "Photo reason",
+                            base64Image,
+                            finalLat,
+                            finalLng,
+                            socialSituation,
+                            currentUserId,
+                            isPrivate
+                    );
+                }
+                else if (base64Image != null) {
                     newlyCreatedMood = new Mood(
                             moodType,
                             reasonText,
@@ -180,7 +197,7 @@ public class AddMoodFragment extends Fragment {
                             finalLat,
                             finalLng,
                             socialSituation,
-                            currentUserId,  // Pass current user's ID
+                            currentUserId,
                             isPrivate
                     );
                 } else {

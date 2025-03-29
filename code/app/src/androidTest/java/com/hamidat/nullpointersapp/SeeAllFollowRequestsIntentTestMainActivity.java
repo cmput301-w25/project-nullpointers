@@ -16,7 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 import com.hamidat.nullpointersapp.utils.testUtils.TestUsersHelper;
-public class SeeAllFollowRequestsIntentTest extends BaseUITest {
+public class SeeAllFollowRequestsIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TAG = "SeeAllFollowRequestsTest";
 
     @Before

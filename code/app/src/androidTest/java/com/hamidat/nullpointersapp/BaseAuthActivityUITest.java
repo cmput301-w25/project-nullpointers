@@ -3,18 +3,18 @@ package com.hamidat.nullpointersapp;
 import android.content.Intent;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 
-public abstract class BaseUITest {
+public abstract class BaseAuthActivityUITest {
 
-    protected final String TEST_USER_ID = "EHxg6TEtQFWHaqbnkt5H";
-    protected final String TEST_USER_2_ID = "IDoB3Z7dsQmHtgHSW9Oc";
-    protected final String TEST_USER_3_ID = "CuUYwxXUvC8OIOlsg5Mr";
-    protected final String HAMIHAMI_USER_ID = "gWDMoQr8MYWJO4b39fUa";
-
+    protected final String TEST_LOGIN_USERNAME = "testUser";
+    protected final String TEST_LOGIN_PASSWORD = "123";
 
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
@@ -26,8 +26,17 @@ public abstract class BaseUITest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
+            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), AuthActivity.class)
                     .setAction(Intent.ACTION_MAIN)
-                    .addCategory(Intent.CATEGORY_LAUNCHER)
-                    .putExtra("USER_ID", TEST_USER_ID));
+                    .addCategory(Intent.CATEGORY_LAUNCHER));
+
+    @Before
+    public void setUpAuthTest(){
+        Intents.init();
+    }
+
+    @After
+    public void cleanUpAuthTest(){
+        Intents.release();
+    }
 }

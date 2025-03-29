@@ -53,6 +53,7 @@ public class ProfileFragment extends Fragment {
     private ImageView profileIcon;
     private TextView usernameText;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -72,11 +73,13 @@ public class ProfileFragment extends Fragment {
         Button viewMoodHistoryButton = view.findViewById(R.id.view_mood_history_button);
         Button settingsButton = view.findViewById(R.id.settings_button);
         Button tvFriends = view.findViewById(R.id.btnFollowing);
+        TextView statusBubble = view.findViewById(R.id.user_status_bubble);
 
         tvFriends.setOnClickListener(v -> {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profileNavGraphFragment_to_followingFragment);
         });
+
 
         // Retrieve FirestoreHelper and currentUserId from MainActivity.
         if (getActivity() instanceof MainActivity) {
@@ -97,6 +100,14 @@ public class ProfileFragment extends Fragment {
                         List<String> following = (List<String>) userData.get("following");
                         int count = (following != null) ? following.size() : 0;
                         tvFriends.setText("My Friends: " + count);
+
+                        String status = (String) userData.get("status");
+                        if (status != null && !status.isEmpty()) {
+                            statusBubble.setText(status);
+                            statusBubble.setVisibility(View.VISIBLE);
+                        } else {
+                            statusBubble.setVisibility(View.GONE);
+                        }
 
                         // Update the profile image if available
                         String base64ProfilePic = (String) userData.get("profilePicture");

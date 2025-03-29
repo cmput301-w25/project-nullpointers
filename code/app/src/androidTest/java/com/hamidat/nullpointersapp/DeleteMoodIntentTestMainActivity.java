@@ -7,12 +7,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
-
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -27,7 +24,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class DeleteMoodIntentTest extends BaseUITest {
+public class DeleteMoodIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TAG = "DeleteMoodIntentTest";
 
     @Before

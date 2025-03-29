@@ -116,7 +116,6 @@ public class FirestoreHelper {
 
     /**
      * Updates an existing Mood in Firestore based on mood.getMoodId().
-     * Make sure your FirestoreAddEditMoods class has a matching updateMood(...) method.
      *
      * @param mood     The Mood object to update (must have moodId set).
      * @param callback Callback for success/failure.
@@ -183,5 +182,8 @@ public class FirestoreHelper {
         firestoreUsers.updateUserProfilePicture(userId, base64Image, callback);
     }
 
+    public void updateUserStatus(String userId, String status, FirestoreCallback callback) {
+        firestoreUsers.updateUserStatus(userId, status, callback);
+    }
 
 }

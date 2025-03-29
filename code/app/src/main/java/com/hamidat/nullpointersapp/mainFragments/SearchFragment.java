@@ -234,6 +234,18 @@ public class SearchFragment extends Fragment {
                     Map<String, Object> userData = (Map<String, Object>) result;
                     List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
+
+                        // Show the users status as well if they have one
+                        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
+                        String status = (String) userData.get("status");
+
+                        if (status != null && !status.isEmpty()) {
+                            statusBubble.setText(status);
+                            statusBubble.setVisibility(View.VISIBLE);
+                        } else {
+                            statusBubble.setVisibility(View.GONE);
+                        }
+
                         btnFollowUnfollow.setText("Unfollow");
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);

@@ -89,7 +89,7 @@
 
             <!-- Change Theme Section -->
             <LinearLayout
-                android:id="@+id/layout_change_theme"
+                android:id="@+id/layout_update_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -100,14 +100,14 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_palette"
+                    android:src="@drawable/ic_heart_filled"
                     app:tint="@color/accentColor"/>
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Change Theme"
+                    android:text="Update Status"
                     android:textColor="@color/textColor"
                     android:textSize="16sp"
                     android:layout_marginStart="16dp"/>

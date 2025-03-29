@@ -80,21 +80,21 @@
                             android:layout_marginTop="4dp"
                             android:textSize="14sp" />
 
-                        <!-- Timestamp -->
-                        <TextView
-                            android:id="@+id/tvTimestamp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:textSize="14sp" />
-
-                        <!-- Social Situation -->
                         <TextView
                             android:id="@+id/tvSocialSituation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textSize="14sp" />
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
+
+                        <TextView
+                            android:id="@+id/tvTimestamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
                     </LinearLayout>
 
                     <!-- Image on the far right within container -->

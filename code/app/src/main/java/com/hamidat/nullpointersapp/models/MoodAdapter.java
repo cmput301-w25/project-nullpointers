@@ -140,12 +140,20 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                             "likeCount", currentMood.getLikeCount());
         });
 
-        // Truncate the mood description to the first 15 characters and add an ellipsis if needed.
-        String fullDesc = currentMood.getMoodDescription();
-        String truncated = fullDesc.length() > 15
-                ? fullDesc.substring(0, 15) + "…"
-                : fullDesc;
-        holder.tvMoodDescription.setText("Why: " + truncated);
+        // Truncate the mood description to the first 15 characters and add an ellipsis only if there is an image. If not, don't truncate that short
+        if (currentMood.getImageBase64() != null) {
+            String fullDesc = currentMood.getMoodDescription();
+            String truncated = fullDesc.length() > 15
+                    ? fullDesc.substring(0, 15) + "…"
+                    : fullDesc;
+            holder.tvMoodDescription.setText(truncated);
+        } else {
+            String fullDesc = currentMood.getMoodDescription();
+            String truncated = fullDesc.length() > 39
+                    ? fullDesc.substring(0, 39) + "…"
+                    : fullDesc;
+            holder.tvMoodDescription.setText(truncated);
+        }
 
         holder.btnViewMore.setOnClickListener(v -> showDetailDialog(currentMood, v));
         holder.itemView.setOnClickListener(v -> showDetailDialog(currentMood, v));

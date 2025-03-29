@@ -1,18 +1,10 @@
 package com.hamidat.nullpointersapp;
 
-import android.content.Intent;
 import android.os.SystemClock;
-import android.util.Log;
 
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -23,11 +15,11 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import androidx.test.rule.GrantPermissionRule;
+
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 @LargeTest
-public class PostPrivateMoodIntentTest extends BaseUITest{
+public class PostPrivateMoodIntentTestMainActivity extends BaseMainActivityUITest {
     /*
     TODO - Do we need to login as another user and check this? Or is being able to post a private mood enough
      */

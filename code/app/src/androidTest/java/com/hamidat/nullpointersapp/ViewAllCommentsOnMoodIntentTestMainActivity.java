@@ -24,7 +24,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class ViewAllCommentsOnMoodIntentTest extends BaseUITest{
+public class ViewAllCommentsOnMoodIntentTestMainActivity extends BaseMainActivityUITest {
     @Before
     public void setUpMoodWithComment() {
         String moodDescription = "This mood needs a comment";

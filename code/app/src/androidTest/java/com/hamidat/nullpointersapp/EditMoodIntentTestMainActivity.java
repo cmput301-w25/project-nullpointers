@@ -12,7 +12,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -27,7 +26,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class EditMoodIntentTest extends BaseUITest {
+public class EditMoodIntentTestMainActivity extends BaseMainActivityUITest {
 
     @Before
     public void setUpMood() {
