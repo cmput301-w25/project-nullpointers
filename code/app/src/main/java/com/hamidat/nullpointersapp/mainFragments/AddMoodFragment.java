@@ -180,7 +180,7 @@ public class AddMoodFragment extends Fragment {
                 if (reasonText.isEmpty() && base64Image != null ){
                     newlyCreatedMood = new Mood(
                             moodType,
-                            "Photo was attached as a reason",
+                            "Photo reason",
                             base64Image,
                             finalLat,
                             finalLng,
