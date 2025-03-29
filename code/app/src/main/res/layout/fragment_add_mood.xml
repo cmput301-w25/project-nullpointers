@@ -47,15 +47,31 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <Switch
-                android:id="@+id/switchPrivacy"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Private Mood"
-                android:textColor="@color/textColor"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:id="@+id/textPrivacy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Private Mood"
+                    android:textColor="@color/textColor"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="8dp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchPrivacy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@drawable/switch_thumb_tint"
+                    app:trackTint="@drawable/switch_track_tint" />
+            </LinearLayout>
+
 
 
             <!-- Updated Mood Selection Section in fragment_add_mood.xml -->
@@ -163,7 +179,7 @@
                     android:orientation="horizontal"
                     android:weightSum="4">
 
-                    <RadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/rbAlone"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -171,9 +187,10 @@
                         android:gravity="center"
                         android:text="@string/alone"
                         android:textColor="@color/textColor"
-                        android:textSize="10sp" />
+                        android:textSize="10sp"
+                        app:buttonTint="@drawable/radio_button_tint"/>
 
-                    <RadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/rbOneOnOne"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -181,9 +198,11 @@
                         android:gravity="center"
                         android:text="@string/one_on_one"
                         android:textColor="@color/textColor"
-                        android:textSize="10sp" />
+                        android:textSize="9sp"
+                        android:backgroundTint="@color/primaryColor"
+                        app:buttonTint="@drawable/radio_button_tint"/>
 
-                    <RadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/rbGroup"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -191,9 +210,10 @@
                         android:gravity="center"
                         android:text="@string/group"
                         android:textColor="@color/textColor"
-                        android:textSize="10sp" />
+                        android:textSize="10sp"
+                        app:buttonTint="@drawable/radio_button_tint"/>
 
-                    <RadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/rbCrowd"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -201,7 +221,8 @@
                         android:gravity="center"
                         android:text="@string/crowd"
                         android:textColor="@color/textColor"
-                        android:textSize="10sp" />
+                        android:textSize="10sp"
+                        app:buttonTint="@drawable/radio_button_tint"/>
                 </RadioGroup>
 
                 <LinearLayout

@@ -82,18 +82,21 @@
                             android:textSize="14sp" />
 
                         <TextView
-                            android:id="@+id/tvTimestamp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:textSize="14sp" />
-
-                        <TextView
                             android:id="@+id/tvSocialSituation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textSize="14sp" />
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
+
+                        <TextView
+                            android:id="@+id/tvTimestamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#7F995E"/>
+
                     </LinearLayout>
 
                     <ImageView
@@ -114,7 +117,7 @@
                     android:id="@+id/tvPrivate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PRIVATE"
+                    android:text="private"
                     android:textColor="#4F614A"
                     android:textStyle="italic"
                     android:textSize="12sp"

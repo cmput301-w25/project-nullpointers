@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -74,7 +76,7 @@ public class EditMoodFragment extends Fragment {
     private double longitude;
     private boolean attachLocation = true;
 
-    private Switch switchPrivacy;
+    private SwitchCompat switchPrivacy;
 
 
     @Nullable
@@ -228,7 +230,7 @@ public class EditMoodFragment extends Fragment {
             Toast.makeText(getActivity(), "Please select a social situation", Toast.LENGTH_SHORT).show();
             return;
         }
-        MaterialRadioButton socialButton = requireView().findViewById(selectedSocialId);
+        RadioButton socialButton = requireView().findViewById(selectedSocialId);
         String newSocialSituation = socialButton.getText().toString();
 
         double finalLat = attachLocation ? latitude : 0.0;
