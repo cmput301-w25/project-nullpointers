@@ -387,7 +387,9 @@ public class SearchFragment extends Fragment {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Mood mood = doc.toObject(Mood.class);
                         if (mood != null) {
-                            moodList.add(mood);
+                            if (!mood.isPrivate() || mood.getUserId().equals(currentUserId)) {
+                                moodList.add(mood);
+                            }
                         }
                     }
                     requireActivity().runOnUiThread(() -> moodAdapter.notifyDataSetChanged());
