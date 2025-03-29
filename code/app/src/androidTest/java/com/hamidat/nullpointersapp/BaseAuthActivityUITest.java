@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
-public class BaseAuthActivityUITest {
+public abstract class BaseAuthActivityUITest {
 
     protected final String TEST_LOGIN_USERNAME = "testUser";
     protected final String TEST_LOGIN_PASSWORD = "123";
