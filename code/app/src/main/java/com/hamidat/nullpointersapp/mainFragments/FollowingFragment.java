@@ -286,9 +286,16 @@ public class FollowingFragment extends Fragment {
                                 if (result instanceof Map) {
                                     Map<String, Object> theirData = (Map<String, Object>) result;
                                     List<String> theirFollowing = (List<String>) theirData.get("following");
-                                    int friendCount = theirFollowing != null ? theirFollowing.size() : 0;
-                                    tvFriendCount.setText("Friends: " + friendCount);
-                                    tvFriendCount.setVisibility(View.VISIBLE);
+                                    int friendCount = theirFollowing != null ? theirFollowing.size()-1 : 0;
+                                    if (theirFollowing.size() ==1 ){
+                                        friendCount = 1;
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }else{
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }
+
                                 }
                             }
                             @Override

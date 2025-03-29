@@ -183,9 +183,19 @@ public class SearchFragment extends Fragment {
         profileView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        profileView.setElevation(100); // Ensure it appears on top
+        // Ensure the overlay consumes all touch events.
+        profileView.setClickable(true);
+        profileView.setFocusable(true);
+        profileView.setOnTouchListener((v, event) -> true);
 
-        // Bind profile view elements.
+        // Optionally disable interaction with the underlying search layout.
+        final View searchMainLayout = getView().findViewById(R.id.searchMainLayout);
+        if (searchMainLayout != null) {
+            searchMainLayout.setEnabled(false);
+            searchMainLayout.setClickable(false);
+        }
+
+        // Bind profile overlay elements.
         TextView tvProfileUsername = profileView.findViewById(R.id.username_text);
         Button btnFollowUnfollow = profileView.findViewById(R.id.btnFollowUnfollow);
         ImageView ivBack = profileView.findViewById(R.id.ivBack);
@@ -227,15 +237,27 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        // Check if the current user follows the target user.
+        // Check follow status and show mood events only if the selected user is followed.
         firestoreHelper.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
                     @SuppressWarnings("unchecked")
-                    Map<String, Object> currentUserData = (Map<String, Object>) result;
-                    List<String> following = (List<String>) currentUserData.get("following");
+                    Map<String, Object> userData = (Map<String, Object>) result;
+                    List<String> following = (List<String>) userData.get("following");
                     if (following != null && following.contains(user.userId)) {
+
+                        // Show the users status as well if they have one
+                        TextView statusBubble = profileView.findViewById(R.id.user_status_bubble);
+                        String status = (String) userData.get("status");
+
+                        if (status != null && !status.isEmpty()) {
+                            statusBubble.setText(status);
+                            statusBubble.setVisibility(View.VISIBLE);
+                        } else {
+                            statusBubble.setVisibility(View.GONE);
+                        }
+
                         btnFollowUnfollow.setText("Unfollow");
                         rvMoodEvents.setVisibility(View.VISIBLE);
                         loadRecentMoodEvents(user, rvMoodEvents);
@@ -269,9 +291,15 @@ public class SearchFragment extends Fragment {
                                 if (result instanceof Map) {
                                     Map<String, Object> theirData = (Map<String, Object>) result;
                                     List<String> theirFollowing = (List<String>) theirData.get("following");
-                                    int friendCount = theirFollowing != null ? theirFollowing.size() : 0;
-                                    tvFriendCount.setText("Friends: " + friendCount);
-                                    tvFriendCount.setVisibility(View.VISIBLE);
+                                    int friendCount = theirFollowing != null ? theirFollowing.size()-1 : 0;
+                                    if (theirFollowing.size() ==1 ){
+                                        friendCount = 1;
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }else{
+                                        tvFriendCount.setText("Friends: " + friendCount);
+                                        tvFriendCount.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
                             @Override
@@ -291,7 +319,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onFailure(Exception e) { }
         });
-
 
         // Set follow/unfollow button behavior.
         btnFollowUnfollow.setOnClickListener(v -> {
@@ -325,8 +352,14 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        // Set the back button to remove the profile overlay.
-        ivBack.setOnClickListener(v -> root.removeView(profileView));
+        // Set the back button to remove the overlay and re-enable the search view.
+        ivBack.setOnClickListener(v -> {
+            root.removeView(profileView);
+            if (searchMainLayout != null) {
+                searchMainLayout.setEnabled(true);
+                searchMainLayout.setClickable(true);
+            }
+        });
 
         // Add the profile view as an overlay.
         root.addView(profileView);
