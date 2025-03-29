@@ -15,8 +15,6 @@ public abstract class BaseAuthActivityUITest {
 
     protected final String TEST_LOGIN_USERNAME = "testUser";
     protected final String TEST_LOGIN_PASSWORD = "123";
-    protected final String TEST_LOGIN_WRONG_PASSWORD = "231";
-
 
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(

@@ -122,5 +122,13 @@ public class FirestoreUsers {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    public void updateUserStatus(String userId, String status, FirestoreHelper.FirestoreCallback callback) {
+        firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .update("status", status)
+                .addOnSuccessListener(aVoid -> callback.onSuccess("Status updated"))
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
 }

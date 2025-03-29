@@ -3,7 +3,6 @@
  *
  * This fragment provides the user with access to various account and app settings, including:
  * - Updating profile picture using image picker and UCrop for circular cropping
- * - Placeholder buttons for changing themes and notification settings
  * - Logging out and redirecting to the authentication screen
  *
  * Uses Firebase Authentication for logout and Firestore for profile picture storage.
@@ -13,17 +12,22 @@
 
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -59,7 +63,7 @@ public class SettingsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         View layoutEditProfile = view.findViewById(R.id.layout_edit_profile);
-        View layoutChangeTheme = view.findViewById(R.id.layout_change_theme);
+        View layoutUpdateStatus = view.findViewById(R.id.layout_update_status);
         View layoutNotifications = view.findViewById(R.id.layout_notifications);
         View layoutLogout = view.findViewById(R.id.layout_logout);
 
@@ -98,8 +102,50 @@ public class SettingsFragment extends Fragment {
             galleryLauncher.launch(intent);
         });
 
-        layoutChangeTheme.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Change Theme clicked", Toast.LENGTH_SHORT).show());
+        layoutUpdateStatus.setOnClickListener(v -> {
+            View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_update_status, null);
+            EditText statusEditText = dialogView.findViewById(R.id.etStatus);
+            TextView charCountView = dialogView.findViewById(R.id.tvCharCount);
+            Button btnSave = dialogView.findViewById(R.id.btnSave);
+            Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+            AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomDialogStyle)
+                    .setView(dialogView)
+                    .create();
+
+            statusEditText.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    charCountView.setText(s.length() + "/50");
+                }
+                @Override public void afterTextChanged(Editable s) {}
+            });
+
+            btnSave.setOnClickListener(btn -> {
+                String newStatus = statusEditText.getText().toString().trim();
+                if (!newStatus.isEmpty()) {
+                    firestoreHelper.updateUserStatus(currentUserId, newStatus, new FirestoreHelper.FirestoreCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            Toast.makeText(getContext(), "Status updated", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Failed to update status", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    statusEditText.setError("Status cannot be empty");
+                }
+            });
+
+            btnCancel.setOnClickListener(btn -> dialog.dismiss());
+
+            dialog.show();
+        });
+
 
         layoutNotifications.setOnClickListener(v ->
                 Toast.makeText(getActivity(), "Notifications clicked", Toast.LENGTH_SHORT).show());

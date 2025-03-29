@@ -182,5 +182,8 @@ public class FirestoreHelper {
         firestoreUsers.updateUserProfilePicture(userId, base64Image, callback);
     }
 
+    public void updateUserStatus(String userId, String status, FirestoreCallback callback) {
+        firestoreUsers.updateUserStatus(userId, status, callback);
+    }
 
 }
