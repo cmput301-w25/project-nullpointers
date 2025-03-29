@@ -57,11 +57,24 @@ public class AuthHelper {
     public static void validateUniqueUsername(Context context, String username, UniqueUsernameCallback callback) {
         FirestoreHelper firestoreHelper = new FirestoreHelper();
         firestoreHelper.getUserByUsername(username, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation is successful.
+             * Indicates whether the username is unique.
+             *
+             * @param result The result of the operation. If a user is found, the username is not unique.
+             */
             @Override
             public void onSuccess(Object result) {
                 // A user was found, so the username is not unique.
                 callback.onResult(false);
             }
+
+            /**
+             * Called when the operation fails.
+             * Indicates that the username is unique if no user is found.
+             *
+             * @param e The exception that occurred during the operation.
+             */
             @Override
             public void onFailure(Exception e) {
                 // If no user is found, we consider the username unique.

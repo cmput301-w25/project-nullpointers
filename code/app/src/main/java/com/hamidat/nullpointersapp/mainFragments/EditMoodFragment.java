@@ -78,7 +78,14 @@ public class EditMoodFragment extends Fragment {
 
     private SwitchCompat switchPrivacy;
 
-
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater to use
+     * @param container          Optional parent view
+     * @param savedInstanceState Previously saved state
+     * @return The root view of the layout
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -87,6 +94,13 @@ public class EditMoodFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_edit_mood, container, false);
     }
 
+    /**
+     * Called after the view is created.
+     * Initializes UI elements, pre-fills data, and handles button actions.
+     *
+     * @param view               The root view
+     * @param savedInstanceState Previously saved state
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -104,7 +118,6 @@ public class EditMoodFragment extends Fragment {
         // Initialize UI components
         ivPhotoPreview = view.findViewById(R.id.ivPhotoPreview);
         etReason = view.findViewById(R.id.Reason);
-        //rgMood = view.findViewById(R.id.rgMood);
         rgSocialSituation = view.findViewById(R.id.rgSocialSituation);
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
@@ -115,9 +128,6 @@ public class EditMoodFragment extends Fragment {
         // Pre‑set - based on the existing Mood’s privacy flag
         switchPrivacy.setChecked(moodToEdit.isPrivate());
 
-
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Populate fields with existing data
@@ -127,7 +137,6 @@ public class EditMoodFragment extends Fragment {
         base64Image = moodToEdit.getImageBase64();
 
         // Pre-select the mood radio
-        // Example -- if mood is Happy, check that radio button. Adjust logic if needed
         spinnerMood = view.findViewById(R.id.spinnerMood);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -144,7 +153,6 @@ public class EditMoodFragment extends Fragment {
             if (position >= 0) spinnerMood.setSelection(position);
         }
 
-
         String socialStr = moodToEdit.getSocialSituation();
         if (socialStr != null && !socialStr.trim().isEmpty()) {
             for (int i = 0; i < rgSocialSituation.getChildCount(); i++) {
@@ -155,7 +163,6 @@ public class EditMoodFragment extends Fragment {
                 }
             }
         }
-
 
         // If there's an existing image, show it
         if (base64Image != null && !base64Image.isEmpty()) {
@@ -251,9 +258,13 @@ public class EditMoodFragment extends Fragment {
         boolean isPrivate = switchPrivacy.isChecked();
         moodToEdit.setPrivate(isPrivate);
 
-
         // Firestore update
         firestoreHelper.updateMood(moodToEdit, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 // Trigger any local feed refresh if desired
@@ -265,6 +276,11 @@ public class EditMoodFragment extends Fragment {
                 Navigation.findNavController(requireView()).navigate(R.id.homeFeedFragment);
             }
 
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 if (!isAdded()) return;
@@ -282,6 +298,13 @@ public class EditMoodFragment extends Fragment {
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Callback for activity result (e.g., image picker).
+     *
+     * @param requestCode Code for identifying the request
+     * @param resultCode  The result code from the activity
+     * @param data        The intent containing the result data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -295,6 +318,8 @@ public class EditMoodFragment extends Fragment {
 
     /**
      * Encodes the selected image into a Base64 string (<= 64 KB).
+     *
+     * @param imageUri The URI of the selected image
      */
     private void encodeImageToBase64(Uri imageUri) {
         try {
@@ -314,6 +339,13 @@ public class EditMoodFragment extends Fragment {
         }
     }
 
+    /**
+     * Callback when permission request result is received.
+     *
+     * @param requestCode  The permission request code
+     * @param permissions  The requested permissions
+     * @param grantResults The results for the requested permissions
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,

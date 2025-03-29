@@ -44,6 +44,7 @@ public class FriendRequestActionReceiver extends BroadcastReceiver {
                     public void onSuccess(Object result) {
                         Toast.makeText(context, "Friend request accepted", Toast.LENGTH_SHORT).show();
                     }
+
                     /**
                      * Called when there is an error accepting the friend request.
                      *
@@ -65,6 +66,7 @@ public class FriendRequestActionReceiver extends BroadcastReceiver {
                     public void onSuccess(Object result) {
                         Toast.makeText(context, "Friend request declined", Toast.LENGTH_SHORT).show();
                     }
+
                     /**
                      * Called when there is an error declining the friend request.
                      *

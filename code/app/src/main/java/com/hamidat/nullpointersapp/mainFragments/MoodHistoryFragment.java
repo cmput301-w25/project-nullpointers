@@ -50,6 +50,10 @@ import java.util.Map;
 import java.util.HashMap;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
 
+/**
+ * Fragment that displays the mood history of the current user.
+ * It provides filtering capabilities and displays the most frequent mood.
+ */
 public class MoodHistoryFragment extends Fragment {
 
     private RecyclerView rvMoodHistory;
@@ -76,6 +80,18 @@ public class MoodHistoryFragment extends Fragment {
     // Reference to our sliding filter panel
     private View filterPanel;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -84,6 +100,14 @@ public class MoodHistoryFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_mood_history, container, false);
     }
 
+    /**
+     * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned,
+     * but before any saved state has been restored in to the view.
+     *
+     * @param view               The View returned by onCreateView(LayoutInflater, ViewGroup, Bundle).
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         tvMoodHistoryTitle = view.findViewById(R.id.tvMoodHistoryTitle);
@@ -101,11 +125,16 @@ public class MoodHistoryFragment extends Fragment {
             return;
         }
 
-        moodAdapter = new MoodAdapter(moodList, currentUserId,(AppCompatActivity) getActivity());
+        moodAdapter = new MoodAdapter(moodList, currentUserId, (AppCompatActivity) getActivity());
         rvMoodHistory.setAdapter(moodAdapter);
 
         // Add the comment listener for the person mood history too
         rvMoodHistory.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            /**
+             * Called when a child view is attached to the window.
+             *
+             * @param view The view which has been attached.
+             */
             @Override
             public void onChildViewAttachedToWindow(@NonNull View view) {
                 Button btnComment = view.findViewById(R.id.btnComment);
@@ -120,8 +149,14 @@ public class MoodHistoryFragment extends Fragment {
                 }
             }
 
+            /**
+             * Called when a child view is detached from the window.
+             *
+             * @param view The view which has been detached.
+             */
             @Override
-            public void onChildViewDetachedFromWindow(@NonNull View view) { }
+            public void onChildViewDetachedFromWindow(@NonNull View view) {
+            }
         });
 
         firestore = FirebaseFirestore.getInstance();
@@ -466,6 +501,11 @@ public class MoodHistoryFragment extends Fragment {
         return mostFrequent;
     }
 
+    /**
+     * Opens the comments dialog for a specific mood.
+     *
+     * @param mood The mood object for which to open comments.
+     */
     private void openCommentsDialog(Mood mood) {
         if (mood.getMoodId() == null) {
             Toast.makeText(getContext(), "Cannot load comments: mood id is missing", Toast.LENGTH_SHORT).show();
