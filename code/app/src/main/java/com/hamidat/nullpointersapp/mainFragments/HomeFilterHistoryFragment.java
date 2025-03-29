@@ -302,7 +302,6 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
             if (callback != null) {
                 callback.onShowToast("To filter by time, please have both date ranges selected!");
             }
-
         }
 
 
@@ -474,7 +473,5 @@ public class HomeFilterHistoryFragment extends BottomSheetDialogFragment {
 
         // Also update the variable so it's passed back in the callback
     }
-
-
 }
 
