@@ -4,8 +4,9 @@
  * This fragment provides the user with access to various account and app settings, including:
  * - Updating profile picture using image picker and UCrop for circular cropping
  * - Logging out and redirecting to the authentication screen
+ * - Updating user status
  *
- * Uses Firebase Authentication for logout and Firestore for profile picture storage.
+ * Uses Firebase Authentication for logout and Firestore for profile picture and status storage.
  * Cropped profile pictures are converted to Base64 and stored in the user's Firestore document.
  * <p><b>Outstanding issues:</b> None.</p>
  */
@@ -26,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,14 +48,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Fragment that provides settings and account management options.
+ */
 public class SettingsFragment extends Fragment {
 
     private Button btnEditProfilePicture, btnChangeTheme, btnNotifications, btnLogout;
     private ActivityResultLauncher<Intent> galleryLauncher;
-    // We use onActivityResult (or the ActivityResult API) for UCrop result
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -114,10 +128,28 @@ public class SettingsFragment extends Fragment {
                     .create();
 
             statusEditText.addTextChangedListener(new TextWatcher() {
+                /**
+                 * Called before text changes.
+                 * @param s The character sequence being changed.
+                 * @param start The start index of the change.
+                 * @param count The number of characters being replaced.
+                 * @param after The number of characters that will replace the removed characters.
+                 */
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                /**
+                 * Called when the text changes. Updates the character count.
+                 * @param s The character sequence that has changed.
+                 * @param start The start index of the change.
+                 * @param before The number of characters replaced.
+                 * @param count The number of characters added.
+                 */
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     charCountView.setText(s.length() + "/50");
                 }
+                /**
+                 * Called after text changes.
+                 * @param s The editable character sequence after the change.
+                 */
                 @Override public void afterTextChanged(Editable s) {}
             });
 
@@ -125,12 +157,22 @@ public class SettingsFragment extends Fragment {
                 String newStatus = statusEditText.getText().toString().trim();
                 if (!newStatus.isEmpty()) {
                     firestoreHelper.updateUserStatus(currentUserId, newStatus, new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when the status update operation succeeds.
+                         *
+                         * @param result The result of the operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             Toast.makeText(getContext(), "Status updated", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
 
+                        /**
+                         * Called when the status update operation fails.
+                         *
+                         * @param e The exception that occurred.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(getContext(), "Failed to update status", Toast.LENGTH_SHORT).show();
@@ -162,7 +204,14 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    // Handle the UCrop result.
+    /**
+     * Handles the result from the UCrop activity.
+     *
+     * @param requestCode The integer request code originally supplied to startActivityForResult(),
+     * allowing you to identify who this result came from.
+     * @param resultCode  The integer result code returned by the child activity through its setResult().
+     * @param data        An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -193,15 +242,28 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    /**
+     * Updates the user's profile picture in Firestore.
+     *
+     * @param base64Image The Base64 encoded string of the profile picture.
+     */
     private void updateUserProfilePicture(String base64Image) {
-        // Update the user's document with the new profile picture.
-        // need to implement updateUserProfilePicture in FirestoreHelper/FirestoreUsers.
         firestoreHelper.updateUserProfilePicture(currentUserId, base64Image, new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 Toast.makeText(getActivity(), "Profile picture updated", Toast.LENGTH_SHORT).show();
-                // Optionally, signal the ProfileFragment to refresh its UI.
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getActivity(), "Failed to update profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show();

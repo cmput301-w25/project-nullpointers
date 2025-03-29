@@ -16,6 +16,9 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 
+/**
+ * Utility class for managing test user relationships in Firestore.
+ */
 public class TestUsersHelper {
     private static final String TAG = "TestUsersHelper";
 
@@ -31,11 +34,21 @@ public class TestUsersHelper {
         FirestoreFollowing followingHelper = new FirestoreFollowing(FirebaseFirestore.getInstance());
 
         followingHelper.sendFriendRequest(fakeUserId1, targetUserId, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when the friend request is successfully sent.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 Log.d(TAG, "Friend request sent from " + fakeUserId1 + " → " + targetUserId);
             }
 
+            /**
+             * Called when sending the friend request fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Failed to send friend request from " + fakeUserId1 + ": " + e.getMessage());
@@ -68,7 +81,12 @@ public class TestUsersHelper {
                         Log.e(TAG, "Failed to delete request from " + fromUserId + ": " + e.getMessage()));
     }
 
-
+    /**
+     * Accepts a friend request between two users.
+     *
+     * @param fromUserId The user who sent the friend request.
+     * @param toUserId   The user who is accepting the friend request.
+     */
     public static void acceptFriendRequestBetween(String fromUserId, String toUserId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirestoreFollowing followingHelper = new FirestoreFollowing(db);
@@ -83,11 +101,21 @@ public class TestUsersHelper {
                         String requestId = querySnapshot.getDocuments().get(0).getId();
                         Log.d("TestUsersHelper", "Found requestId: " + requestId + " → accepting...");
                         followingHelper.acceptFriendRequest(requestId, new FirestoreFollowing.FollowingCallback() {
+                            /**
+                             * Called when the friend request is successfully accepted.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 Log.d("TestUsersHelper", "Accepted friend request from " + fromUserId + " to " + toUserId);
                             }
 
+                            /**
+                             * Called when accepting the friend request fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) {
                                 Log.e("TestUsersHelper", "Failed to accept friend request: " + e.getMessage());
@@ -102,17 +130,33 @@ public class TestUsersHelper {
                 );
     }
 
+    /**
+     * Removes the following relationship between two users.
+     *
+     * @param userId         The user who is unfollowing.
+     * @param unfollowUserId The user who is being unfollowed.
+     */
     public static void removeFollowingBetween(String userId, String unfollowUserId) {
         FirestoreFollowing followingHelper = new FirestoreFollowing(FirebaseFirestore.getInstance());
 
         Log.d("TestUsersHelper", "Removing following between " + userId + " and " + unfollowUserId);
 
         followingHelper.removeFollowing(userId, unfollowUserId, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when the following relationship is successfully removed.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 Log.d("TestUsersHelper", "Successfully removed following between " + userId + " and " + unfollowUserId);
             }
 
+            /**
+             * Called when removing the following relationship fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 Log.e("TestUsersHelper", "Failed to remove following: " + e.getMessage());
@@ -120,6 +164,12 @@ public class TestUsersHelper {
         });
     }
 
+    /**
+     * Inserts a following relationship between two users.
+     *
+     * @param userId1 The first user ID.
+     * @param userId2 The second user ID.
+     */
     public static void insertFollowingBetween(String userId1, String userId2) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirestoreFollowing followingHelper = new FirestoreFollowing(firestore);
@@ -127,6 +177,11 @@ public class TestUsersHelper {
         Log.d(TAG, "Creating following relationship between " + userId1 + " and " + userId2);
 
         followingHelper.removeFollowing(userId1, userId2, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when the following relationship is successfully removed (for resetting).
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 // First remove any existing following just to avoid duplication
@@ -141,6 +196,11 @@ public class TestUsersHelper {
                                 Log.d(TAG, "Added " + userId1 + " to following list of " + userId2));
             }
 
+            /**
+             * Called when removing the following relationship fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Error while resetting following before insert: " + e.getMessage());
@@ -177,5 +237,4 @@ public class TestUsersHelper {
                 .addOnFailureListener(e ->
                         Log.e(TAG, "Failed to fetch user by username: " + e.getMessage()));
     }
-
 }

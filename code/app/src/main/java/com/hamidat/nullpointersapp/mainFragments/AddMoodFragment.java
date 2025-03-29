@@ -56,6 +56,9 @@ import com.hamidat.nullpointersapp.utils.mapUtils.AppEventBus;
 import java.io.InputStream;
 import java.util.Arrays;
 
+/**
+ * Fragment that allows users to create a new mood entry with optional image, location, and privacy.
+ */
 public class AddMoodFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -65,7 +68,6 @@ public class AddMoodFragment extends Fragment {
     private String base64Image;
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
-    //private RadioGroup rgMood;
     private RadioGroup rgSocialSituation;
     private FusedLocationProviderClient fusedLocationClient;
     private double latitude;
@@ -74,8 +76,14 @@ public class AddMoodFragment extends Fragment {
     private SwitchCompat switchPrivacy;
     private TextView textPrivacy;
 
-
-
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater to use
+     * @param container          Optional parent view
+     * @param savedInstanceState Previously saved state
+     * @return The root view of the layout
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -84,6 +92,13 @@ public class AddMoodFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_add_mood, container, false);
     }
 
+    /**
+     * Called after the view is created.
+     * Initializes UI elements and handles button actions.
+     *
+     * @param view               The root view
+     * @param savedInstanceState Previously saved state
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -94,11 +109,9 @@ public class AddMoodFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-
         // Initialize UI components
         ivPhotoPreview = view.findViewById(R.id.ivPhotoPreview);
         EditText etReason = view.findViewById(R.id.Reason);
-        //rgMood = view.findViewById(R.id.rgMood);
         rgSocialSituation = view.findViewById(R.id.rgSocialSituation);
         Button btnAttachPhoto = view.findViewById(R.id.AttachPhoto);
         Button btnSaveEntry = view.findViewById(R.id.btnSaveEntry);
@@ -215,6 +228,11 @@ public class AddMoodFragment extends Fragment {
 
                 // Save to Firestore
                 FirestoreHelper.FirestoreCallback moodCallback = new FirestoreHelper.FirestoreCallback() {
+                    /**
+                     * Called when the operation succeeds.
+                     *
+                     * @param result The result of the operation.
+                     */
                     @Override
                     public void onSuccess(Object result) {
                         Log.d(TAG, "ADD MOOD: Firestore save successful");
@@ -229,8 +247,6 @@ public class AddMoodFragment extends Fragment {
                             Log.d(TAG, "ADD MOOD: The new mood was added to main activities cache");
                         }
 
-
-
                         try {
                             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                             Log.d(TAG, "ADD MOOD: NavController was created");
@@ -240,6 +256,11 @@ public class AddMoodFragment extends Fragment {
                         }
                     }
 
+                    /**
+                     * Called when the operation fails.
+                     *
+                     * @param e The exception that occurred.
+                     */
                     @Override
                     public void onFailure(Exception e) {
                         Log.e(TAG, "ADD MOOD: Firestore exception: " + e.getMessage(), e);
@@ -255,12 +276,14 @@ public class AddMoodFragment extends Fragment {
                 }
             });
 
-
             btnCancel.setOnClickListener(v -> getActivity().onBackPressed());
         }
     }
 
-
+    /**
+     * Retrieves the user's last known location if permission is granted.
+     * Falls back to default coordinates if unavailable.
+     */
     private void getLastKnownLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -277,6 +300,13 @@ public class AddMoodFragment extends Fragment {
         }
     }
 
+    /**
+     * Callback when permission request result is received.
+     *
+     * @param requestCode  The permission request code
+     * @param permissions  The requested permissions
+     * @param grantResults The results for the requested permissions
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -288,12 +318,22 @@ public class AddMoodFragment extends Fragment {
         }
     }
 
+    /**
+     * Launches an intent to open the system image picker.
+     */
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Callback for activity result (e.g., image picker).
+     *
+     * @param requestCode Code for identifying the request
+     * @param resultCode  The result code from the activity
+     * @param data        The intent containing the result data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -303,6 +343,12 @@ public class AddMoodFragment extends Fragment {
         }
     }
 
+    /**
+     * Converts the selected image into a Base64-encoded string.
+     * Displays the image in the UI and ensures the size is within limits.
+     *
+     * @param imageUri The URI of the selected image
+     */
     private void encodeImageToBase64(Uri imageUri) {
         try {
             InputStream inputStream = requireActivity().getContentResolver().openInputStream(imageUri);

@@ -71,6 +71,12 @@ public class LoginFragment extends Fragment {
 
             FirestoreHelper firestoreHelper = new FirestoreHelper();
             firestoreHelper.getUserByUsername(loginUsername, new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the user data is successfully retrieved.
+                 * Attempts to log in the user if the password matches.
+                 *
+                 * @param result The user data retrieved from Firestore.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     Map<String, Object> userData = (Map<String, Object>) result;
@@ -87,6 +93,13 @@ public class LoginFragment extends Fragment {
                         giveAuthNotification(requireContext(), "Incorrect password");
                     }
                 }
+
+                /**
+                 * Called when the user data retrieval fails.
+                 * Displays an error message.
+                 *
+                 * @param e The exception that occurred during the failure.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     giveAuthNotification(requireContext(), "Login failed: " + e.getMessage());
@@ -107,6 +120,12 @@ public class LoginFragment extends Fragment {
 
             FirestoreHelper firestoreHelper = new FirestoreHelper();
             firestoreHelper.getUserByUsername(loginUsername, new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the user data is successfully retrieved.
+                 * Attempts to log in the user if the password matches.
+                 *
+                 * @param result The user data retrieved from Firestore.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     Map<String, Object> userData = (Map<String, Object>) result;
@@ -124,6 +143,13 @@ public class LoginFragment extends Fragment {
                         giveAuthNotification(requireContext(), "Incorrect password");
                     }
                 }
+
+                /**
+                 * Called when the user data retrieval fails.
+                 * Displays an error message.
+                 *
+                 * @param e The exception that occurred during the failure.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     giveAuthNotification(requireContext(), "Login failed: " + e.getMessage());

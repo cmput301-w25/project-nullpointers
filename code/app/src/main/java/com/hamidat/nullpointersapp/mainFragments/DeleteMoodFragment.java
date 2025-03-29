@@ -38,10 +38,8 @@ public class DeleteMoodFragment extends Fragment {
     public static final String ARG_MOOD_ID = "argMoodId";
     public static final String ARG_OWNER_ID = "argOwnerId";
 
-
     private String moodId;
     private String ownerId;
-
     private Mood moodToDelete;
 
     /**
@@ -67,6 +65,11 @@ public class DeleteMoodFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Called when the fragment is created.
+     *
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +84,14 @@ public class DeleteMoodFragment extends Fragment {
         moodToDelete.setUserId(ownerId);
     }
 
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater object that can be used to inflate views.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The root View for the fragment's UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -90,6 +101,12 @@ public class DeleteMoodFragment extends Fragment {
         return inflater.inflate(R.layout.dialog_mood_details, container, false);
     }
 
+    /**
+     * Called immediately after {@link #onCreateView}.
+     *
+     * @param view               The View returned by {@link #onCreateView}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -106,6 +123,11 @@ public class DeleteMoodFragment extends Fragment {
             // Proceed with deletion using FirestoreDeleteMood.
             FirestoreDeleteMood deleteUtil = new FirestoreDeleteMood(FirebaseFirestore.getInstance());
             deleteUtil.deleteMood(ownerId, moodToDelete, new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the operation succeeds.
+                 *
+                 * @param result The result of the operation.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     if (getActivity() != null) {
@@ -118,6 +140,12 @@ public class DeleteMoodFragment extends Fragment {
                         getActivity().onBackPressed();
                     }
                 }
+
+                /**
+                 * Called when the operation fails.
+                 *
+                 * @param e The exception that occurred.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     if (getActivity() != null) {
