@@ -22,7 +22,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
-public class SearchForOtherUsersIntentTest extends BaseUITest {
+public class SearchForOtherUsersIntentTestMainActivity extends BaseMainActivityUITest {
 
     private static final String TEST_SEARCH_QUERY = "hamidat";
 

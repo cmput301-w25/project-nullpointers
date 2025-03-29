@@ -37,7 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @LargeTest
-public class RejectTooLargePhotographIntentTest extends BaseUITest {
+public class RejectTooLargePhotographIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TAG = "AddMoodWithTooLargePhotoTest";
 
     @Test

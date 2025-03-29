@@ -1,19 +1,11 @@
 package com.hamidat.nullpointersapp;
 
-import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -24,15 +16,12 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTest.withIndex;
-
-import androidx.test.rule.GrantPermissionRule;
+import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTestMainActivity.withIndex;
 
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
-import com.hamidat.nullpointersapp.utils.testUtils.TestUsersHelper;
 
 @LargeTest
-public class AddMoodIntentTest extends BaseUITest {
+public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TEST_REASON = "Feeling great!";
     private static final String TAG = "AddMoodIntentTest";
 

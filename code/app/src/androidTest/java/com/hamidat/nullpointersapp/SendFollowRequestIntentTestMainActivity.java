@@ -22,7 +22,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
-public class SendFollowRequestIntentTest extends BaseUITest {
+public class SendFollowRequestIntentTestMainActivity extends BaseMainActivityUITest {
 
     private static final String TEST_SEARCH_QUERY = "guestUser";
 

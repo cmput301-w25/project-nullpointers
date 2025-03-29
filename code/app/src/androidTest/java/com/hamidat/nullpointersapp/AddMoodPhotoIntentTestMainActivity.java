@@ -36,7 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @LargeTest
-public class AddMoodPhotoIntentTest extends BaseUITest {
+public class AddMoodPhotoIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TAG = "AddMoodWithPhotoTest";
 
     @Test
