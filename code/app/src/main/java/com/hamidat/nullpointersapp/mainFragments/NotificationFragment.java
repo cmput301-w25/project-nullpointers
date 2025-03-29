@@ -211,17 +211,29 @@ public class NotificationFragment extends Fragment {
     private class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
         private final List<NotificationItem> items;
 
+        private static final int TYPE_FRIEND_REQUEST = 0;
+        private static final int TYPE_POST = 1;
+
         NotificationAdapter(List<NotificationItem> items) {
             this.items = items;
+        }
+
+        public int getItemViewType(int position) {
+            NotificationItem item = items.get(position);
+            return "post".equals(item.type) ? TYPE_POST : TYPE_FRIEND_REQUEST;
         }
 
         @NonNull
         @Override
         public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // For friend requests, use notification_item.xml;
-            // For posts, if you want a separate layout, you could check item type,
-            // but here we assume both types are displayed in the same adapter.
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
+            View view;
+            if(viewType == TYPE_POST) {
+                // Inflate the layout for post notifications (which uses ShapeableImageView)
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_notification_item, parent, false);
+            } else {
+                // Inflate the layout for friend request notifications
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
+            }
             return new NotificationViewHolder(view);
         }
 
@@ -240,10 +252,6 @@ public class NotificationFragment extends Fragment {
             TextView tvMessage;
             TextView tvTimestamp;
             Button btnDecline, btnAccept;
-            // We'll assume notification_item.xml uses an AppCompatImageView for friend requests,
-            // and for post notifications we can use a ShapeableImageView from a separate layout if desired.
-            // For simplicity, here we cast to generic ImageView.
-            // If you want to support both, you can check the type.
             android.widget.ImageView ivNotificationIcon;
 
             public NotificationViewHolder(@NonNull View itemView) {
