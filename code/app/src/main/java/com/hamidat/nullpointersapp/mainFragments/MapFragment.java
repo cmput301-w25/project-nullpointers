@@ -15,6 +15,7 @@ import android.Manifest;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +36,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,6 +93,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LatLng currentLocation;
     private ClusterManager<MoodClusterItem> clusterManager;
     private boolean isFirstLoad = true;
+    private Date fromDate = null;
+    private Date toDate = null;
 
     // Mood data
     private List<MoodClusterItem> allDummyItems = new ArrayList<>();
@@ -119,6 +123,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Info window
     private View infoWindow;
     private boolean isInfoWindowVisible = false;
+    private Button buttonFromDate;
+    private Button buttonToDate;
 
     // Firestore / network
     private NetworkMonitor networkMonitor;
@@ -209,13 +215,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Filter panel (assumed to be included in fragment_map.xml)
         filterPanelContainer = view.findViewById(R.id.filter_panel_container);
+        if (filterPanelContainer == null) {
+            // If it's null, manually inflate the filter panel layout.
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            filterPanelContainer = (LinearLayout) inflater.inflate(R.layout.filter_panel, (ViewGroup) view, false);
+            // Add the filter panel to the root view.
+            ((ViewGroup) view).addView(filterPanelContainer);
+        }
+
+
         filterPanelContainer.setVisibility(View.GONE);
 
         // Initialize controls inside filter panel
         showNearbySwitch    = filterPanelContainer.findViewById(R.id.showNearbySwitch);
         showLast7DaysSwitch = filterPanelContainer.findViewById(R.id.showLast7DaysSwitch);
-        selectedDateDisplay = filterPanelContainer.findViewById(R.id.selected_date_display);
-        selectDateButton    = filterPanelContainer.findViewById(R.id.select_date_button);
+        buttonFromDate = filterPanelContainer.findViewById(R.id.buttonFromDate);
+        buttonToDate = filterPanelContainer.findViewById(R.id.buttonToDate);
+
+
         applyFiltersButton  = filterPanelContainer.findViewById(R.id.apply_filters_button);
         allSwitch           = filterPanelContainer.findViewById(R.id.all_switch);
         switchShowMoodHistory = filterPanelContainer.findViewById(R.id.switchShowMoodHistory);
@@ -236,17 +253,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Listen for Last 7 Days switch
         showLast7DaysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isLast7DaysFilter = isChecked;
-            if (isChecked) {
-                selectedDate = null;
-                selectedDateDisplay.setText("Last 7 Days");
-            } else if (selectedDate == null) {
-                selectedDateDisplay.setText("Today");
-            }
+            applyLast7DaysToggle(isChecked);
+            // Trigger filtering if needed:
+            filterAndDisplayMoodEventsAsync(showNearbySwitch.isChecked(), currentLocation);
         });
 
+
+        if (buttonFromDate != null && buttonToDate != null) {
+            buttonFromDate.setOnClickListener(v -> openDatePicker(true, buttonFromDate));
+            buttonToDate.setOnClickListener(v -> openDatePicker(false, buttonToDate));
+        } else {
+            // If still null, log an error and disable date-range filtering to avoid a crash.
+            Log.e("MapFragment", "Date range buttons not found. Check that filter_panel.xml includes buttonFromDate and buttonToDate with the correct IDs.");
+        }
+
         // Select date button
-        selectDateButton.setOnClickListener(v -> showCalendarDialog());
+        //selectDateButton.setOnClickListener(v -> showCalendarDialog());
 
         // "Show Mood History" switch listener is not used for UI change; its state is read in fetchMoodData().
 
@@ -303,8 +325,72 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         // Default date display to "Last 7 Days" on initial load
-        selectedDateDisplay.setText("Last 7 Days");
+        //selectedDateDisplay.setText("Last 7 Days");
     }
+
+
+    private void applyLast7DaysToggle(boolean isEnabled) {
+        if (isEnabled) {
+            // Calculate 7 days ago:
+            Calendar cal = Calendar.getInstance();
+            toDate = cal.getTime(); // today
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            fromDate = cal.getTime();
+
+            // Update buttons text:
+            buttonFromDate.setText("From: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(fromDate));
+            buttonToDate.setText("To: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(toDate));
+
+            // Disable the buttons.
+            buttonFromDate.setEnabled(false);
+            buttonToDate.setEnabled(false);
+        } else {
+            // Enable buttons for user selection.
+            buttonFromDate.setEnabled(true);
+            buttonToDate.setEnabled(true);
+            // Optionally, set the button text to prompt user to select.
+            buttonFromDate.setText("From: Select Date");
+            buttonToDate.setText("To: Select Date");
+            // Reset the custom dates.
+            fromDate = null;
+            toDate = null;
+        }
+    }
+
+
+
+
+
+    private void openDatePicker(boolean isFromDate, Button dateButton) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth, 0, 0, 0);
+                    if (isFromDate) {
+                        fromDate = selectedCalendar.getTime();
+                        dateButton.setText("From: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(fromDate));
+                    } else {
+                        // Set to end of day for To Date.
+                        selectedCalendar.set(Calendar.HOUR_OF_DAY, 23);
+                        selectedCalendar.set(Calendar.MINUTE, 59);
+                        selectedCalendar.set(Calendar.SECOND, 59);
+                        selectedCalendar.set(Calendar.MILLISECOND, 999);
+                        toDate = selectedCalendar.getTime();
+                        dateButton.setText("To: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(toDate));
+                    }
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+
+
+
 
     private void setupMoodCheckboxes() {
         cbHappy.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -592,20 +678,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     boolean dateMatch = true;
                     try {
                         Date itemDate = dateFormat.parse(item.getDate());
-                        if (isLast7DaysFilter) {
+                        if (fromDate != null && toDate != null) {
+                            // Use custom date range filtering.
+                            if (itemDate.before(fromDate) || itemDate.after(toDate)) {
+                                dateMatch = false;
+                            }
+                        } else if (isLast7DaysFilter) {
                             Date today = new Date();
                             Calendar cal = Calendar.getInstance();
                             cal.setTime(today);
                             cal.add(Calendar.DAY_OF_YEAR, -7);
                             Date sevenDaysAgo = cal.getTime();
                             dateMatch = !itemDate.before(sevenDaysAgo) && !itemDate.after(today);
-                        } else if (selectedDate != null) {
-                            dateMatch = dateFormat.format(itemDate)
-                                    .equals(dateFormat.format(selectedDate));
                         } else {
-                            Date today = new Date();
-                            dateMatch = dateFormat.format(itemDate)
-                                    .equals(dateFormat.format(today));
+                            // If no date filter is set, default to matching.
+                            dateMatch = true;
                         }
                     } catch (Exception e) {
                         dateMatch = false;

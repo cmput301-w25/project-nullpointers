@@ -50,30 +50,35 @@
             android:textColor="@color/textColor"
             android:textStyle="bold"
             android:paddingBottom="8dp" />
+        <!-- Date Range Selection Section -->
         <LinearLayout
+            android:id="@+id/date_range_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:padding="12dp"
+            android:background="@color/tertiaryColor">
+
             <Button
-                android:id="@+id/select_date_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Date"
-                android:backgroundTint="@color/buttonColor"
-                android:textColor="@color/textColor" />
-            <TextView
-                android:id="@+id/selected_date_display"
+                android:id="@+id/buttonFromDate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Last 7 Days"
-                android:textColor="@color/textColor"
-                android:gravity="end"
-                android:paddingStart="8dp"
                 android:layout_weight="1"
-                android:paddingTop="4dp"
-                android:visibility="visible" />
+                android:text="From: Select Date"
+                android:backgroundTint="@color/buttonColor"
+                android:textColor="@color/textColor" />
+
+            <Button
+                android:id="@+id/buttonToDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="To: Select Date"
+                android:backgroundTint="@color/buttonColor"
+                android:textColor="@color/textColor"
+                android:layout_marginStart="8dp"/>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
