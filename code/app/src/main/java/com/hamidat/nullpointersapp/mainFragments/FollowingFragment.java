@@ -138,10 +138,12 @@ public class FollowingFragment extends Fragment {
                     if (followingIds == null) {
                         followingIds = new ArrayList<>();
                     }
-                    requireActivity().runOnUiThread(() -> {
-                        acceptedList.clear();
-                        acceptedAdapter.notifyDataSetChanged();
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            acceptedList.clear();
+                            acceptedAdapter.notifyDataSetChanged();
+                        });
+                    }
                     for (String followUserId : followingIds) {
                         firestoreHelper.getUser(followUserId, new FirestoreHelper.FirestoreCallback() {
                             @Override
