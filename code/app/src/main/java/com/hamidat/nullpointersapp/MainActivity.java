@@ -10,6 +10,7 @@
  *
  * Outstanding Issues: None
  */
+
 package com.hamidat.nullpointersapp;
 
 import android.Manifest;
@@ -21,27 +22,28 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hamidat.nullpointersapp.models.Mood;
-import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestNotifier;
-import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreFollowing;
+import com.hamidat.nullpointersapp.utils.notificationUtils.NotificationHelper;
+
 
 public class MainActivity extends AppCompatActivity {
     private String currentUserId;
@@ -56,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
         return moodCache;
     }
 
-    // Helper method to add a new mood to moodCache
+    // Add a helper to add a new mood to moodCache
     public void addMoodToCache(Mood newMood) {
-        // Insert at the start so newest appears first
+        // insert at the start so newest appears first
         moodCache.add(0, newMood);
     }
 
@@ -68,7 +70,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
+
         setContentView(R.layout.activity_main);
+
 
         // Get the current user ID and FirestoreHelper instance.
         currentUserId = getIntent().getStringExtra("USER_ID");
@@ -77,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
         // Set up the persistent listener for friend requests.
         setupNotificationListener();
 
-        // Set up listener for new mood posts from followed users.
-        setupNewPostNotificationListener();
 
         // Request POST_NOTIFICATIONS permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -112,19 +118,19 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // If launched via notification, navigate directly to NotificationFragment.
+        // If launched via notification, navigate directly to FollowingFragment.
+        // After initializing navController
         if (getIntent() != null) {
             if (getIntent().getBooleanExtra("open_notification", false)) {
                 navController.navigate(R.id.notificationFragment);
             }
         }
 
-        // Handle profile intent if applicable.
         if (getIntent().getBooleanExtra("open_profile", false)) {
             String profileUserId = getIntent().getStringExtra("profile_user_id");
-            // Navigate to ProfileFragment with profileUserId.
-            // (Implement navigation logic as needed)
+            // Navigate to ProfileFragment and pass along the profileUserId so it can load the appropriate user.
         }
+
 
         FriendRequestNotifier notifier = FriendRequestNotifier.getInstance();
         notifier.startListeningIncomingRequests(this, currentUserId, currentUserFirestoreInstance);
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         final ImageView ivMap = findViewById(R.id.ivMap);
         final ImageView ivSearch = findViewById(R.id.ivSearch);
         final ImageView ivNotification = findViewById(R.id.ivNotification);
+
 
         ivHome.setOnClickListener(view -> {
             Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show();
@@ -167,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Notifications Clicked", Toast.LENGTH_SHORT).show();
             navController.navigate(R.id.notificationFragment);
         });
+
+
     }
 
     private void setupNotificationListener() {
@@ -178,16 +187,12 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Exception e) {
-                // Hide the badge if there's an error.
+                // Optionally, if there's an error (or if no friend request exists), hide the badge.
                 runOnUiThread(() -> updateNotificationIcon(false));
             }
         });
     }
 
-    /**
-     * Sets up a listener to detect new mood posts from users the current user follows.
-     * When a new mood is posted by a followed user (excluding the current user), a post notification is sent.
-     */
     private void setupNewPostNotificationListener() {
         // First, fetch the current user's data to get the list of followed user IDs.
         currentUserFirestoreInstance.getUser(currentUserId, new FirestoreHelper.FirestoreCallback() {
@@ -231,6 +236,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+
     public void updateNotificationIcon(boolean hasNotifications) {
         ImageView ivNotification = findViewById(R.id.ivNotification);
         if (ivNotification != null) {
@@ -241,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -268,4 +279,7 @@ public class MainActivity extends AppCompatActivity {
     public String getCurrentUserId() {
         return currentUserId;
     }
+
+
+
 }
