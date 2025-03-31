@@ -30,6 +30,7 @@ public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
         Log.d(TAG, "Starting test: addMoodShouldAddValidMoodEntry");
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());
+        SystemClock.sleep(5000);
 
         // Verify the Add Mood UI is displayed (checking the title)
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));

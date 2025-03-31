@@ -20,10 +20,6 @@ import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 @LargeTest
 public class PostPrivateMoodIntentTestMainActivity extends BaseMainActivityUITest {
-    /*
-    TODO - Do we need to login as another user and check this? Or is being able to post a private mood enough
-     */
-    @Test
     public void addPrivateMoodShouldAddValidMoodEntry() {
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());

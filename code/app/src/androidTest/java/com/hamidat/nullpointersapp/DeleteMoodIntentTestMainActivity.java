@@ -83,7 +83,7 @@ public class DeleteMoodIntentTestMainActivity extends BaseMainActivityUITest {
         SystemClock.sleep(1000);
 
         // Small wait to let EditMoodFragment load
-        SystemClock.sleep(1000);
+        SystemClock.sleep(4000);
 
 
         // Check that it’s the expected second mood that still exists
