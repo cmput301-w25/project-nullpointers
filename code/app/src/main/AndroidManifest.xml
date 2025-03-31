@@ -53,7 +53,8 @@
             </intent-filter>
         </activity>
         <!-- Main Activity (After successful login) -->
-        <activity android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp"/>
+        <activity
+            android:name=".MainActivity" android:theme="@style/Theme.NullPointersApp" android:windowSoftInputMode="adjustResize" />
         <receiver android:name="com.hamidat.nullpointersapp.utils.notificationUtils.FriendRequestActionReceiver" />
         <!-- test container for FragmentScenario -->
         <activity
