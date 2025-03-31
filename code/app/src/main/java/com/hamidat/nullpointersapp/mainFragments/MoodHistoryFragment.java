@@ -426,6 +426,8 @@ public class MoodHistoryFragment extends Fragment {
         final View root = getView();
         if (root == null) return;
         filterPanel.setVisibility(View.VISIBLE);
+        filterPanel.setClickable(true);
+        filterPanel.setOnTouchListener((v, event) -> true);
         root.post(() -> {
             int rootHeight = root.getHeight();
             int panelHeight = filterPanel.getHeight();
@@ -448,7 +450,11 @@ public class MoodHistoryFragment extends Fragment {
             filterPanel.animate()
                     .y(rootHeight)
                     .setDuration(300)
-                    .withEndAction(() -> filterPanel.setVisibility(View.GONE))
+                    .withEndAction(() -> {
+                            filterPanel.setVisibility(View.GONE);
+                            filterPanel.setVisibility(View.GONE);
+                            }
+                    )
                     .start();
         });
     }
