@@ -7,6 +7,7 @@
  */
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -166,10 +167,15 @@ public class NotificationFragment extends Fragment {
                                     }
                                 }
                                 notifications.add(new NotificationItem(requestId, fromUserId, username, finalTs, "friend_request"));
-                                requireActivity().runOnUiThread(() -> {
-                                    adapter.notifyDataSetChanged();
-                                    ((MainActivity) getActivity()).updateNotificationIcon(!notifications.isEmpty());
-                                });
+                                if (isAdded()) {
+                                    Activity activity = getActivity();
+                                    if (activity != null) {
+                                        activity.runOnUiThread(() -> {
+                                            adapter.notifyDataSetChanged();
+                                            ((MainActivity) activity).updateNotificationIcon(!notifications.isEmpty());
+                                        });
+                                    }
+                                }
                             }
 
                             /**

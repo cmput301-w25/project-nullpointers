@@ -11,10 +11,12 @@ import android.util.Log;
 import androidx.core.content.FileProvider;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -35,7 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class RejectTooLargePhotographIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TAG = "AddMoodWithTooLargePhotoTest";

@@ -30,7 +30,7 @@ public class AcceptFollowRequestIntentTestMainActivity extends BaseMainActivityU
     public void acceptAFollowRequest() {
         // Tap the notification icon
         // wait for the system notification to go away
-        SystemClock.sleep(10000);
+        SystemClock.sleep(20000);
         onView(withId(R.id.ivNotification)).perform(click());
         onView(withId(R.id.ivNotification)).check(matches(isDisplayed()));
 

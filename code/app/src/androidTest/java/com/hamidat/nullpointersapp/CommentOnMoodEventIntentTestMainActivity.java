@@ -37,17 +37,32 @@ public class CommentOnMoodEventIntentTestMainActivity extends BaseMainActivityUI
                 "Alone",
                 false
         );
+        SystemClock.sleep(10000);
     }
 
     @Test
     public void commentOnMood() {
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
-        SystemClock.sleep(2000);
+        SystemClock.sleep(10000);
 
-        // Click the comment button on the most recent mood
-        onView(withId(R.id.rvMoodList))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0,
-                        ViewActionsHelper.clickChildViewWithId(R.id.btnComment)));
+       // Wait for RecyclerView to have at least 1 item (position 0 will now exist)
+        boolean itemAppeared = false;
+        for (int i = 0; i < 15; i++) {
+            try {
+                onView(withId(R.id.rvMoodList))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(0,
+                                ViewActionsHelper.clickChildViewWithId(R.id.btnComment)));
+                itemAppeared = true;
+                break; // success
+            } catch (Exception e) {
+                SystemClock.sleep(1000); // wait and retry
+            }
+        }
+
+        if (!itemAppeared) {
+            throw new AssertionError("rvMoodList never populated with any items.");
+        }
+
 
         SystemClock.sleep(2000); // Let the comment dialog open
 
