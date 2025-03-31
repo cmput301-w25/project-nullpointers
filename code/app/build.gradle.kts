@@ -64,7 +64,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("org.robolectric:robolectric:4.8.1")
-    testImplementation("org.robolectric:shadows-webkit:4.8.2")
 
     // Android test dependencies
     androidTestImplementation("androidx.test:core:1.5.0")

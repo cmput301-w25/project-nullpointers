@@ -48,6 +48,9 @@ public class NetworkMonitor {
      */
     public void startMonitoring() {
         networkCheckRunnable = new Runnable() {
+            /**
+             * Runs the network connectivity check and displays a Toast with the result.
+             */
             @Override
             public void run() {
                 boolean isConnected = isNetworkConnected();

@@ -96,10 +96,22 @@ public class FirestoreFollowing {
                                 .update("status", "accepted")
                                 .addOnSuccessListener(aVoid -> {
                                     updateUserFollowing(fromUserId, toUserId, new FollowingCallback() {
+                                        /**
+                                         * Called when the first user's following list is successfully updated.
+                                         * Updates the second user's following list.
+                                         *
+                                         * @param result The result of the operation.
+                                         */
                                         @Override
                                         public void onSuccess(Object result) {
                                             updateUserFollowing(toUserId, fromUserId, callback);
                                         }
+
+                                        /**
+                                         * Called when the first user's following list update fails.
+                                         *
+                                         * @param e The exception that occurred during the operation.
+                                         */
                                         @Override
                                         public void onFailure(Exception e) {
                                             callback.onFailure(e);

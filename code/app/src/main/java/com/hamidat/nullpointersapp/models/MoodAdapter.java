@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +28,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.hamidat.nullpointersapp.R;
-import com.hamidat.nullpointersapp.mainFragments.DeleteMoodFragment;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood;
 import com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreHelper;
 import com.hamidat.nullpointersapp.utils.homeFeedUtils.CommentsBottomSheetFragment;
@@ -55,11 +53,14 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
     private final List<Mood> moods;
     private final String currentUserId;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault());
     private FirestoreHelper firestoreHelper;
     private OnProfileClickListener profileClickListener;
     private final AppCompatActivity activity; // Store activity reference
 
+    /**
+     * Interface for handling profile click events.
+     */
     public interface OnProfileClickListener {
         void onProfileClick(String userId);
     }
@@ -70,6 +71,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
      *
      * @param moods         List of Mood objects to display.
      * @param currentUserId The ID of the currently signed-in user.
+     * @param activity      The activity context.
      */
     public MoodAdapter(List<Mood> moods, String currentUserId, AppCompatActivity activity) {
         this.moods = moods;
@@ -79,6 +81,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
 
+    /**
+     * Determines the view type based on whether the mood belongs to the current user.
+     *
+     * @param position The position of the item within the adapter's data set.
+     * @return The view type of the item at position.
+     */
     @Override
     public int getItemViewType(int position) {
         Mood mood = moods.get(position);
@@ -87,6 +95,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 R.layout.item_mood_card_public;
     }
 
+    /**
+     * Creates a new ViewHolder for the item view.
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new MoodViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -95,6 +110,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         return new MoodViewHolder(itemView);
     }
 
+    /**
+     * Binds data to the ViewHolder, including handling partial updates through payloads.
+     *
+     * @param holder   The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     * @param payloads A list of payloads associated with the change.
+     */
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty()) {
@@ -118,6 +140,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
 
+    /**
+     * Binds data to the ViewHolder, including setting up click listeners and displaying mood details.
+     *
+     * @param holder   The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood currentMood = moods.get(position);
@@ -191,6 +219,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                     Mood moodToDelete = moods.get(adapterPosition);
                     new com.hamidat.nullpointersapp.utils.firebaseUtils.FirestoreDeleteMood(FirebaseFirestore.getInstance())
                             .deleteMood(moodToDelete.getUserId(), moodToDelete, new FirestoreHelper.FirestoreCallback() {
+                                /**
+                                 * Called when the mood is successfully deleted from Firestore.
+                                 * Updates the RecyclerView to reflect the deletion.
+                                 *
+                                 * @param result The result of the deletion operation.
+                                 */
                                 @Override
                                 public void onSuccess(Object result) {
                                     Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
@@ -207,6 +241,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                                         notifyItemRangeChanged(indexToRemove, moods.size());
                                     }
                                 }
+
+                                /**
+                                 * Called when the mood deletion from Firestore fails.
+                                 * Displays an error message.
+                                 *
+                                 * @param e The exception that occurred during the deletion.
+                                 */
                                 @Override
                                 public void onFailure(Exception e) {
                                     Toast.makeText(v.getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -226,6 +267,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
     }
 
+    /**
+     * Displays a dialog with detailed information about the mood.
+     *
+     * @param mood   The Mood object to display.
+     * @param anchor The view that the dialog is anchored to.
+     */
     private void showDetailDialog(Mood mood, View anchor) {
         AlertDialog.Builder b = new AlertDialog.Builder(anchor.getContext());
         View dialogView = LayoutInflater.from(anchor.getContext())
@@ -259,6 +306,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             btnDelete.setOnClickListener(v -> {
                 new FirestoreDeleteMood(FirebaseFirestore.getInstance())
                         .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the mood is successfully deleted from Firestore.
+                             * Updates the RecyclerView and displays a success message.
+                             *
+                             * @param result The result of the deletion operation.
+                             */
                             @Override public void onSuccess(Object result) {
                                 int pos = moods.indexOf(mood);
                                 if (pos != -1) {
@@ -267,6 +320,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                                 }
                                 Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
                             }
+
+                            /**
+                             * Called when the mood deletion from Firestore fails.
+                             * Displays an error message.
+                             *
+                             * @param e The exception that occurred during the deletion.
+                             */
                             @Override public void onFailure(Exception e) {
                                 Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -284,6 +344,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         // showing the username
         firestoreHelper.getUser(mood.getUserId(), new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the user data is successfully retrieved from Firestore.
+             * Sets the username in the dialog.
+             *
+             * @param result The user data retrieved from Firestore as an Object.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -298,6 +364,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 }
             }
 
+            /**
+             * Called when the retrieval of user data from Firestore fails.
+             * Sets the username to "@unknown" in the dialog.
+             *
+             * @param e The exception that occurred during the failure.
+             */
             @Override
             public void onFailure(Exception e) {
                 tvUsername.setText("@unknown");
@@ -360,6 +432,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             // Firestore delete
             new FirestoreDeleteMood(FirebaseFirestore.getInstance())
                     .deleteMood(mood.getUserId(), mood, new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when the mood is successfully deleted from Firestore.
+                         * Removes the mood from the adapter and refreshes the RecyclerView.
+                         *
+                         * @param result The result of the deletion operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             // Remove from adapter and refresh
@@ -370,6 +448,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                             }
                             Toast.makeText(v.getContext(), "Mood deleted successfully.", Toast.LENGTH_SHORT).show();
                         }
+
+                        /**
+                         * Called when the mood deletion from Firestore fails.
+                         * Displays an error message.
+                         *
+                         * @param e The exception that occurred during the deletion.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(v.getContext(), "Error deleting mood: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -388,6 +473,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     *
+     * @return The size of the data set.
+     */
     @Override
     public int getItemCount() {
         return moods.size();
@@ -424,6 +514,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         ImageButton btnLike;
 
 
+        /**
+         * Constructs a new MoodViewHolder.
+         *
+         * @param itemView The view to display the Mood object.
+         */
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMood = itemView.findViewById(R.id.tvMood);
@@ -441,6 +536,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         }
 
+        /**
+         * Binds a Mood object to the views in the ViewHolder.
+         *
+         * @param mood The Mood object to bind.
+         */
         void bind(Mood mood) {
 
             //showing a emoji-color instead of the word on the item cards and dialog
@@ -480,6 +580,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
             // Load profile picture from Firestore user data.
             new FirestoreHelper().getUser(mood.getUserId(), new FirestoreHelper.FirestoreCallback() {
+                /**
+                 * Called when the user data is successfully retrieved from Firestore.
+                 * Sets the profile picture in the ImageView if available.
+                 *
+                 * @param result The user data retrieved from Firestore as an Object.
+                 */
                 @Override
                 public void onSuccess(Object result) {
                     if (result instanceof Map) {
@@ -503,6 +609,13 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                         ivProfile.post(() -> ivProfile.setImageResource(R.drawable.default_user_icon));
                     }
                 }
+
+                /**
+                 * Called when the retrieval of user data from Firestore fails.
+                 * Sets the default user icon in the ImageView.
+                 *
+                 * @param e The exception that occurred during the failure.
+                 */
                 @Override
                 public void onFailure(Exception e) {
                     ivProfile.post(() -> ivProfile.setImageResource(R.drawable.default_user_icon));

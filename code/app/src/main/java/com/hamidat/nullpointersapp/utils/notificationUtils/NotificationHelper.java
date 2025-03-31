@@ -142,6 +142,14 @@ public class NotificationHelper {
         }
     }
 
+    /**
+     * Sends a notification for a new post from a user the current user follows.
+     *
+     * @param context         The context in which the notification is sent.
+     * @param currentUserId   The ID of the current user.
+     * @param senderUsername  The username of the user who made the post.
+     * @param senderUserId    The ID of the user who made the post.
+     */
     public static void sendPostNotification(Context context, String currentUserId, String senderUsername, String senderUserId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

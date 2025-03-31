@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * RecyclerView adapter for displaying mood entries in the home feed.
+ */
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
     private final List<Mood> moodItems;
@@ -31,10 +34,22 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private Context context;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
+    /**
+     * Constructs a new MoodAdapter with the given list of mood items.
+     *
+     * @param moodItems The list of mood entries to display.
+     */
     public MoodAdapter(List<Mood> moodItems) {
         this.moodItems = moodItems;
     }
 
+    /**
+     * Creates a new ViewHolder for a mood item.
+     *
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new MoodViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,6 +60,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         return new MoodViewHolder(view);
     }
 
+    /**
+     * Binds the mood data to the ViewHolder at the specified position.
+     *
+     * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood mood = moodItems.get(position);
@@ -58,6 +79,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         // For testing, fetch and display the username associated with this mood event.
         holder.tvUsername.setText("Username: Loading...");
         firestoreHelper.getUser(mood.getUserId(), new FirestoreHelper.FirestoreCallback() {
+            /**
+             * Called when the user data is successfully retrieved from Firestore.
+             * Sets the username in the TextView.
+             *
+             * @param result The user data retrieved from Firestore.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -71,6 +98,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 }
             }
 
+            /**
+             * Called when the user data retrieval fails.
+             * Sets the TextView to indicate that the username is unavailable.
+             *
+             * @param e The exception that occurred during the failure.
+             */
             @Override
             public void onFailure(Exception e) {
                 holder.tvUsername.post(() -> holder.tvUsername.setText("Username: Unavailable"));
@@ -78,16 +111,29 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         });
     }
 
+    /**
+     * Returns the total number of mood items in the data set held by the adapter.
+     *
+     * @return The size of the mood items list.
+     */
     @Override
     public int getItemCount() {
         return moodItems.size();
     }
 
+    /**
+     * ViewHolder for a mood item.
+     */
     static class MoodViewHolder extends RecyclerView.ViewHolder {
         TextView tvMoodTitle;
         TextView tvUsername;
         TextView tvDate;
 
+        /**
+         * Constructs a new MoodViewHolder.
+         *
+         * @param itemView The View representing a mood item.
+         */
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMoodTitle = itemView.findViewById(R.id.tvMoodTitle);
