@@ -3,10 +3,12 @@ package com.hamidat.nullpointersapp;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -21,6 +23,7 @@ import static com.hamidat.nullpointersapp.SearchForOtherUsersIntentTestMainActiv
 import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 @LargeTest
+@RunWith(AndroidJUnit4.class)
 public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TEST_REASON = "Feeling great!";
     private static final String TAG = "AddMoodIntentTest";
@@ -30,6 +33,7 @@ public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
         Log.d(TAG, "Starting test: addMoodShouldAddValidMoodEntry");
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());
+        SystemClock.sleep(5000);
 
         // Verify the Add Mood UI is displayed (checking the title)
         onView(withId(R.id.tvAddNewMoodEvent)).check(matches(isDisplayed()));
@@ -67,7 +71,7 @@ public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
         // Validate contents in dialog
         Log.d(TAG, "Verifying mood details in the dialog...");
         onView(withId(R.id.tvDialogDescription)).check(matches(withText("Why: " + TEST_REASON)));
-        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡")));
+        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡 - Happy")));
         onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Group")));
 
         Log.d(TAG, "Mood details verified successfully.");

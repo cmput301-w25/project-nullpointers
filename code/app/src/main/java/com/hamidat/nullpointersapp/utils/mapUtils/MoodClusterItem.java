@@ -53,27 +53,77 @@ public class MoodClusterItem implements ClusterItem {
         this.snippet = "Date: " + date + " " + time + "\nLocation: " + position.latitude + ", " + position.longitude + "\nDescription: " + description;
     }
 
+    /**
+     * Returns the geographic location of the mood event.
+     *
+     * @return The LatLng position of the event.
+     */
     @NonNull
     @Override
     public LatLng getPosition() { return position; }
 
+    /**
+     * Returns the title of the mood event, which is the emotion.
+     *
+     * @return The emotion associated with the event.
+     */
     @Override
     public String getTitle() { return title; }
 
+    /**
+     * Returns a snippet of information about the mood event.
+     *
+     * @return A formatted string with date, time, location, and description.
+     */
     @Override
     public String getSnippet() { return snippet; }
 
+    /**
+     * Returns the emotion associated with the mood event.
+     *
+     * @return The emotion string.
+     */
     public String getEmotion() { return emotion; }
 
+    /**
+     * Returns the date of the mood event.
+     *
+     * @return The date string.
+     */
     public String getDate() { return date; }
 
+    /**
+     * Returns the time of the mood event.
+     *
+     * @return The time string.
+     */
     public String getTime() { return time; }
 
+    /**
+     * Returns the description of the mood event.
+     *
+     * @return The description string.
+     */
     public String getDescription() { return description; }
 
+    /**
+     * Returns the social situation associated with the mood event.
+     *
+     * @return The social situation string.
+     */
     public String getSocialSituation() { return socialSituation; }
 
+    /**
+     * Returns the Base64 encoded image associated with the mood event.
+     *
+     * @return The Base64 image string.
+     */
     public String getImageBase64() { return imageBase64; }
 
+    /**
+     * Returns the user ID of the mood event owner.
+     *
+     * @return The user ID string.
+     */
     public String getUserId() { return userId; }
 }

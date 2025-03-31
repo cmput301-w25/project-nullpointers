@@ -6,11 +6,13 @@ import android.view.View;
 
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.BoundedMatcher;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -21,10 +23,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
+@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class SearchForOtherUsersIntentTestMainActivity extends BaseMainActivityUITest {
 
-    private static final String TEST_SEARCH_QUERY = "hamidat";
+    private static final String TEST_SEARCH_QUERY = "hamidatb";
 
     @Test
     public void searchUserAndViewProfileTest() {

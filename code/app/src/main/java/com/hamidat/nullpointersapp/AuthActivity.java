@@ -15,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.hamidat.nullpointersapp.authFragments.LoginFragment;
 
-
-
 /**
  * Handles user authentication by displaying relevant fragments.
  */
@@ -27,7 +25,6 @@ public class AuthActivity extends AppCompatActivity {
      *
      * @param savedInstanceState The previously saved state, if any.
      */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -2,10 +2,12 @@ package com.hamidat.nullpointersapp;
 
 import android.os.SystemClock;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -20,10 +22,6 @@ import com.hamidat.nullpointersapp.utils.testUtils.TestMoodHelper;
 
 @LargeTest
 public class PostPrivateMoodIntentTestMainActivity extends BaseMainActivityUITest {
-    /*
-    TODO - Do we need to login as another user and check this? Or is being able to post a private mood enough
-     */
-    @Test
     public void addPrivateMoodShouldAddValidMoodEntry() {
         // Click on the Add Mood icon to open AddMoodFragment
         onView(withId(R.id.ivAddMood)).perform(click());

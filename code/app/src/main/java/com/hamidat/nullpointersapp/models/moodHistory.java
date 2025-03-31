@@ -29,6 +29,12 @@ public class moodHistory {
      */
     protected ArrayList<Mood> moodArray;
 
+
+    /**
+     * Constructs a new moodHistory for a given user ID.
+     *
+     * @param userID The ID of the user.
+     */
     public moodHistory(String userID) {
         this.moodArray = new ArrayList<>();
     }
@@ -40,7 +46,11 @@ public class moodHistory {
         this.moodArray = new ArrayList<>();
     }
 
-    //Getters and setters
+    /**
+     * Gets the username associated with this mood history.
+     *
+     * @return The username.
+     */
     public String getUserName() {
         return this.userName;
     }
@@ -63,6 +73,11 @@ public class moodHistory {
         return this.moodArray;
     }
 
+    /**
+     * Sets the username for this mood history.
+     *
+     * @param name The username to set.
+     */
     public void setUserName(String name) {
         this.userName = name;
     }
@@ -85,6 +100,11 @@ public class moodHistory {
         this.moodArray.add(mood);
     }
 
+    /**
+     * Sets the mood array for this mood history.
+     *
+     * @param moodArray The list of mood entries to set.
+     */
     public void setMoodArray(ArrayList<Mood> moodArray) {
         this.moodArray = moodArray;
     }

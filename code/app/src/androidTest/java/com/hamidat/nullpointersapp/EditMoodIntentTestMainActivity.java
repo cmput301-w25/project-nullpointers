@@ -80,7 +80,7 @@ public class EditMoodIntentTestMainActivity extends BaseMainActivityUITest {
         // Assert changes are reflected in the dialog
         onView(withId(R.id.tvDialogDescription))
                 .check(matches(withText("Why: Actually, I'm feeling awesome today!")));
-        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡")));
+        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡 - Happy")));
         onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Group")));
 
         Log.d("EditMoodTest", "Verified that edited mood values appear in the detail dialog.");
@@ -91,6 +91,10 @@ public class EditMoodIntentTestMainActivity extends BaseMainActivityUITest {
         TestMoodHelper.deleteMoodByDescription(
                 TEST_USER_ID,
                 "Actually, I'm feeling awesome today!"
+        );
+        TestMoodHelper.deleteMoodByDescription(
+                TEST_USER_ID,
+                "I'm feeling pretty good!"
         );
     }
 }

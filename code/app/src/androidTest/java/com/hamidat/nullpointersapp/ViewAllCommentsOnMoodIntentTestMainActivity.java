@@ -3,6 +3,7 @@ package com.hamidat.nullpointersapp;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -74,24 +75,40 @@ public class ViewAllCommentsOnMoodIntentTestMainActivity extends BaseMainActivit
 
     @Test
     public void viewAllCommentsOnMood() {
+        // Wait for RecyclerView to appear and stabilize
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
+        SystemClock.sleep(1000); // Give time to bind adapter
 
-        // Click the comment button on the most recent mood
+        // Scroll to position 0 to ensure it's fully visible
         onView(withId(R.id.rvMoodList))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0,
-                        ViewActionsHelper.clickChildViewWithId(R.id.btnComment)));
+                .perform(RecyclerViewActions.scrollToPosition(0));
+        SystemClock.sleep(500); // Let scroll finish
 
-        // Wait for the BottomSheet to load
-        SystemClock.sleep(2000);
+        // Now safely perform the click using your helper
+        onView(withId(R.id.rvMoodList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(
+                        0, ViewActionsHelper.clickChildViewWithId(R.id.btnComment)
+                ));
 
-        // Assert all inserted comments are visible
+        // Wait for BottomSheet + comments to load
+        SystemClock.sleep(3000);
+
+        // Scroll to and verify each comment
+        onView(withId(R.id.rvComments))
+                .perform(RecyclerViewActions.scrollTo(
+                        hasDescendant(withText("This is a test comment from Salim"))));
         onView(withText("This is a test comment from Salim")).check(matches(isDisplayed()));
+
+        onView(withId(R.id.rvComments))
+                .perform(RecyclerViewActions.scrollTo(
+                        hasDescendant(withText("This is a test comment from Ogua"))));
         onView(withText("This is a test comment from Ogua")).check(matches(isDisplayed()));
+
+        onView(withId(R.id.rvComments))
+                .perform(RecyclerViewActions.scrollTo(
+                        hasDescendant(withText("This is a test comment from Hamidat"))));
         onView(withText("This is a test comment from Hamidat")).check(matches(isDisplayed()));
-
-        Log.d("ViewAllCommentsTest", "Successfully verified all test comments are displayed.");
     }
-
 
     @After
     public void tearDown() {

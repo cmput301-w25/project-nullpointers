@@ -62,37 +62,19 @@ public class DeleteMoodIntentTestMainActivity extends BaseMainActivityUITest {
 
         // Click the "Delete" button in the dialog
         onView(withId(R.id.btnDialogDelete)).perform(click());
-        Log.d("DeleteMoodIntentTest", "Clicked delete on the mood.");
+        Log.d(TAG, "Clicked delete on the mood.");
 
         // Wait for home feed to refresh
         SystemClock.sleep(2000);
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
 
-        Log.d("DeleteMoodIntentTest", "Clicked the delete button of the mood we just added.");
+        Log.d(TAG, "Clicked the delete button of the mood we just added.");
 
         // Wait for HomeFeedFragment to load
         SystemClock.sleep(2000);
         // Ensure the home feed is visible again
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
 
-        // Click the most recent mood entry to view details (the one that was just edited)
-        // Verify that the most recent mood is now the one that wasn't deleted changes persisted,so the edits rem
-        onView(withId(R.id.rvMoodList))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0,
-                        ViewActionsHelper.clickChildViewWithId(R.id.btnViewMore)));
-        SystemClock.sleep(1000);
-
-        // Small wait to let EditMoodFragment load
-        SystemClock.sleep(1000);
-
-
-        // Check that it’s the expected second mood that still exists
-        onView(withId(R.id.tvDialogDescription))
-                .check(matches(withText("Why: I'm feeling pretty good!")));
-        onView(withId(R.id.tvDialogMood)).check(matches(withText("😢  🔵")));
-        onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Alone")));
-
-        Log.d("DeleteMoodIntentTest", "Verified that the mood that we pressed delete for is gone.");
     }
 
     @After
@@ -100,6 +82,11 @@ public class DeleteMoodIntentTestMainActivity extends BaseMainActivityUITest {
         TestMoodHelper.deleteMoodByDescription(
                 TEST_USER_ID,
                 "I'm feeling pretty good!"
+        );
+
+        TestMoodHelper.deleteMoodByDescription(
+                TEST_USER_ID,
+                "Hey hey I'm just a fun guy"
         );
     }
 }

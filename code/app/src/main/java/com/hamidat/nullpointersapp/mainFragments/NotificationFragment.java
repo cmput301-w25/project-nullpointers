@@ -7,6 +7,7 @@
  */
 package com.hamidat.nullpointersapp.mainFragments;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Fragment that displays user notifications, including friend requests and post notifications.
+ * It fetches and displays notifications using Firestore and handles user interactions such as accepting/declining friend requests
+ * and navigating to user profiles for post notifications.
+ */
 public class NotificationFragment extends Fragment {
 
     private RecyclerView rvNotifications;
@@ -51,7 +57,10 @@ public class NotificationFragment extends Fragment {
     private FirestoreHelper firestoreHelper;
     private String currentUserId;
 
-    // NotificationItem now holds a type field. For friend requests, we use requestId; for posts, we use notificationId.
+    /**
+     * Represents a single notification item, holding the notification ID, sender's user ID,
+     * sender's username, timestamp, and notification type.
+     */
     public static class NotificationItem {
         public String id; // For friend requests, this is requestId; for posts, this is the notification document ID.
         public String fromUserId;
@@ -59,6 +68,15 @@ public class NotificationFragment extends Fragment {
         public long timestamp; // in milliseconds
         public String type;    // "friend_request" or "post"
 
+        /**
+         * Constructs a new NotificationItem.
+         *
+         * @param id         The ID of the notification.
+         * @param fromUserId The user ID of the sender.
+         * @param username   The username of the sender.
+         * @param timestamp  The timestamp of the notification.
+         * @param type       The type of the notification ("friend_request" or "post").
+         */
         public NotificationItem(String id, String fromUserId, String username, long timestamp, String type) {
             this.id = id;
             this.fromUserId = fromUserId;
@@ -68,6 +86,18 @@ public class NotificationFragment extends Fragment {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -75,6 +105,14 @@ public class NotificationFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_notification, container, false);
     }
 
+    /**
+     * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned,
+     * but before any saved state has been restored in to the view.
+     *
+     * @param view               The View returned by onCreateView(LayoutInflater, ViewGroup, Bundle).
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from
+     * a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         rvNotifications = view.findViewById(R.id.rvNotifications);
@@ -87,6 +125,11 @@ public class NotificationFragment extends Fragment {
 
         // Set up friend request listener (old logic).
         firestoreHelper.listenForFriendRequests(currentUserId, new FirestoreFollowing.FollowingCallback() {
+            /**
+             * Called when the operation succeeds.
+             *
+             * @param result The result of the operation.
+             */
             @Override
             public void onSuccess(Object result) {
                 if (result instanceof Map) {
@@ -109,6 +152,11 @@ public class NotificationFragment extends Fragment {
                     if (!exists) {
                         final long finalTs = ts;
                         firestoreHelper.getUser(fromUserId, new FirestoreHelper.FirestoreCallback() {
+                            /**
+                             * Called when the operation succeeds.
+                             *
+                             * @param result The result of the operation.
+                             */
                             @Override
                             public void onSuccess(Object result) {
                                 String username = fromUserId;
@@ -119,17 +167,34 @@ public class NotificationFragment extends Fragment {
                                     }
                                 }
                                 notifications.add(new NotificationItem(requestId, fromUserId, username, finalTs, "friend_request"));
-                                requireActivity().runOnUiThread(() -> {
-                                    adapter.notifyDataSetChanged();
-                                    ((MainActivity) getActivity()).updateNotificationIcon(!notifications.isEmpty());
-                                });
+                                if (isAdded()) {
+                                    Activity activity = getActivity();
+                                    if (activity != null) {
+                                        activity.runOnUiThread(() -> {
+                                            adapter.notifyDataSetChanged();
+                                            ((MainActivity) activity).updateNotificationIcon(!notifications.isEmpty());
+                                        });
+                                    }
+                                }
                             }
+
+                            /**
+                             * Called when the operation fails.
+                             *
+                             * @param e The exception that occurred.
+                             */
                             @Override
                             public void onFailure(Exception e) { }
                         });
                     }
                 }
             }
+
+            /**
+             * Called when the operation fails.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onFailure(Exception e) { }
         });
@@ -178,6 +243,9 @@ public class NotificationFragment extends Fragment {
         btnClearAll.setOnClickListener(v -> clearAllNotifications());
     }
 
+    /**
+     * Clears all notifications for the current user from Firestore.
+     */
     private void clearAllNotifications() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("notifications")
@@ -207,22 +275,42 @@ public class NotificationFragment extends Fragment {
                 });
     }
 
-
+    /**
+     * Adapter for displaying NotificationItems in a RecyclerView.
+     */
     private class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
         private final List<NotificationItem> items;
 
         private static final int TYPE_FRIEND_REQUEST = 0;
         private static final int TYPE_POST = 1;
 
+        /**
+         * Constructs a new NotificationAdapter.
+         *
+         * @param items The list of NotificationItems to display.
+         */
         NotificationAdapter(List<NotificationItem> items) {
             this.items = items;
         }
 
+        /**
+         * Returns the view type of the item at position for the purposes of view recycling.
+         *
+         * @param position position of the item.
+         * @return integer value representing the type of View at the position.
+         */
         public int getItemViewType(int position) {
             NotificationItem item = items.get(position);
             return "post".equals(item.type) ? TYPE_POST : TYPE_FRIEND_REQUEST;
         }
 
+        /**
+         * Called when RecyclerView needs a new RecyclerView.ViewHolder of the given type to represent an item.
+         *
+         * @param parent   The ViewGroup into which the new View will be added after it is bound to an adapter position.
+         * @param viewType The view type of the new View.
+         * @return A new ViewHolder that holds a View of the given view type.
+         */
         @NonNull
         @Override
         public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -237,23 +325,42 @@ public class NotificationFragment extends Fragment {
             return new NotificationViewHolder(view);
         }
 
+        /**
+         * Called by RecyclerView to display the data at the specified position.
+         *
+         * @param holder   The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+         * @param position The position of the item within the adapter's data set.
+         */
         @Override
         public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
             NotificationItem item = items.get(position);
             holder.bind(item);
         }
 
+        /**
+         * Returns the total number of items in the data set held by the adapter.
+         *
+         * @return The total number of items in this adapter.
+         */
         @Override
         public int getItemCount() {
             return items.size();
         }
 
+        /**
+         * ViewHolder for displaying a NotificationItem.
+         */
         class NotificationViewHolder extends RecyclerView.ViewHolder {
             TextView tvMessage;
             TextView tvTimestamp;
             Button btnDecline, btnAccept;
             android.widget.ImageView ivNotificationIcon;
 
+            /**
+             * Constructs a new NotificationViewHolder.
+             *
+             * @param itemView The View to display the NotificationItem.
+             */
             public NotificationViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvMessage = itemView.findViewById(R.id.tvNotificationMessage);
@@ -263,6 +370,11 @@ public class NotificationFragment extends Fragment {
                 ivNotificationIcon = itemView.findViewById(R.id.ivNotificationIcon);
             }
 
+            /**
+             * Binds a NotificationItem to the ViewHolder.
+             *
+             * @param item The NotificationItem to bind.
+             */
             void bind(NotificationItem item) {
                 if ("friend_request".equals(item.type)) {
                     tvMessage.setText(item.username + " has sent you a friend request");
@@ -272,11 +384,22 @@ public class NotificationFragment extends Fragment {
                     if (btnDecline != null) {
                         btnDecline.setOnClickListener(v -> {
                             firestoreHelper.declineFriendRequest(item.id, new FirestoreFollowing.FollowingCallback() {
+                                /**
+                                 * Called when the operation succeeds.
+                                 *
+                                 * @param result The result of the operation.
+                                 */
                                 @Override
                                 public void onSuccess(Object result) {
                                     Toast.makeText(getContext(), "Friend request declined", Toast.LENGTH_SHORT).show();
                                     removeNotification(item);
                                 }
+
+                                /**
+                                 * Called when the operation fails.
+                                 *
+                                 * @param e The exception that occurred.
+                                 */
                                 @Override
                                 public void onFailure(Exception e) {
                                     Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -287,11 +410,22 @@ public class NotificationFragment extends Fragment {
                     if (btnAccept != null) {
                         btnAccept.setOnClickListener(v -> {
                             firestoreHelper.acceptFriendRequest(item.id, new FirestoreFollowing.FollowingCallback() {
+                                /**
+                                 * Called when the operation succeeds.
+                                 *
+                                 * @param result The result of the operation.
+                                 */
                                 @Override
                                 public void onSuccess(Object result) {
                                     Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
                                     removeNotification(item);
                                 }
+
+                                /**
+                                 * Called when the operation fails.
+                                 *
+                                 * @param e The exception that occurred.
+                                 */
                                 @Override
                                 public void onFailure(Exception e) {
                                     Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -303,6 +437,11 @@ public class NotificationFragment extends Fragment {
                     ivNotificationIcon.setImageResource(R.drawable.ic_notification);
                 } else if ("post".equals(item.type)) {
                     firestoreHelper.getUser(item.fromUserId, new FirestoreHelper.FirestoreCallback() {
+                        /**
+                         * Called when the operation succeeds.
+                         *
+                         * @param result The result of the operation.
+                         */
                         @Override
                         public void onSuccess(Object result) {
                             String actualUsername = "Someone";
@@ -335,6 +474,12 @@ public class NotificationFragment extends Fragment {
                                 }
                             }
                         }
+
+                        /**
+                         * Called when the operation fails.
+                         *
+                         * @param e The exception that occurred.
+                         */
                         @Override
                         public void onFailure(Exception e) {
                             getActivity().runOnUiThread(() -> {
@@ -361,6 +506,11 @@ public class NotificationFragment extends Fragment {
         }
     }
 
+    /**
+     * Removes a notification from the list and Firestore.
+     *
+     * @param item The NotificationItem to remove.
+     */
     private void removeNotification(NotificationItem item) {
         notifications.remove(item);
         requireActivity().runOnUiThread(() -> {
@@ -370,6 +520,12 @@ public class NotificationFragment extends Fragment {
         FirebaseFirestore.getInstance().collection("notifications").document(item.id).delete();
     }
 
+    /**
+     * Returns a human-readable string representing the time difference between the given timestamp and the current time.
+     *
+     * @param timeMillis The timestamp in milliseconds.
+     * @return A string representing the time ago.
+     */
     private String getTimeAgo(long timeMillis) {
         long now = System.currentTimeMillis();
         long diff = now - timeMillis;
