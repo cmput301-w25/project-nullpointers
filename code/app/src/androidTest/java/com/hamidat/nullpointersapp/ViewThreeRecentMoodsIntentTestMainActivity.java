@@ -16,10 +16,21 @@ import android.util.Log;
 
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
+import com.hamidat.nullpointersapp.utils.testUtils.TestUsersHelper;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ViewThreeRecentMoodsIntentTestMainActivity extends BaseMainActivityUITest {
     private static final String TEST_SEARCH_QUERY = "hamihami";
+
+    @Before
+    public void addFollowingBetween() {
+        Log.d("ViewThreeRecentMoodsTest", "Adding following relationship for test setup...");
+        TestUsersHelper.insertFollowingBetween(TEST_USER_ID, HAMIHAMI_USER_ID);
+        SystemClock.sleep(2000); // Allow Firestore to process
+    }
 
     @Test
     public void viewTheOtherUsersProfileForMoods() {
@@ -49,4 +60,10 @@ public class ViewThreeRecentMoodsIntentTestMainActivity extends BaseMainActivity
 
         Log.d("ViewThreeRecentMoodsIntentTest", "3 mood events are visible");
     }
-}
+
+    @After
+    public void removeFollowingBetween() {
+        Log.d("ViewThreeRecentMoodsTest", "Cleaning up following relationship...");
+        TestUsersHelper.removeFollowingBetween(TEST_USER_ID, HAMIHAMI_USER_ID);
+        SystemClock.sleep(1500); // Allow Firestore to process
+    }}
