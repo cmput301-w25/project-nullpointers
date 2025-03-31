@@ -78,7 +78,6 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         View layoutEditProfile = view.findViewById(R.id.layout_edit_profile);
         View layoutUpdateStatus = view.findViewById(R.id.layout_update_status);
-        View layoutNotifications = view.findViewById(R.id.layout_notifications);
         View layoutLogout = view.findViewById(R.id.layout_logout);
 
         firestoreHelper = ((MainActivity) getActivity()).getFirestoreHelper();
@@ -187,10 +186,6 @@ public class SettingsFragment extends Fragment {
 
             dialog.show();
         });
-
-
-        layoutNotifications.setOnClickListener(v ->
-                Toast.makeText(getActivity(), "Notifications clicked", Toast.LENGTH_SHORT).show());
 
         layoutLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
