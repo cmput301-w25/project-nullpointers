@@ -67,7 +67,7 @@ public class AddMoodIntentTestMainActivity extends BaseMainActivityUITest {
         // Validate contents in dialog
         Log.d(TAG, "Verifying mood details in the dialog...");
         onView(withId(R.id.tvDialogDescription)).check(matches(withText("Why: " + TEST_REASON)));
-        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡")));
+        onView(withId(R.id.tvDialogMood)).check(matches(withText("😊  🟡 - Happy")));
         onView(withId(R.id.tvDialogSocial)).check(matches(withText("Situation: Group")));
 
         Log.d(TAG, "Mood details verified successfully.");

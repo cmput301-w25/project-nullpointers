@@ -101,5 +101,10 @@ public class DeleteMoodIntentTestMainActivity extends BaseMainActivityUITest {
                 TEST_USER_ID,
                 "I'm feeling pretty good!"
         );
+
+        TestMoodHelper.deleteMoodByDescription(
+                TEST_USER_ID,
+                "Hey hey I'm just a fun guy"
+        );
     }
 }
