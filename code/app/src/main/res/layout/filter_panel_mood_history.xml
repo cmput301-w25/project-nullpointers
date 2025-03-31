@@ -289,8 +289,14 @@
         <EditText
             android:id="@+id/etReasonFilter"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter keyword" />
+            android:layout_height="50dp"
+            android:hint="Enter keyword"
+            android:maxLines="1"
+            android:maxLength="200"
+            android:scrollbars="vertical"
+            android:gravity="bottom"
+            android:overScrollMode="always"
+            android:inputType="textMultiLine" />
     </LinearLayout>
 
     <!-- Apply and Reset Buttons Section -->

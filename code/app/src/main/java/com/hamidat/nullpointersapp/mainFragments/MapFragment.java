@@ -525,6 +525,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void showFilterPanel() {
         filterPanelContainer.setVisibility(View.VISIBLE);
+        filterPanelContainer.setClickable(true);
+        filterPanelContainer.setOnTouchListener((v, event) -> true);
+
+
         filterPanelContainer.post(() -> {
             float panelHeight = filterPanelContainer.getHeight();
             filterPanelContainer.setTranslationY(-panelHeight);
@@ -544,7 +548,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             filterPanelContainer.animate()
                     .translationY(-panelHeight)
                     .setDuration(300)
-                    .withEndAction(() -> filterPanelContainer.setVisibility(View.GONE))
+                    .withEndAction(() -> {
+                        filterPanelContainer.setOnTouchListener(null);
+                        filterPanelContainer.setVisibility(View.GONE);
+                    })
                     .start();
         });
     }

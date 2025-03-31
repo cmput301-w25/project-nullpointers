@@ -2,16 +2,23 @@ package com.hamidat.nullpointersapp;
 
 import android.util.Base64;
 
+import com.google.maps.android.SphericalUtil;
 import com.hamidat.nullpointersapp.mainFragments.FollowingFragment;
 import com.hamidat.nullpointersapp.mainFragments.SearchFragment;
 import com.hamidat.nullpointersapp.models.Mood;
+import com.google.android.gms.maps.model.LatLng;
+import com.hamidat.nullpointersapp.utils.mapUtils.MoodClusterItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.text.SimpleDateFormat;
 
 /**
  * Utility class for common test-related helper methods.
@@ -290,4 +297,51 @@ public class TestHelper {
         return filteredList;
     }
 
+    /**
+     * Filters a list of mood cluster items based on selected emotions, date range, and proximity.
+     *
+     * @param allItems        The complete list of {@link MoodClusterItem} objects to filter.
+     * @param selectedMoods   A set of mood strings (e.g., "Happy", "Sad") to include in the results.
+     * @param fromDate        The start date of the filter range (inclusive). Can be null if no start date.
+     * @param toDate          The end date of the filter range (inclusive). Can be null if no end date.
+     * @param currentLocation The user's current location, used for proximity filtering.
+     * @param filterNearby    If true, only include moods within 5km of the current location.
+     *                        If false, proximity is ignored.
+     *
+     * @return A list of {@link MoodClusterItem} objects that match all given filter criteria.
+     */
+    public static List<MoodClusterItem> filterMoodItems(
+            List<MoodClusterItem> allItems,
+            Set<String> selectedMoods,
+            Date fromDate,
+            Date toDate,
+            LatLng currentLocation,
+            boolean filterNearby
+    ) {
+        List<MoodClusterItem> filtered = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        for (MoodClusterItem item : allItems) {
+            boolean matchesProximity = !filterNearby || (currentLocation != null &&
+                    SphericalUtil.computeDistanceBetween(currentLocation, item.getPosition()) <= 5000);
+
+            boolean matchesEmotion = selectedMoods.contains(item.getEmotion());
+
+            boolean matchesDate = true;
+            try {
+                Date itemDate = dateFormat.parse(item.getDate());
+                if (fromDate != null && toDate != null) {
+                    matchesDate = !itemDate.before(fromDate) && !itemDate.after(toDate);
+                }
+            } catch (Exception e) {
+                matchesDate = false;
+            }
+
+            if (matchesProximity && matchesEmotion && matchesDate) {
+                filtered.add(item);
+            }
+        }
+
+        return filtered;
+    }
 }
