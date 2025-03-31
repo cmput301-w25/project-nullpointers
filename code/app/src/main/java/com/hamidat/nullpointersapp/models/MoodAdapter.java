@@ -196,6 +196,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         // Show or hide the "edited" label.
         holder.tvEdited.setVisibility(currentMood.isEdited() ? View.VISIBLE : View.GONE);
         holder.tvPrivate.setVisibility(currentMood.isPrivate() ? View.VISIBLE : View.GONE);
+        holder.ivPrivate.setVisibility(currentMood.isPrivate() ? View.VISIBLE : View.GONE);
 
         boolean isOwnMood = currentMood.getUserId() != null && currentMood.getUserId().equals(currentUserId);
         if (isOwnMood) {
@@ -502,7 +503,6 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         TextView tvTimestamp;
         TextView tvSocialSituation;
         TextView tvLikeCount;
-
         ShapeableImageView ivProfile;
         ImageView ivMoodImage;
         Button btnEdit;
@@ -510,7 +510,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         Button btnDelete;
         Button btnViewMore;
         private OnProfileClickListener profileClickListener;
-
+        ImageView ivPrivate; // Add this line
         ImageButton btnLike;
 
 
@@ -533,7 +533,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             btnViewMore = itemView.findViewById(R.id.btnViewMore);
             btnLike = itemView.findViewById(R.id.btnLike);
             tvLikeCount = itemView.findViewById(R.id.tvLikeCount);
-
+            ivPrivate = itemView.findViewById(R.id.ivDialogPrivate);
         }
 
         /**
@@ -560,7 +560,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
 
 
-
+            ivPrivate.setVisibility(mood.isPrivate() ? View.VISIBLE : View.GONE);
             tvMoodDescription.setText("Description: " + mood.getMoodDescription());
 
             // NEW FORMAT -- date to only show month, day, and time (e.g. “Mar 22 09:00 AM”)
