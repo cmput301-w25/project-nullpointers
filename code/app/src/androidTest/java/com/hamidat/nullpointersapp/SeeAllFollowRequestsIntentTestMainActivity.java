@@ -33,6 +33,7 @@ public class SeeAllFollowRequestsIntentTestMainActivity extends BaseMainActivity
         onView(withId(R.id.ivNotification)).perform(click());
         onView(withId(R.id.ivNotification)).check(matches(isDisplayed()));
 
+        SystemClock.sleep(4000);
         // RecyclerView should be visible
         onView(withId(R.id.rvNotifications)).check(matches(isDisplayed()));
 

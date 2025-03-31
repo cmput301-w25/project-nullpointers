@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.allOf;
 @LargeTest
 public class SearchForOtherUsersIntentTestMainActivity extends BaseMainActivityUITest {
 
-    private static final String TEST_SEARCH_QUERY = "hamidat";
+    private static final String TEST_SEARCH_QUERY = "hamidatb";
 
     @Test
     public void searchUserAndViewProfileTest() {

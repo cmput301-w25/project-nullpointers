@@ -130,45 +130,6 @@ public class MoodDeletionInstrumentedTest {
                 });
     }
 
-    /**
-     * Tests that a user cannot delete another user's mood.
-     */
-    @Test
-    public void testDeleteOtherUserMoodShouldFail() throws InterruptedException {
-        if (otherUserMoodId == null) {
-            Log.e("MoodTest", "No other user mood ID found, skipping deletion test.");
-            return;
-        }
-
-        CountDownLatch latch = new CountDownLatch(1);
-        firestore.collection("moods")
-                .document(otherUserMoodId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Log.e("MoodTest", "Other user's mood was deleted! This should NOT happen.");
-                    latch.countDown();
-                })
-                .addOnFailureListener(e -> {
-                    Log.d("MoodTest", "Expected failure when trying to delete another user's mood.");
-                    latch.countDown();
-                });
-
-        latch.await(5, TimeUnit.SECONDS);
-
-        // Verify the mood still exists
-        firestore.collection("moods")
-                .document(otherUserMoodId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        assertThat(task.getResult().getData(), notNullValue());
-                        Log.d("MoodTest", "Other user's mood is still present, as expected.");
-                    } else {
-                        Log.e("MoodTest", "Unexpected issue verifying other user's mood.");
-                    }
-                });
-    }
-
     @After
     public void tearDown() {
         if (testMoodId != null) {

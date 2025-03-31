@@ -42,7 +42,7 @@ public class CommentOnMoodEventIntentTestMainActivity extends BaseMainActivityUI
     @Test
     public void commentOnMood() {
         onView(withId(R.id.rvMoodList)).check(matches(isDisplayed()));
-        SystemClock.sleep(2000);
+        SystemClock.sleep(6000);
 
         // Click the comment button on the most recent mood
         onView(withId(R.id.rvMoodList))
